@@ -120,10 +120,10 @@ export async function initMap(containerId = 'map-canvas') {
     return mapInstance;
   }
 
-  // Create Leaflet instance (City zoom 6, world minZoom 2)
+  // Create Leaflet instance (City zoom 7, world minZoom 2)
   mapInstance = L.map(containerId, {
     center: [GWACHEON_BASE.lat, GWACHEON_BASE.lng],
-    zoom: 6,
+    zoom: 7,
     minZoom: 2,
     maxZoom: 14,
     zoomControl: false,
@@ -398,12 +398,12 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   // Update Map Overlay Text Bar
   updateMapOverlayBar(statusData);
 
-  // Initial Camera Positioning: In-flight 3, City/Home 6, World 2
+  // Initial Camera Positioning: In-flight 5, City/Home 7, World 2
   if (!preserveCamera) {
     if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
-      mapInstance.setView(coords, 3);
+      mapInstance.setView(coords, 5);
     } else if (statusData.status === STATUS_TYPES.HOME || statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
-      mapInstance.setView(coords, 6);
+      mapInstance.setView(coords, 7);
     } else {
       mapInstance.setView([25, 130], 2);
     }
@@ -431,7 +431,8 @@ function updateMapOverlayBar(statusData) {
       ? `${statusData.flight.arrAirport.city.split('/')[0]} (${statusData.flight.to})`
       : '목적지';
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
-    textEl.textContent = `도착지 · ${destName} ${pct}%`;
+    const remainingPart = statusData.remainingTimeText ? ` · ${statusData.remainingTimeText}` : '';
+    textEl.textContent = `도착지 · ${destName} ${pct}%${remainingPart}`;
   } else if (statusData.nextFlight) {
     const nextAp = statusData.nextFlight.arrAirport;
     const nextCity = nextAp ? nextAp.city.split('/')[0] : statusData.nextFlight.to;
@@ -483,6 +484,6 @@ export function focusCurrentLocation() {
     return;
   }
   const coords = lastStatusData.coords;
-  const targetZoom = lastStatusData.status === STATUS_TYPES.IN_FLIGHT ? 3 : 6;
+  const targetZoom = lastStatusData.status === STATUS_TYPES.IN_FLIGHT ? 5 : 7;
   mapInstance.setView(coords, targetZoom);
 }

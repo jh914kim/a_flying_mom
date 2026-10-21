@@ -841,11 +841,19 @@ html[data-theme="hellokitty"] .journey-badge-pill {
   transform: rotate(45deg);
 }
 
-.btn-refresh-screen:active,
+@keyframes refresh-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.btn-refresh-screen:active {
+  transform: rotate(45deg);
+}
+
 .btn-refresh-screen.is-spinning {
-  transform: rotate(360deg);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: refresh-spin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .btn-refresh-screen:focus-visible {
@@ -906,11 +914,37 @@ html[data-theme="hellokitty"] .journey-badge-pill {
   font-weight: 800;
 }
 
+.status-desc-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+  margin-top: 4px;
+}
+
 .status-sub-desc {
   font-size: 0.88rem;
   color: var(--color-text-sub);
   margin-top: 4px;
   line-height: 1.4;
+}
+
+.status-desc-row .status-sub-desc {
+  margin-top: 0;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-remaining-time {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* In-flight Progress Bar */

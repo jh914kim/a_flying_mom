@@ -130,14 +130,46 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       const depCity = f.depAirport ? f.depAirport.city.split('/')[0] : f.from;
       const dirParticle = getDirectionParticle(targetCity);
 
+      // Check if arriving into Incheon (ICN) or Gimpo (GMP)
+      const arrCode = (f.arrAirport?.code || f.to || '').toUpperCase();
+      const arrCity = f.arrAirport?.city || '';
+      const isReturningToKorea = isKoreaBase(arrCode) || 
+                                ['ICN', 'GMP'].includes(arrCode) || 
+                                arrCity.includes('인천') || 
+                                arrCity.includes('김포') ||
+                                String(f.to).includes('인천') ||
+                                String(f.to).includes('김포');
+
+      const displayTitle = isReturningToKorea
+        ? '엄마는 한국으로 오고 있어요'
+        : `엄마는 ${targetCity}${dirParticle} 날아가고 있어요`;
+
+      // Calculate remaining flight time
+      const remainingMs = Math.max(0, arrTs - nowTs);
+      const remainingTotalMin = Math.round(remainingMs / (1000 * 60));
+      const remainingH = Math.floor(remainingTotalMin / 60);
+      const remainingM = remainingTotalMin % 60;
+      let remainingFormatted = '';
+      if (remainingH > 0 && remainingM > 0) {
+        remainingFormatted = `${remainingH}시간 ${remainingM}분`;
+      } else if (remainingH > 0) {
+        remainingFormatted = `${remainingH}시간`;
+      } else if (remainingM > 0) {
+        remainingFormatted = `${remainingM}분`;
+      } else {
+        remainingFormatted = '1분 미만';
+      }
+      const remainingTimeText = `남은 비행시간 ${remainingFormatted}`;
+
       return {
         status: STATUS_TYPES.IN_FLIGHT,
         badgeText: '예정상 비행 중',
         badgeType: 'flight',
-        cityHighlight: targetCity,
+        isReturningToKorea,
+        cityHighlight: isReturningToKorea ? '한국' : targetCity,
         destCityName: targetCity,
-        title: `엄마는 ${targetCity}${dirParticle} 날아가고 있어요`,
-        description: `${f.number} · ${depCity} → ${targetCity} · 예정 비행시간 기준`,
+        title: displayTitle,
+        description: `${f.number} · ${depCity} → ${targetCity}`,
         locationName: `${f.from} ➔ ${f.to}`,
         airport: f.arrAirport, // Weather is for arrival destination
         weatherAirport: f.arrAirport,
@@ -147,6 +179,9 @@ export function determineCurrentStatus(nowUtc = new Date()) {
         flight: f,
         nextFlight: timeline[i + 1] || null,
         progress,
+        remainingMs,
+        remainingFormatted,
+        remainingTimeText,
         flightPath: generateGreatCirclePath(fromCoords, toCoords)
       };
     }

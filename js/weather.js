@@ -9,6 +9,13 @@ const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const weatherCache = new Map();
 
 /**
+ * Clear client-side weather cache for manual refresh
+ */
+export function clearWeatherCache() {
+  weatherCache.clear();
+}
+
+/**
  * Maps WMO weather interpretation codes to Korean descriptions & SVG icons
  */
 export function getWeatherMeta(code) {

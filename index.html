@@ -6,6 +6,18 @@
   <meta name="description" content="a flying mom - 승무원 스케줄 기반 예상 위치, 현지 시각·날씨, 여정 및 비행 달력 서비스">
   <title>a flying mom</title>
   
+  <!-- Immediate theme restoration before paint to prevent theme flash -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('flyingmom_theme');
+        if (saved && saved !== 'default') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  
   <!-- Favicon SVG -->
   <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
   
@@ -119,7 +131,10 @@
         <h2 class="status-headline" id="status-card-title">
           엄마의 일정을 확인하는 중...
         </h2>
-        <p class="status-sub-desc" id="status-card-desc">스케줄 정보를 불러오고 있습니다.</p>
+        <div class="status-desc-row">
+          <p class="status-sub-desc" id="status-card-desc">스케줄 정보를 불러오고 있습니다.</p>
+          <span class="status-remaining-time" id="status-remaining-time"></span>
+        </div>
       </div>
 
       <!-- In-Flight Progress Bar -->
