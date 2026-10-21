@@ -512,7 +512,7 @@ export function handleDownloadMonthJson() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    alert(`✅ ${currentEditingMonth} 비행 일정 파일이 저장되었습니다!\n\n파일명: flyingmom-schedule-${currentEditingMonth}.json (${bundle.flights.length}편)\n\n이 파일을 카카오톡이나 메시지로 아이(키즈폰)에게 보내주세요.`);
+    alert(`✅ ${currentEditingMonth} 비행 일정 파일이 저장되었습니다!\n\n파일명: flyingmom-schedule-${currentEditingMonth}.json (${bundle.flights.length}편)\n\n이 파일을 카카오톡이나 메시지로 가족에게 보내주세요.`);
   } catch (err) {
     console.error('JSON export error:', err);
     alert(`파일 다운로드 실패: ${err.message}`);
