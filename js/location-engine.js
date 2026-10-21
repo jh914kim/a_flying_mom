@@ -205,6 +205,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
     const airport = prevFlight.arrAirport || getAirport(prevFlight.to);
     const city = airport ? airport.city.split('/')[0] : prevFlight.to;
     const coords = airport ? [airport.lat, airport.lng] : [GWACHEON_BASE.lat, GWACHEON_BASE.lng];
+    const nextDepCity = nextFlight && nextFlight.depAirport ? nextFlight.depAirport.city.split('/')[0] : (nextFlight ? nextFlight.from : '');
     const nextCity = nextFlight && nextFlight.arrAirport ? nextFlight.arrAirport.city.split('/')[0] : (nextFlight ? nextFlight.to : '');
 
     return {
@@ -214,7 +215,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       cityHighlight: city,
       destCityName: city,
       title: `엄마는 ${city}에 머무르고 있어요`,
-      description: nextFlight ? `${prevFlight.number} 도착 후 체류 중 · 다음 비행: ${nextFlight.number} (${prevFlight.to} → ${nextCity || nextFlight.to})` : `${prevFlight.number} 도착 후 현지 체류 중`,
+      description: nextFlight ? `${prevFlight.number} 도착 후 체류 중 · 다음 비행: ${nextFlight.number} (${nextDepCity || prevFlight.to} → ${nextCity || nextFlight.to})` : `${prevFlight.number} 도착 후 현지 체류 중`,
       locationName: airport ? `${airport.city} (${airport.code})` : prevFlight.to,
       airport: airport || GWACHEON_BASE,
       weatherAirport: airport || GWACHEON_BASE,
@@ -251,6 +252,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
   }
 
   // 5. If has schedule in current month and at home base
+  const nextDepCity = nextFlight && nextFlight.depAirport ? nextFlight.depAirport.city.split('/')[0] : (nextFlight ? nextFlight.from : '');
   const nextCity = nextFlight && nextFlight.arrAirport ? nextFlight.arrAirport.city.split('/')[0] : (nextFlight ? nextFlight.to : '');
   return {
     status: STATUS_TYPES.HOME,
@@ -259,7 +261,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
     cityHighlight: '우리 집',
     destCityName: '우리 집 (과천)',
     title: '엄마는 우리 집에 있어요',
-    description: nextFlight ? `다음 비행: ${nextFlight.number} · ${nextFlight.from} → ${nextCity || nextFlight.to}` : '현재 예정된 비행 일정이 없어요.',
+    description: nextFlight ? `다음 비행: ${nextFlight.number} · ${nextDepCity} → ${nextCity || nextFlight.to}` : '현재 예정된 비행 일정이 없어요.',
     locationName: '과천 (집)',
     airport: GWACHEON_BASE,
     weatherAirport: GWACHEON_BASE,

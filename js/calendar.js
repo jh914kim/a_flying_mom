@@ -568,7 +568,7 @@ function renderFlightsList(daysMeta, monthFlights, hasMonthSchedule, listEl, sho
       const selDay = parseInt(selectedDateStr.slice(8, 10), 10);
 
       const headerBar = createListHeaderBar(
-        `${selMonth}월 ${selDay}일의 비행 일정 · 0개 여정`,
+        `${selMonth}월 ${selDay}일 일정`,
         true
       );
       listEl.appendChild(headerBar);
@@ -605,7 +605,7 @@ function renderFlightsList(daysMeta, monthFlights, hasMonthSchedule, listEl, sho
 
     if (matchedJourneys.length > 0) {
       const headerBar = createListHeaderBar(
-        `${selMonth}월 ${selDay}일 포함 비행 일정 · ${matchedJourneys.length}개 여정`,
+        `${selMonth}월 ${selDay}일 일정`,
         true
       );
       listEl.appendChild(headerBar);
@@ -618,7 +618,7 @@ function renderFlightsList(daysMeta, monthFlights, hasMonthSchedule, listEl, sho
       listEl.appendChild(itemsWrap);
     } else {
       const headerBar = createListHeaderBar(
-        `${selMonth}월 ${selDay}일의 비행 일정 · 0개 여정`,
+        `${selMonth}월 ${selDay}일 일정`,
         true
       );
       listEl.appendChild(headerBar);
