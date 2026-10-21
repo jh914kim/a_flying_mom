@@ -230,6 +230,70 @@ function createPinIcon(L, color = '#1A73E8') {
 }
 
 /**
+ * Creates Home Icon:
+ * - Hello Kitty theme: Relaxing Hello Kitty lying down
+ * - Other themes: 28x36px Home Pin Icon with House SVG
+ */
+function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
+  if (themeId === 'hellokitty') {
+    const html = `
+      <div class="hk-home-marker-wrapper" style="width: 52px; height: 38px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/hk-home-kitty.png" width="50" height="36" alt="우리 집 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-home-pin hk-home-pin',
+      html: html,
+      iconSize: [52, 38],
+      iconAnchor: [26, 19],
+      popupAnchor: [0, -18]
+    });
+  }
+
+  const svg = `
+    <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+        <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
+        <path d="M14 6.8L7.5 12.8H9.5V20H12.5V16H15.5V20H18.5V12.8H20.5L14 6.8Z" fill="${color}"/>
+      </svg>
+    </div>
+  `;
+  return L.divIcon({
+    className: 'custom-home-pin',
+    html: svg,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
+    popupAnchor: [0, -34]
+  });
+}
+
+/**
+ * Creates 28x36px Airport Pin Icon (Option 1: Runway & Jet Takeoff Departure)
+ */
+function createAirportIcon(L, color = '#5f6368') {
+  const svg = `
+    <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25)); display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+        <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
+        <!-- Runway Line Below -->
+        <line x1="7.5" y1="19.5" x2="20.5" y2="19.5" stroke="${color}" stroke-width="1.6" stroke-linecap="round"/>
+        <!-- Jet Climbing Departure 45 deg (Official Airport Signage Symbol) -->
+        <path d="M20 10l-4 1.3-5-4.8-1.4.5 2.9 5.3-3.7 1.1-1.5-1.2-1 .3 1.1 2.7 1.4.4 10.8-3.1c.6-.2 1-.8.8-1.4-.1-.6-.7-.9-1.3-.7z" fill="${color}"/>
+      </svg>
+    </div>
+  `;
+  return L.divIcon({
+    className: 'custom-airport-pin',
+    html: svg,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
+    popupAnchor: [0, -34]
+  });
+}
+
+/**
  * Creates rotated airplane icon:
  * - Default / Asiana / KoreanAir: Modern Jetliner (Option 1: Aerodynamic Style)
  * - Hello Kitty theme: Hello Kitty riding an airplane with East / West heading flip & realistic pitch
@@ -317,6 +381,14 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       zIndexOffset: 1000
     });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
+  } else if (statusData.status === STATUS_TYPES.HOME) {
+    const isHK = theme.id === 'hellokitty';
+    currentMarker = L.marker(coords, {
+      icon: createHomeIcon(L, theme.primaryColor, theme.id),
+      zIndexOffset: 1000
+    });
+    currentMarker.bindTooltip('우리 집', { direction: 'top', offset: isHK ? [0, -19] : [0, -34] });
+    currentMarker.bindPopup(`<b>${statusData.title}</b><br>경기도 과천시 과천대로 8길 65`);
   } else {
     currentMarker = L.marker(coords, {
       icon: createPinIcon(L, theme.primaryColor),
@@ -363,12 +435,28 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     if (statusData.flight && statusData.flight.depAirport) {
       const depAp = statusData.flight.depAirport;
       const depMarker = L.marker([depAp.lat, depAp.lng], {
-        icon: createPinIcon(L, theme.depPinColor)
-      }).bindPopup(`<b>출발 공항</b><br>${depAp.city} (${depAp.code})`).addTo(mapInstance);
+        icon: createAirportIcon(L, theme.depPinColor)
+      });
+      depMarker.bindTooltip(`출발 · ${depAp.city.split('/')[0]} (${depAp.code})`, { direction: 'top', offset: [0, -34] });
+      depMarker.bindPopup(`<b>출발 공항</b><br>${depAp.city} (${depAp.code})`).addTo(mapInstance);
       currentMarkers.push(depMarker);
     }
   } else if (statusData.nextFlightPath) {
     activeSegments = statusData.nextFlightPath;
+
+    // Departure airport marker for upcoming flight (e.g. while mom is at home)
+    if (statusData.nextFlight && statusData.nextFlight.depAirport) {
+      const depAp = statusData.nextFlight.depAirport;
+      const isSameLoc = coords && (Math.abs(depAp.lat - coords[0]) < 0.01 && Math.abs(depAp.lng - coords[1]) < 0.01);
+      if (!isSameLoc) {
+        const depMarker = L.marker([depAp.lat, depAp.lng], {
+          icon: createAirportIcon(L, theme.depPinColor)
+        });
+        depMarker.bindTooltip(`출발 공항 · ${depAp.city.split('/')[0]} (${depAp.code})`, { direction: 'top', offset: [0, -34] });
+        depMarker.bindPopup(`<b>출발 공항</b><br>${depAp.city} (${depAp.code})`).addTo(mapInstance);
+        currentMarkers.push(depMarker);
+      }
+    }
 
     // Next flight arrival marker
     if (statusData.nextFlight && statusData.nextFlight.arrAirport) {
@@ -428,8 +516,8 @@ function updateMapOverlayBar(statusData) {
     textEl.textContent = '현재 등록된 비행 일정이 없어요 · 일정을 등록해주세요';
   } else if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
     const destName = statusData.flight && statusData.flight.arrAirport
-      ? `${statusData.flight.arrAirport.city.split('/')[0]} (${statusData.flight.to})`
-      : '목적지';
+      ? statusData.flight.arrAirport.city.split('/')[0]
+      : (statusData.destCityName || '목적지');
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
     const remainingPart = statusData.remainingTimeText ? ` · ${statusData.remainingTimeText}` : '';
     textEl.textContent = `도착지 · ${destName} ${pct}%${remainingPart}`;
@@ -460,7 +548,10 @@ function updateMapOverlayBar(statusData) {
     }
 
     const timeSuffix = timeRemStr ? ` · ${timeRemStr}` : '';
-    textEl.textContent = `${currentLoc} 체류 중 · 다음 일정 ${nextCity} (${statusData.nextFlight.to})${timeSuffix}`;
+    const locPrefix = (statusData.status === STATUS_TYPES.HOME || currentLoc === '우리 집')
+      ? '우리 집'
+      : `${currentLoc} 체류 중`;
+    textEl.textContent = `${locPrefix} · 다음 일정 ${nextCity}${timeSuffix}`;
   } else {
     textEl.textContent = statusData.title;
   }

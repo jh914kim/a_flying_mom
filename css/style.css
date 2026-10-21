@@ -1049,6 +1049,7 @@ html[data-theme="hellokitty"] .journey-badge-pill {
   font-size: 0.78rem;
   color: var(--color-text-sub);
   line-height: 1.35;
+  white-space: nowrap;
 }
 
 .weather-dot-sep {
@@ -1057,17 +1058,28 @@ html[data-theme="hellokitty"] .journey-badge-pill {
 
 .status-weather-credit {
   margin-top: 6px;
+  overflow: hidden;
 }
 
 .status-weather-credit a {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--color-text-muted);
   text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .status-weather-credit a:hover {
   text-decoration: underline;
   color: var(--color-primary);
+}
+
+@media (max-width: 380px) {
+  .status-weather-credit a {
+    font-size: 0.62rem;
+  }
 }
 
 /* Map Destination City % Tooltip */
@@ -1107,9 +1119,16 @@ html[data-theme="hellokitty"] .journey-badge-pill {
 
 .custom-airplane-pin,
 .custom-map-pin,
-.hk-airplane-pin {
+.hk-airplane-pin,
+.custom-home-pin,
+.hk-home-pin,
+.custom-airport-pin {
   background: transparent !important;
   border: none !important;
+}
+
+.hk-home-marker-wrapper {
+  transition: transform 0.2s ease;
 }
 
 .hk-airplane-marker-wrapper {

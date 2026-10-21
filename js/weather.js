@@ -134,7 +134,7 @@ export async function fetchCurrentWeather(lat, lng) {
     const meta = getWeatherMeta(code);
 
     const updateDate = new Date();
-    const updatedTime = `${String(updateDate.getHours()).padStart(2, '0')}:${String(updateDate.getMinutes()).padStart(2, '0')} 한국 기준 갱신`;
+    const updatedTime = `${String(updateDate.getHours()).padStart(2, '0')}:${String(updateDate.getMinutes()).padStart(2, '0')} 확인`;
 
     const result = {
       available: true,
