@@ -533,9 +533,49 @@ html[data-theme="koreanair"] .bottom-nav {
   border-top: 2px solid #051766;
 }
 
-/* Status Badge Pill (e.g. • 예정상 비행 중) */
+/* Status Badge Pill & Refresh Action Container */
 .status-badge-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
+}
+
+.btn-refresh-screen {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-sub);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-refresh-screen:hover {
+  background-color: var(--color-border-light);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: rotate(45deg);
+}
+
+.btn-refresh-screen:active,
+.btn-refresh-screen.is-spinning {
+  transform: rotate(360deg);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--color-primary);
+}
+
+.btn-refresh-screen:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .status-badge-pill {

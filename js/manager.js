@@ -8,7 +8,8 @@
 import {
   saveMonthSchedule,
   deleteMonthSchedule,
-  getMonthSchedule
+  getMonthSchedule,
+  validateMonthSchedule
 } from './storage.js';
 import { searchAirports, getAirport, KOREA_BASES } from './airports.js';
 import { recognizeSchedulePhoto, parseScheduleText, getSampleSchedule } from './ocr.js';
@@ -78,6 +79,14 @@ export function closeManagerModal() {
  */
 export function loadMonthIntoEditor(yearMonth) {
   currentEditingMonth = yearMonth;
+
+  // Update download button label with the selected month
+  const downloadLabel = document.getElementById('btn-download-month-label');
+  if (downloadLabel) {
+    const parts = yearMonth.split('-');
+    const labelStr = parts.length === 2 ? `${parts[0]}년 ${parseInt(parts[1], 10)}월` : yearMonth;
+    downloadLabel.textContent = `${labelStr} 일정 파일 내려받기 (JSON)`;
+  }
 
   const existing = getMonthSchedule(yearMonth);
   const timeBasisSelect = document.getElementById('mgmt-timebasis-select');
@@ -455,6 +464,133 @@ export function handleSaveSchedule() {
 }
 
 /**
+ * Export current month schedule as JSON file for sending to kid's phone
+ */
+export function handleDownloadMonthJson() {
+  syncDOMToFlightRows();
+
+  const existing = getMonthSchedule(currentEditingMonth);
+  let flightsToExport = [];
+
+  if (flightRows.length > 0) {
+    flightsToExport = flightRows.map(f => ({
+      number: (f.number || '').trim().toUpperCase(),
+      from: (f.from || '').trim().toUpperCase(),
+      to: (f.to || '').trim().toUpperCase(),
+      departure: (f.departure || '').trim(),
+      arrival: (f.arrival || '').trim()
+    }));
+  } else if (existing && existing.flights && existing.flights.length > 0) {
+    flightsToExport = existing.flights;
+  }
+
+  if (flightsToExport.length === 0) {
+    alert(`내려받을 ${currentEditingMonth} 비행 일정이 없습니다.\n비행 일정을 먼저 추가하거나 등록해주세요.`);
+    return;
+  }
+
+  const timeBasisSelect = document.getElementById('mgmt-timebasis-select');
+  const homeSelect = document.getElementById('mgmt-home-select');
+
+  const bundle = {
+    app: 'aflyingmom',
+    version: '1.0',
+    month: currentEditingMonth,
+    home: (homeSelect?.value || existing?.home || 'ICN').toUpperCase(),
+    timeBasis: (timeBasisSelect?.value || existing?.timeBasis || 'local'),
+    exportedAt: new Date().toISOString(),
+    flights: flightsToExport
+  };
+
+  try {
+    const jsonStr = JSON.stringify(bundle, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `flyingmom-schedule-${currentEditingMonth}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    alert(`✅ ${currentEditingMonth} 비행 일정 파일이 저장되었습니다!\n\n파일명: flyingmom-schedule-${currentEditingMonth}.json (${bundle.flights.length}편)\n\n이 파일을 카카오톡이나 메시지로 아이(키즈폰)에게 보내주세요.`);
+  } catch (err) {
+    console.error('JSON export error:', err);
+    alert(`파일 다운로드 실패: ${err.message}`);
+  }
+}
+
+/**
+ * Import monthly schedule from JSON file (Kids phone or parent file restore)
+ */
+export async function handleUploadMonthJson(file) {
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      alert('올바른 JSON 파일 형식이 아닙니다. 부모님이 보내준 비행일정 파일(.json)인지 확인해주세요.');
+      return;
+    }
+
+    if (!data || typeof data !== 'object') {
+      alert('파일 내용이 비어있거나 형식이 올바르지 않습니다.');
+      return;
+    }
+
+    // Default missing fields gracefully
+    if (!data.home) data.home = 'ICN';
+    if (!data.timeBasis || !['local', 'korea'].includes(data.timeBasis)) {
+      data.timeBasis = 'local';
+    }
+
+    const validation = validateMonthSchedule(data);
+    if (!validation.valid) {
+      alert(`일정 파일 내용에 오류가 있어 등록할 수 없습니다:\n\n${validation.errors.join('\n')}`);
+      return;
+    }
+
+    const existing = getMonthSchedule(data.month);
+    const flightCount = data.flights.length;
+    const parts = data.month.split('-');
+    const monthKor = parts.length === 2 ? `${parts[0]}년 ${parseInt(parts[1], 10)}월` : data.month;
+
+    const confirmMsg = existing
+      ? `📅 ${monthKor} 일정 (${flightCount}건)을 등록하시겠습니까?\n(기존에 등록되어 있던 일정을 새 일정으로 덮어씁니다)`
+      : `📅 ${monthKor} 비행 일정 (${flightCount}건)을 등록하시겠습니까?`;
+
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    const saveResult = saveMonthSchedule(data);
+    if (!saveResult.success) {
+      alert(`저장 실패:\n${saveResult.errors.join('\n')}`);
+      return;
+    }
+
+    // If modal is open, reload into editor
+    if (isModalOpen) {
+      const monthInput = document.getElementById('mgmt-month-input');
+      if (monthInput) monthInput.value = data.month;
+      loadMonthIntoEditor(data.month);
+    }
+
+    // Refresh calendar & all views
+    refreshAllViews();
+
+    alert(`🎉 ${monthKor} 비행 일정(${flightCount}편)이 성공적으로 등록되었습니다!\n\n달력과 홈 화면에서 엄마의 위치를 바로 확인해 보세요.`);
+  } catch (err) {
+    console.error('JSON upload error:', err);
+    alert(`파일을 읽는 도중 오류가 발생했습니다: ${err.message}`);
+  }
+}
+
+/**
  * Setup all manager modal event listeners (OCR upload, text paste modal)
  */
 export function initManagerListeners() {
@@ -511,6 +647,35 @@ export function initManagerListeners() {
       }
     }
   });
+
+  // Download Month JSON (Parent -> Kid)
+  document.getElementById('btn-download-month-json')?.addEventListener('click', () => {
+    handleDownloadMonthJson();
+  });
+
+  // Upload Month JSON in modal
+  const jsonInput = document.getElementById('mgmt-json-input');
+  if (jsonInput) {
+    jsonInput.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        await handleUploadMonthJson(file);
+        jsonInput.value = '';
+      }
+    };
+  }
+
+  // Quick Kid's Phone Upload on main calendar screen
+  const quickKidJsonInput = document.getElementById('quick-kid-json-input');
+  if (quickKidJsonInput) {
+    quickKidJsonInput.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        await handleUploadMonthJson(file);
+        quickKidJsonInput.value = '';
+      }
+    };
+  }
 
   // Photo OCR upload
   const photoInput = document.getElementById('mgmt-photo-input');

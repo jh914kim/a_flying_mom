@@ -62,6 +62,9 @@ export async function initApp() {
   // Setup Bottom Navigation Bar (Mobile)
   setupBottomNav();
 
+  // Setup Screen Refresh Button
+  setupScreenRefresh();
+
   // Initial Full Render
   await refreshAllViews();
 
@@ -167,6 +170,21 @@ function setupBottomNav() {
 function setActiveNav(activeBtn) {
   document.querySelectorAll('.bottom-nav-item').forEach(btn => btn.classList.remove('active'));
   activeBtn?.classList.add('active');
+}
+
+/**
+ * Setup Screen Refresh Button on Status Card Top-Right
+ */
+function setupScreenRefresh() {
+  const btnRefresh = document.getElementById('btn-screen-refresh');
+  if (!btnRefresh) return;
+
+  btnRefresh.addEventListener('click', () => {
+    btnRefresh.classList.add('is-spinning');
+    setTimeout(() => {
+      window.location.reload();
+    }, 200);
+  });
 }
 
 /**
