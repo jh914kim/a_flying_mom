@@ -808,6 +808,25 @@ html[data-theme="hellokitty"] .journey-badge-pill {
   font-weight: 700;
 }
 
+/* Hello Kitty: Flight List Schedule Card Food-Thinking Kitty Mascot (Border Spacing Match) */
+html[data-theme="hellokitty"] .calendar-list-card {
+  position: relative;
+}
+
+html[data-theme="hellokitty"] .calendar-list-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 44px;
+  height: 36px;
+  background: url("../assets/img/hk-food.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
+}
+
 /* Status Badge Pill & Refresh Action Container */
 .status-badge-wrapper {
   display: flex;
