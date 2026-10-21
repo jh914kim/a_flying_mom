@@ -80,12 +80,10 @@ export function closeManagerModal() {
 export function loadMonthIntoEditor(yearMonth) {
   currentEditingMonth = yearMonth;
 
-  // Update download button label with the selected month
+  // Keep download button label concise
   const downloadLabel = document.getElementById('btn-download-month-label');
   if (downloadLabel) {
-    const parts = yearMonth.split('-');
-    const labelStr = parts.length === 2 ? `${parts[0]}년 ${parseInt(parts[1], 10)}월` : yearMonth;
-    downloadLabel.textContent = `${labelStr} 일정 파일 내려받기 (JSON)`;
+    downloadLabel.textContent = '파일 내려받기';
   }
 
   const existing = getMonthSchedule(yearMonth);
