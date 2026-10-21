@@ -104,6 +104,36 @@ html[data-theme="koreanair"] {
   --shadow-md: 0 4px 12px rgba(5, 23, 102, 0.15);
 }
 
+/* Theme 4: Hello Kitty (헬로키티 - Glamorous Pink, Iconic Red Ribbon & Sweet Rose) */
+html[data-theme="hellokitty"] {
+  --color-bg: #fff3f7;
+  --color-surface: #ffffff;
+  --color-primary: #ff0055;
+  --color-primary-hover: #d90048;
+  --color-primary-light: #ffe4ee;
+  --color-secondary-hover: #ffcce0;
+  --color-accent: #ff0055;
+  --color-brand-title: #e6004c;
+  --color-header-bg: rgba(255, 255, 255, 0.95);
+  --color-header-border: #ffccd9;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #fff2f6 50%, #ffeaf1 100%);
+  --color-status-border: #ffccd9;
+  --color-cal-flight-bg: #ffe4ee;
+  --color-cal-stay-bg: #fff0f5;
+  --color-cal-stay-badge: #ff0055;
+  --color-text-main: #3d1c28;
+  --color-text-sub: #703c4f;
+  --color-text-muted: #9e6d7f;
+  --color-border: #ffccd9;
+  --color-border-light: #ffedf2;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(255, 0, 85, 0.08), 0 1px 3px rgba(255, 0, 85, 0.05);
+  --shadow-md: 0 6px 18px rgba(255, 0, 85, 0.12);
+  --hk-ribbon: url("../assets/img/hellokitty-official-ribbon.png");
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -124,6 +154,18 @@ body {
   padding-bottom: 80px; /* Space for mobile bottom bar */
   overflow-x: hidden;
   width: 100%;
+}
+
+/* Hello Kitty Glamorous Background */
+html[data-theme="hellokitty"] body {
+  background-color: #fff4f8;
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(255, 182, 218, 0.45) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(255, 105, 180, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 50% 85%, rgba(255, 192, 203, 0.35) 0%, transparent 40%),
+    radial-gradient(#ffccd9 0.75px, transparent 0.75px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
 }
 
 body.modal-open {
@@ -166,6 +208,13 @@ html[data-theme="koreanair"] .app-header::before {
   background: linear-gradient(90deg, #051766 0%, #051766 65%, #3b68b5 65%, #3b68b5 90%, #8eb3e6 90%, #8eb3e6 100%);
 }
 
+/* Hello Kitty Header signature Pink & Ribbon Red top bar with Shimmer */
+html[data-theme="hellokitty"] .app-header::before {
+  background: linear-gradient(90deg, #ff0055 0%, #ff4081 25%, #ffb6c1 50%, #ff4081 75%, #ff0055 100%);
+  background-size: 200% 100%;
+  animation: hk-shimmer 4s linear infinite;
+}
+
 .header-content {
   max-width: 1024px;
   margin: 0 auto;
@@ -199,6 +248,19 @@ html[data-theme="koreanair"] .app-header::before {
   transition: color 0.2s ease;
 }
 
+/* Hello Kitty Brand Title Ribbon Accent */
+html[data-theme="hellokitty"] .brand-title::after {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 19px;
+  margin-left: 6px;
+  background: var(--hk-ribbon) no-repeat center / contain;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 4px rgba(229, 0, 60, 0.35));
+  animation: hk-ribbon-wiggle 3.5s ease-in-out infinite;
+}
+
 .brand-logo-icon {
   display: inline-flex;
   align-items: center;
@@ -206,6 +268,18 @@ html[data-theme="koreanair"] .app-header::before {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+}
+
+html[data-theme="hellokitty"] .brand-logo-icon {
+  width: 32px;
+  height: 24px;
+}
+
+.brand-logo-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 /* Theme Switcher Icon & Popover (o o o) */
@@ -338,6 +412,37 @@ html[data-theme="koreanair"] .app-header::before {
 .theme-circle-koreanair {
   background-color: #ffffff;
   border-color: #d8e0ea;
+}
+
+/* 4th Dot: Hello Kitty (Sanrio Official) */
+.theme-circle-hellokitty {
+  background-color: #ffffff;
+  border-color: #ffb3c6;
+  box-shadow: 0 1px 4px rgba(255, 0, 85, 0.2);
+  overflow: visible;
+}
+
+.theme-circle-hellokitty .theme-kitty-img {
+  width: 24px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(255, 0, 85, 0.2));
+  transform: scale(1.05);
+}
+
+.theme-dot-btn[data-theme-option="hellokitty"].is-selected .theme-circle {
+  border-color: #ff0055;
+  box-shadow: 0 0 0 2px rgba(255, 0, 85, 0.35);
+}
+
+.brand-kitty-img {
+  width: 32px;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .theme-dot-label {
@@ -523,6 +628,15 @@ html[data-theme="koreanair"] .journey-active-card {
   border-top: 3px solid #051766;
 }
 
+/* Hello Kitty Cards Accent */
+html[data-theme="hellokitty"] .calendar-card,
+html[data-theme="hellokitty"] .journey-active-card,
+html[data-theme="hellokitty"] .map-card {
+  border-top: 3.5px solid #ff0055;
+  border-color: #ffccd9;
+  box-shadow: 0 8px 24px rgba(255, 0, 85, 0.1), 0 2px 6px rgba(255, 0, 85, 0.05);
+}
+
 html[data-theme="asiana"] .bottom-nav {
   background-color: #fffdfa;
   border-top: 2px solid #c80815;
@@ -531,6 +645,130 @@ html[data-theme="asiana"] .bottom-nav {
 html[data-theme="koreanair"] .bottom-nav {
   background-color: #ffffff;
   border-top: 2px solid #051766;
+}
+
+/* Hello Kitty: Glamorous Bottom Nav */
+html[data-theme="hellokitty"] .bottom-nav {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid #ffccd9;
+  box-shadow: 0 -4px 16px rgba(255, 0, 85, 0.08);
+}
+
+html[data-theme="hellokitty"] .nav-item.is-active {
+  color: #ff0055;
+  font-weight: 700;
+}
+
+/* Hello Kitty: Status Card Glamour */
+html[data-theme="hellokitty"] .status-card {
+  border: 1.5px solid #ffccd9;
+  box-shadow: 0 8px 24px rgba(255, 0, 85, 0.12), 0 2px 8px rgba(255, 0, 85, 0.06);
+  position: relative;
+}
+
+/* Hello Kitty: Status Badge Pills */
+html[data-theme="hellokitty"] .status-badge-pill {
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+}
+
+html[data-theme="hellokitty"] .status-badge-pill.badge-flight {
+  background-color: #ffe4ee;
+  color: #d90048;
+  border: 1px solid #ffb3c6;
+}
+
+html[data-theme="hellokitty"] .status-badge-pill.badge-stay {
+  background-color: #fff0f5;
+  color: #ff0055;
+  border: 1px solid #ffccd9;
+}
+
+/* Hello Kitty: Refresh button */
+html[data-theme="hellokitty"] .btn-refresh-screen {
+  border-color: #ffccd9;
+  color: #ff0055;
+  background-color: #ffffff;
+}
+
+html[data-theme="hellokitty"] .btn-refresh-screen:hover {
+  background-color: #ffe4ee;
+  border-color: #ff0055;
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.3);
+}
+
+/* Hello Kitty: Calendar Selected Cell & Today */
+html[data-theme="hellokitty"] .cal-day-cell.is-selected {
+  background-color: #fff0f5 !important;
+  border: 1.5px solid #ff0055 !important;
+  box-shadow: 0 0 8px rgba(255, 0, 85, 0.25) !important;
+}
+
+html[data-theme="hellokitty"] .cal-day-cell.is-selected .cal-day-num,
+html[data-theme="hellokitty"] .cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  background-color: #ff0055;
+}
+
+/* Hello Kitty: Flight Calendar Top-Right Sparkling Kitty Mascot */
+html[data-theme="hellokitty"] .calendar-card {
+  position: relative;
+}
+
+html[data-theme="hellokitty"] .calendar-card::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 42px;
+  height: 33px;
+  background: url("../assets/img/hk-sparkle.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
+}
+
+html[data-theme="hellokitty"] .calendar-card .calendar-header {
+  padding-right: 48px;
+}
+
+/* Hello Kitty: Journey Card Running Kitty in Top-Right Corner */
+html[data-theme="hellokitty"] .journey-active-card,
+html[data-theme="hellokitty"] .journey-empty-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #fff7fa 100%);
+  border: 1.5px solid #ffccd9;
+}
+
+html[data-theme="hellokitty"] .journey-active-card::before,
+html[data-theme="hellokitty"] .journey-empty-card::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 36px;
+  height: 38px;
+  background: url("../assets/img/hk-running.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 2;
+  animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="hellokitty"] .journey-active-card .journey-card-header {
+  padding-right: 44px;
+}
+
+html[data-theme="hellokitty"] .journey-badge-pill {
+  background: linear-gradient(135deg, #ff0055 0%, #ff4081 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(255, 0, 85, 0.25);
+  font-weight: 700;
 }
 
 /* Status Badge Pill & Refresh Action Container */
@@ -797,9 +1035,14 @@ html[data-theme="koreanair"] .bottom-nav {
 }
 
 .custom-airplane-pin,
-.custom-map-pin {
+.custom-map-pin,
+.hk-airplane-pin {
   background: transparent !important;
   border: none !important;
+}
+
+.hk-airplane-marker-wrapper {
+  transition: transform 0.3s ease;
 }
 
 /* Map Section */
@@ -2003,6 +2246,13 @@ html[data-theme="koreanair"] .bottom-nav {
   background-color: rgba(0, 106, 193, 0.1);
 }
 
+[data-theme="hellokitty"] .jsc-duration-badge,
+[data-theme="hellokitty"] .jsc-leg-tag.outbound,
+[data-theme="hellokitty"] .jsc-badge-upcoming {
+  color: #ff1a75;
+  background-color: rgba(255, 26, 117, 0.1);
+}
+
 /* Journey Schedule Card Distinct Left Accents & Color Highlights */
 .journey-schedule-card.journey-color-0 {
   border-left: 4px solid #1a73e8;
@@ -2574,4 +2824,59 @@ html[data-theme="koreanair"] .bottom-nav {
 
 .hidden {
   display: none !important;
+}
+
+/* Hello Kitty Keyframe Animations */
+@keyframes hk-ribbon-wiggle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-6deg) scale(1.05);
+  }
+  75% {
+    transform: rotate(6deg) scale(1.05);
+  }
+}
+
+@keyframes hk-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes hk-float-plane {
+  0% {
+    transform: translateY(0px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+}
+
+@keyframes hk-run-bounce {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+}
+
+@keyframes hk-sparkle-bob {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.04);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }

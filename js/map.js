@@ -230,17 +230,52 @@ function createPinIcon(L, color = '#1A73E8') {
 }
 
 /**
- * Creates rotated airplane icon (Option 1: Modern Jetliner - Flightradar24 Aerodynamic Style)
+ * Creates rotated airplane icon:
+ * - Default / Asiana / KoreanAir: Modern Jetliner (Option 1: Aerodynamic Style)
+ * - Hello Kitty theme: Hello Kitty riding an airplane with East / West heading flip & realistic pitch
  */
-function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor = '#ffffff') {
+function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor = '#ffffff', themeId = 'default') {
+  const isHelloKitty = themeId === 'hellokitty' || (typeof fillColor === 'object' && fillColor.id === 'hellokitty');
+  const actualFill = typeof fillColor === 'object' ? (fillColor.airplaneColor || '#1A73E8') : fillColor;
+  const actualStroke = typeof fillColor === 'object' ? (fillColor.airplaneStroke || strokeColor) : strokeColor;
+
+  if (isHelloKitty) {
+    // Heading in degrees: 0..360 (0=North, 90=East, 180=South, 270=West)
+    const normalized = ((heading % 360) + 360) % 360;
+    // Eastbound: 0 <= normalized < 180 (flying towards right)
+    // Westbound: 180 <= normalized < 360 (flying towards left)
+    const isWestbound = normalized >= 180 && normalized < 360;
+    const imgSrc = isWestbound ? 'assets/img/hk-airplane-west.png' : 'assets/img/hk-airplane-east.png';
+
+    // Calculate natural climb/descent pitch angle (clamped within ±25 deg)
+    // Eastbound: heading 90 = 0deg, heading 45 = -18deg (climb NE), heading 135 = +18deg (descend SE)
+    // Westbound: heading 270 = 0deg, heading 315 = -18deg (climb NW), heading 225 = +18deg (descend SW)
+    const pitch = isWestbound
+      ? Math.max(-25, Math.min(25, (270 - normalized) * 0.4))
+      : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
+
+    const html = `
+      <div class="hk-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 48px; height: 46px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="${imgSrc}" width="46" height="44" alt="헬로키티 비행기" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+
+    return L.divIcon({
+      className: 'custom-airplane-pin hk-airplane-pin',
+      html: html,
+      iconSize: [48, 46],
+      iconAnchor: [24, 23]
+    });
+  }
+
   const svg = `
     <div style="transform: rotate(${heading}deg); transform-origin: center center; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
       <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Modern Jetliner Wings & Fuselage -->
-        <path d="M24 2 C22.8 2 21.5 5 21.5 10 L21.5 18 L3 27.5 C2 28 2 29.5 3.2 29.5 L21.5 25.5 L21.5 38 L14 42.5 C13.5 42.8 13.5 43.8 14.2 44 L24 42 L33.8 44 C34.5 43.8 34.5 42.8 34 42.5 L26.5 38 L26.5 25.5 L44.8 29.5 C46 29.5 46 28 45 27.5 L26.5 18 L26.5 10 C26.5 5 25.2 2 24 2 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M24 2 C22.8 2 21.5 5 21.5 10 L21.5 18 L3 27.5 C2 28 2 29.5 3.2 29.5 L21.5 25.5 L21.5 38 L14 42.5 C13.5 42.8 13.5 43.8 14.2 44 L24 42 L33.8 44 C34.5 43.8 34.5 42.8 34 42.5 L26.5 38 L26.5 25.5 L44.8 29.5 C46 29.5 46 28 45 27.5 L26.5 18 L26.5 10 C26.5 5 25.2 2 24 2 Z" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1.6" stroke-linejoin="round"/>
         <!-- Dual Jet Engine Nacelles -->
-        <rect x="14.5" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1"/>
-        <rect x="30.7" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1"/>
+        <rect x="14.5" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1"/>
+        <rect x="30.7" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1"/>
       </svg>
     </div>
   `;
@@ -278,7 +313,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   let currentMarker;
   if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
     currentMarker = L.marker(coords, {
-      icon: createAirplaneIcon(L, statusData.heading || 0, theme.airplaneColor, theme.airplaneStroke || '#ffffff'),
+      icon: createAirplaneIcon(L, statusData.heading || 0, theme.airplaneColor, theme.airplaneStroke || '#ffffff', theme.id),
       zIndexOffset: 1000
     });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);

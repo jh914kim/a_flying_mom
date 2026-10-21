@@ -663,18 +663,6 @@ export function initManagerListeners() {
     };
   }
 
-  // Quick Kid's Phone Upload on main calendar screen
-  const quickKidJsonInput = document.getElementById('quick-kid-json-input');
-  if (quickKidJsonInput) {
-    quickKidJsonInput.onchange = async (e) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        await handleUploadMonthJson(file);
-        quickKidJsonInput.value = '';
-      }
-    };
-  }
-
   // Photo OCR upload
   const photoInput = document.getElementById('mgmt-photo-input');
   const ocrProgressContainer = document.getElementById('ocr-progress-container');
