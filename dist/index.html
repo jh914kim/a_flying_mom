@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="a flying mom - 승무원 스케줄 기반 예상 위치, 현지 시각·날씨, 여정 및 비행 달력 서비스">
+  <title>a flying mom</title>
+  
+  <!-- Favicon SVG -->
+  <link id="app-favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>">
+  
+  <!-- Clean Modern Stylesheet -->
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+  <!-- ① Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand-section">
+        <div class="brand-title-row">
+          <h1 class="brand-title">
+            <span class="brand-logo-icon" id="brand-logo-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/>
+              </svg>
+            </span>
+            <span>a flying mom</span>
+          </h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="meta-live-time" id="meta-live-time-wrapper">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span id="meta-live-time-text">--월 --일 (-) · --:--</span>
+        </div>
+
+        <!-- Theme Switcher in Header Right -->
+        <div class="theme-switcher-wrapper" id="theme-switcher-wrapper">
+          <button type="button" class="btn-theme-toggle" id="btn-theme-toggle" title="테마 변경" aria-label="테마 선택 열기" aria-expanded="false" aria-controls="theme-selector-popover">
+            <span class="theme-toggle-icon" id="theme-toggle-icon">
+              <!-- Dynamically updated per theme or palette icon -->
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+              </svg>
+            </span>
+          </button>
+
+          <!-- 3-Circle Theme Popover (o o o) -->
+          <div class="theme-popover" id="theme-selector-popover" role="radiogroup" aria-label="테마 선택" aria-hidden="true">
+            <button type="button" class="theme-dot-btn is-selected" data-theme-option="default" role="radio" aria-checked="true" title="디폴트 테마 (Google Flights)" aria-label="디폴트 테마 (Google Flights)">
+              <span class="theme-circle theme-circle-default">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/>
+                </svg>
+              </span>
+              <span class="theme-dot-label">기본</span>
+            </button>
+            <button type="button" class="theme-dot-btn" data-theme-option="asiana" role="radio" aria-checked="false" title="아시아나항공 테마 (Asiana Airlines)" aria-label="아시아나항공 테마">
+              <span class="theme-circle theme-circle-asiana">
+                <svg viewBox="0 0 64 64" width="17" height="17" fill="none">
+                  <g clip-path="url(#asiana-tail-dot)">
+                    <path d="M 4 56 L 44 10 L 62 10 L 42 56 Z" fill="#9E9B95"/>
+                    <path d="M 4 56 L 40 15 L 30 56 Z" fill="#C60C30"/>
+                    <path d="M 18 56 L 34 32 L 26 56 Z" fill="#EF4123"/>
+                    <path d="M 33 34 L 54 21 L 47 38 L 28 48 Z" fill="#F6C500"/>
+                    <path d="M 26 56 L 30 46 L 47 38 L 42 56 Z" fill="#1F2A8C"/>
+                  </g>
+                  <defs>
+                    <clipPath id="asiana-tail-dot">
+                      <path d="M 6 54 L 44 10 C 45 9 46.5 8.5 48 8.5 L 59 8.5 C 60.5 8.5 61 9.5 60.5 11 L 43 54 C 42.5 55.2 41.2 56 39.5 56 L 7.5 56 C 6 56 5.2 55 6 54 Z"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+              </span>
+              <span class="theme-dot-label">아시아나</span>
+            </button>
+            <button type="button" class="theme-dot-btn" data-theme-option="koreanair" role="radio" aria-checked="false" title="대한항공 테마 (Korean Air)" aria-label="대한항공 테마">
+              <span class="theme-circle theme-circle-koreanair">
+                <svg viewBox="-15 -10 312 318" width="16" height="16" fill="none">
+                  <path d="M19.7218 222.0202l-1.1905.8189C42.7729 267.5282 88.6529 297.7182 141 297.7182c77.8539 0 140.9099-66.626 140.9099-148.7171 0-22.6069-9.3689-41.642-20.4479-56.0679-14.723-19.185-35.692-28.405-56.587-28.554-17.251-.1481-35.096 5.652-47.665 17.028-14.351 13.013-17.548 29.745-21.266 56.8849-4.089 29.744-28.0331 50.267-58.8171 50.267-39.857 0-64.5433-24.538-62.9082-62.09.1494-2.6029.3717-5.2039.8185-7.732C22.547 74.4192 70.212 28.6886 141.893 28.8361c48.1099 0 84.248 10.7819 120.3869 47.1431l1.191-.816C239.2289 30.4731 193.424.2819 141 .2819 63.221.2819.09 66.9072.09 149.0011c0 22.604 9.3692 41.64 20.4502 56.065 14.648 19.185 35.6928 28.33 56.5867 28.5551 17.251.2219 35.0971-5.6531 47.663-17.029 14.3531-13.0131 17.5501-29.7431 21.2671-56.8841 4.09-29.745 28.1069-50.2679 58.818-50.2679 39.93 0 64.618 24.539 62.981 62.0899-.1471 2.6031-.3721 5.206-.8161 7.735-7.6599 44.317-55.0999 90.0481-126.9309 89.8981-48.1111 0-84.248-10.781-120.3872-47.143" fill="#051766"/>
+                </svg>
+              </span>
+              <span class="theme-dot-label">대한항공</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main class="app-container main-content">
+
+    <!-- ② Current Status · Local Time · Weather Integrated Card -->
+    <section class="card status-card" id="status-section" aria-labelledby="status-card-title">
+      <!-- Status Badge Pill (e.g. • 예정상 비행 중) -->
+      <div class="status-badge-wrapper">
+        <span class="status-badge-pill badge-flight" id="status-badge-pill">
+          <span class="badge-dot" id="status-badge-dot" aria-hidden="true"></span>
+          <span id="status-badge-text">예정상 비행 중</span>
+        </span>
+      </div>
+
+      <!-- Status Title & Subtitle -->
+      <div class="status-card-header">
+        <h2 class="status-headline" id="status-card-title">
+          엄마의 일정을 확인하는 중...
+        </h2>
+        <p class="status-sub-desc" id="status-card-desc">스케줄 정보를 불러오고 있습니다.</p>
+      </div>
+
+      <!-- In-Flight Progress Bar -->
+      <div class="status-progress-container" id="status-progress-container" style="display: none;">
+        <div class="status-progress-track">
+          <div class="status-progress-fill" id="status-progress-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- 2-Column Info Grid: Time & Weather -->
+      <div class="status-card-grid">
+        <!-- Left Column: Time Section -->
+        <div class="status-col status-col-time">
+          <div class="status-meta-label" id="status-dest-time-label">현지 시각</div>
+          <div class="status-time-digital" id="status-dest-time">-</div>
+          <div class="status-time-date" id="status-dest-date">-</div>
+
+          <div class="status-home-block" id="status-home-block">
+            <div class="status-meta-label" id="status-home-time-label">우리 집 · 한국 시각</div>
+            <div class="status-time-digital status-time-sub" id="status-home-time">-</div>
+          </div>
+        </div>
+
+        <!-- Right Column: Weather Section -->
+        <div class="status-col status-col-weather" aria-label="현재 위치 날씨">
+          <div class="status-meta-label" id="status-weather-label">도착지 현재 날씨</div>
+          <div class="status-weather-main">
+            <div class="weather-icon-box" id="weather-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#6b7280" stroke-width="2">
+                <circle cx="12" cy="12" r="5"/>
+              </svg>
+            </div>
+            <span class="status-weather-temp" id="weather-temp">-</span>
+          </div>
+          <div class="status-weather-desc-row">
+            <span id="weather-desc">날씨 조회 중</span>
+            <span class="weather-dot-sep"> · </span>
+            <span id="weather-updated">-</span>
+          </div>
+          <div class="status-weather-credit">
+            <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Weather data by Open-Meteo ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ③ Map Section -->
+    <section class="map-section" aria-label="예상 위치 지도">
+      <!-- Overlay Badge Bar -->
+      <div class="map-overlay-bar">
+        <span class="map-badge-text" id="map-badge-text">예상 위치를 지도에 표시하는 중...</span>
+        <div class="map-control-actions">
+          <button type="button" class="btn-icon" id="btn-map-world" title="세계 보기" aria-label="세계 전체 보기">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </button>
+          <button type="button" class="btn-icon" id="btn-map-locate" title="현재 위치로 이동" aria-label="현재 위치 중심으로 이동">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Map Notice for Offline / Error -->
+      <div class="map-error-banner" id="map-error-notice"></div>
+
+      <!-- Map Canvas -->
+      <div id="map-canvas"></div>
+    </section>
+
+    <!-- ④ NEXT JOURNEY / CURRENT JOURNEY Card -->
+    <section class="journey-section" id="journey-card-container" aria-label="여정 안내">
+      <!-- Injected dynamically via journey.js -->
+    </section>
+
+    <!-- Split view for Desktop: ⑤ Flight Calendar + ⑥ Flight List -->
+    <div class="desktop-split-view" id="calendar-section">
+
+      <!-- ⑤ Flight Calendar -->
+      <section class="calendar-card" aria-label="비행 달력">
+        <div class="calendar-header">
+          <div class="calendar-title-group">
+            <h2 class="cal-main-title">비행 달력</h2>
+            <span class="cal-month-title" id="calendar-title">2026년 10월</span>
+          </div>
+          <div class="calendar-header-right">
+            <div class="cal-legend" aria-label="달력 범례">
+              <span class="cal-legend-item"><i class="cal-dot cal-dot-flight"></i>일정별 색상 구분</span>
+              <span class="cal-legend-item"><i class="cal-dot cal-dot-today"></i>오늘</span>
+            </div>
+            <div class="calendar-nav-buttons">
+              <button type="button" class="btn-icon" id="btn-cal-prev" title="이전 달" aria-label="이전 달로 이동">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+              </button>
+              <button type="button" class="btn-icon" id="btn-cal-next" title="다음 달" aria-label="다음 달로 이동">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cal-grid" id="calendar-grid">
+          <!-- Dynamically generated days -->
+        </div>
+
+        <div class="cal-basis-notice">
+          <span>* 달력의 표시는 한국 시각(KST) 기준입니다.</span>
+        </div>
+      </section>
+
+      <!-- ⑥ Flight List -->
+      <section class="flight-list-section calendar-list-card" aria-label="비행 목록">
+        <div id="calendar-flight-list">
+          <!-- Dynamically generated flight cards -->
+        </div>
+        <div class="show-more-box">
+          <button type="button" class="btn btn-outline" id="calendar-show-more-btn" style="display: none;">
+            나머지 보기
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Mobile Bottom Navigation (Spec 8) -->
+  <nav class="bottom-nav" aria-label="하단 네비게이션">
+    <button type="button" class="bottom-nav-item active" id="nav-btn-status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <span>현재 위치</span>
+    </button>
+    <button type="button" class="bottom-nav-item" id="nav-btn-calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span>비행 달력</span>
+    </button>
+    <button type="button" class="bottom-nav-item" id="nav-btn-manage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      <span>일정 관리</span>
+    </button>
+  </nav>
+
+  <!-- Fullscreen Schedule Management Modal (Spec 5, 6, 7, 8) -->
+  <div class="modal-overlay" id="manager-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-dialog">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2 class="modal-title">스케줄 일정 관리</h2>
+        <button type="button" class="btn-icon" data-action="close-manager" aria-label="닫기">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- 1. Month & Timezone Settings Box -->
+        <div class="mgmt-section-box">
+          <h3 class="mgmt-section-title">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            스케줄 기본 설정
+          </h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="mgmt-month-input">대상 연월</label>
+              <input type="month" id="mgmt-month-input" class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="mgmt-timebasis-select">시간 기준</label>
+              <select id="mgmt-timebasis-select" class="form-select">
+                <option value="local" selected>각 공항 현지 시간</option>
+                <option value="korea">모두 한국 시간 (KST)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Import & Input Methods -->
+        <div class="mgmt-section-box">
+          <h3 class="mgmt-section-title">스케줄 가져오기 (오프라인 지원)</h3>
+          <div class="mgmt-import-btn-row">
+            <!-- Photo OCR -->
+            <label class="btn btn-primary mgmt-import-btn" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span>스케줄표 사진 인식</span>
+              <input type="file" id="mgmt-photo-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+            </label>
+
+            <!-- Text Paste -->
+            <button type="button" class="btn btn-outline mgmt-import-btn" id="btn-open-text-paste">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              </svg>
+              <span>텍스트 붙여넣기</span>
+            </button>
+          </div>
+
+          <!-- OCR Progress Bar -->
+          <div class="ocr-progress-box" id="ocr-progress-container" style="display: none;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+              <span id="ocr-progress-text">사진을 분석하고 있습니다...</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="ocr-progress-bar"></div>
+            </div>
+          </div>
+
+          <!-- Text Paste Area (Toggled) -->
+          <div id="mgmt-text-paste-container" style="display: none; margin-top: 12px;">
+            <div class="form-group">
+              <label for="mgmt-text-paste-area">스케줄 텍스트 복사/붙여넣기</label>
+              <textarea id="mgmt-text-paste-area" class="form-input" rows="4" placeholder="예: 05 KE907 ICN LHR 10:50 17:20&#10;08 KE908 LHR ICN 19:35 16:15"></textarea>
+            </div>
+            <button type="button" class="btn btn-secondary" id="btn-apply-text-paste" style="margin-top: 8px;">
+              텍스트에서 비행 추출
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Flight Rows List -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 class="mgmt-section-title" style="margin-bottom: 0;">비행별 입력 목록</h3>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn btn-outline" id="btn-clear-rows" style="font-size: 0.8125rem; min-height: 36px; padding: 4px 10px;">전체 비우기</button>
+              <button type="button" class="btn btn-secondary" id="btn-add-row" style="min-height: 36px; padding: 4px 12px;">+ 비행 추가</button>
+            </div>
+          </div>
+          <p class="subtext" style="margin-bottom: 12px;">
+            * 인식 결과 중 불확실한 칸은 <span style="background-color: #fef7e0; padding: 2px 4px; border-radius: 4px; color: #b06000; font-weight: 600;">노란색</span>으로 표시됩니다.
+          </p>
+
+          <div id="mgmt-flight-rows-container">
+            <!-- Dynamically injected row cards -->
+          </div>
+        </div>
+
+        <!-- 4. Delete Schedule Action -->
+        <div class="mgmt-section-box">
+          <h3 class="mgmt-section-title">일정 삭제</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button type="button" class="btn btn-danger-outline" id="btn-delete-month">이 달 일정 삭제</button>
+          </div>
+        </div>
+
+        <!-- Data attribution note -->
+        <div style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.5;">
+          공항 데이터(전 세계 4,031개 IATA 공항 좌표 및 IANA 시간대 내장): OurAirports (Public Domain / Unlicense), OpenFlights Airport Database (ODbL 1.0 / Public Domain), mwgg/Airports (MIT License)
+        </div>
+
+      </div>
+
+      <!-- Modal Guard Checkbox & Save Footer (Spec 5, 6) -->
+      <div class="modal-footer">
+        <label class="confirm-checkbox-label" for="mgmt-confirm-check">
+          <input type="checkbox" id="mgmt-confirm-check">
+          <span>공항, 출발·도착 날짜와 시간 기준을 확인했어요</span>
+        </label>
+        <div class="modal-footer-actions">
+          <button type="button" class="btn btn-outline" data-action="close-manager">취소</button>
+          <button type="button" class="btn btn-primary" id="mgmt-save-btn" disabled>
+            확인한 일정 등록 하기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main ES Module Entry Point -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

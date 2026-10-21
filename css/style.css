@@ -1,0 +1,2537 @@
+/**
+ * a flying mom - Google Flights Inspired Clean & Modern Stylesheet
+ * Mobile-first, bright white & blue palette, rounded cards, clean typography.
+ * Supports 320px, 390px, 430px mobile widths without horizontal scroll.
+ */
+
+:root {
+  --color-bg: #f8fafd;
+  --color-surface: #ffffff;
+  --color-primary: #1a73e8;
+  --color-primary-hover: #1557b0;
+  --color-primary-light: #e8f0fe;
+  --color-secondary-hover: #d2e3fc;
+  --color-accent: #ea4335;
+  --color-brand-title: #1a73e8;
+  --color-header-bg: #ffffff;
+  --color-header-border: #dadce0;
+  --color-status-card-bg: linear-gradient(180deg, #ffffff 0%, #fdfefe 100%);
+  --color-status-border: #1a73e8;
+  --color-cal-flight-bg: #f0f7ff;
+  --color-cal-stay-bg: #fef9e7;
+  --color-cal-stay-badge: #f2994a;
+  --color-text-main: #202124;
+  --color-text-sub: #5f6368;
+  --color-text-muted: #80868b;
+  --color-border: #dadce0;
+  --color-border-light: #f1f3f4;
+  --color-danger: #d93025;
+  --color-danger-light: #fce8e6;
+  --color-warning-bg: #fef7e0;
+  --color-warning-border: #f9ab00;
+  --color-warning-text: #b06000;
+  --color-success: #1e8e3e;
+  --color-success-light: #e6f4ea;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(60, 64, 67, 0.12), 0 1px 3px 1px rgba(60, 64, 67, 0.08);
+  --shadow-md: 0 2px 6px rgba(60, 64, 67, 0.15), 0 1px 2px rgba(60, 64, 67, 0.1);
+  --shadow-lg: 0 4px 12px rgba(60, 64, 67, 0.2);
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --min-touch-target: 44px;
+}
+
+/* Theme 2: Asiana Airlines (flyasiana.com inspired - Warm Ivory, Zen Gray & Asiana Red/Saekdong) */
+html[data-theme="asiana"] {
+  --color-bg: #f3efea;
+  --color-surface: #fffdfa;
+  --color-primary: #c80815;
+  --color-primary-hover: #a50610;
+  --color-primary-light: #fcebec;
+  --color-secondary-hover: #f8d6d8;
+  --color-accent: #e68a00;
+  --color-brand-title: #4a4542;
+  --color-header-bg: #fffdfa;
+  --color-header-border: #dfd9d0;
+  --color-status-card-bg: linear-gradient(135deg, #fffdfa 0%, #fcf4ee 100%);
+  --color-status-border: #c80815;
+  --color-cal-flight-bg: #fdeeee;
+  --color-cal-stay-bg: #fdf5e4;
+  --color-cal-stay-badge: #d9822b;
+  --color-text-main: #2c2623;
+  --color-text-sub: #5e5652;
+  --color-text-muted: #8a817c;
+  --color-border: #dfd8cf;
+  --color-border-light: #f2ece4;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 2px 5px rgba(74, 69, 66, 0.08), 0 1px 2px rgba(74, 69, 66, 0.05);
+  --shadow-md: 0 4px 10px rgba(74, 69, 66, 0.14);
+}
+
+/* Theme 3: Korean Air (2025 New CI - Monochrome Korean Air Dark Blue & Sky Blue) */
+html[data-theme="koreanair"] {
+  --color-bg: #eaf1f8;
+  --color-surface: #ffffff;
+  --color-primary: #051766;
+  --color-primary-hover: #031047;
+  --color-primary-light: #dce8f7;
+  --color-secondary-hover: #c6daf2;
+  --color-accent: #0064de;
+  --color-brand-title: #051766;
+  --color-header-bg: #ffffff;
+  --color-header-border: #c9d8ea;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #eef5fc 100%);
+  --color-status-border: #051766;
+  --color-cal-flight-bg: #e1eefb;
+  --color-cal-stay-bg: #eaf4fe;
+  --color-cal-stay-badge: #0064de;
+  --color-text-main: #051766;
+  --color-text-sub: #334768;
+  --color-text-muted: #667896;
+  --color-border: #c9d8e8;
+  --color-border-light: #e6eef7;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 2px 6px rgba(5, 23, 102, 0.09), 0 1px 2px rgba(5, 23, 102, 0.05);
+  --shadow-md: 0 4px 12px rgba(5, 23, 102, 0.15);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  line-height: 1.5;
+  padding-bottom: 80px; /* Space for mobile bottom bar */
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Base Container */
+.app-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 12px 16px;
+}
+
+/* Header */
+.app-header {
+  background-color: var(--color-header-bg);
+  border-bottom: 1px solid var(--color-header-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Default Theme (Google Flights) signature 4-color top bar */
+.app-header::before {
+  content: "";
+  display: block;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #1a73e8 0%, #1a73e8 45%, #4285f4 45%, #4285f4 70%, #34a853 70%, #34a853 85%, #fbbc04 85%, #fbbc04 100%);
+}
+
+/* Asiana Airlines Header signature Saekdong 4-color top bar */
+html[data-theme="asiana"] .app-header::before {
+  background: linear-gradient(90deg, #d60815 0%, #d60815 35%, #f39800 35%, #f39800 65%, #005bac 65%, #005bac 85%, #737272 85%, #737272 100%);
+}
+
+/* Korean Air Header signature 2025 New CI Dark Blue & Sky Blue top bar */
+html[data-theme="koreanair"] .app-header::before {
+  background: linear-gradient(90deg, #051766 0%, #051766 65%, #3b68b5 65%, #3b68b5 90%, #8eb3e6 90%, #8eb3e6 100%);
+}
+
+.header-content {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.brand-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-brand-title);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: -0.02em;
+  transition: color 0.2s ease;
+}
+
+.brand-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Theme Switcher Icon & Popover (o o o) */
+.theme-switcher-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-theme-toggle {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-sub);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.btn-theme-toggle:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.btn-theme-toggle:hover,
+.btn-theme-toggle[aria-expanded="true"] {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: scale(1.04);
+}
+
+.theme-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.theme-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 5px 10px;
+  box-shadow: var(--shadow-md);
+  z-index: 1050;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  animation: themePopoverFadeIn 0.16s ease-out;
+}
+
+.theme-popover.is-open {
+  display: inline-flex;
+}
+
+@keyframes themePopoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.theme-dot-btn {
+  background: none;
+  border: 1px solid transparent;
+  padding: 4px 8px 4px 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-full);
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-dot-btn:hover {
+  background-color: var(--color-border-light);
+}
+
+.theme-dot-btn.is-selected {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.theme-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.theme-dot-btn:hover .theme-circle {
+  transform: scale(1.06);
+}
+
+/* 1st Dot: Default (Google Flights Blue) */
+.theme-circle-default {
+  background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+  border-color: transparent;
+}
+
+/* 2nd Dot: Asiana Airlines (Homepage Tail Fin Favicon Icon) */
+.theme-circle-asiana {
+  background-color: #ffffff;
+  border-color: #e2ded9;
+}
+
+/* 3rd Dot: Korean Air (2025 New CI Monochrome Dark Blue Taegeuk Icon) */
+.theme-circle-koreanair {
+  background-color: #ffffff;
+  border-color: #d8e0ea;
+}
+
+.theme-dot-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  padding-right: 3px;
+}
+
+.theme-dot-btn.is-selected .theme-dot-label {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.brand-notice {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--min-touch-target);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-primary:disabled {
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.btn-outline {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-border-light);
+}
+
+.btn-danger-outline {
+  background-color: var(--color-surface);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btn-danger-outline:hover {
+  background-color: var(--color-danger-light);
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-sub);
+}
+
+.btn-icon:hover {
+  background-color: var(--color-border-light);
+  color: var(--color-primary);
+}
+
+/* Main Layout Grid */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+/* Card Base */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header Right Live Time Indicator */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meta-live-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  white-space: nowrap;
+  background-color: var(--color-bg);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #34a853; /* Vivid Google Green */
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .meta-live-time {
+    font-size: 0.775rem;
+    padding: 3px 8px;
+    gap: 5px;
+  }
+}
+
+/* Integrated Status Card (Spec & Attached Mockup Match) */
+.status-card {
+  background: var(--color-status-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Asiana & Korean Air top subtle accent bar on cards */
+html[data-theme="asiana"] .calendar-card,
+html[data-theme="asiana"] .journey-active-card {
+  border-top: 3px solid #c80815;
+}
+
+html[data-theme="koreanair"] .calendar-card,
+html[data-theme="koreanair"] .journey-active-card {
+  border-top: 3px solid #051766;
+}
+
+html[data-theme="asiana"] .bottom-nav {
+  background-color: #fffdfa;
+  border-top: 2px solid #c80815;
+}
+
+html[data-theme="koreanair"] .bottom-nav {
+  background-color: #ffffff;
+  border-top: 2px solid #051766;
+}
+
+/* Status Badge Pill (e.g. • 예정상 비행 중) */
+.status-badge-wrapper {
+  margin-bottom: 12px;
+}
+
+.status-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: #e8f0fe;
+  color: #1967d2;
+}
+
+.status-badge-pill .badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.status-badge-pill.badge-stay {
+  background-color: #eef2ff;
+  color: #4338ca;
+}
+
+.status-badge-pill.badge-home {
+  background-color: #e6f4ea;
+  color: #137333;
+}
+
+.status-badge-pill.badge-unknown {
+  background-color: #f1f3f4;
+  color: #5f6368;
+}
+
+.status-card-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.status-headline {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.status-city-highlight {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.status-sub-desc {
+  font-size: 0.88rem;
+  color: var(--color-text-sub);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* In-flight Progress Bar */
+.status-progress-container {
+  margin: 0 0 16px 0;
+  width: 100%;
+}
+
+.status-progress-track {
+  width: 100%;
+  height: 4px;
+  background-color: #e8eaed;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.status-progress-fill {
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* Two-Column Grid: Time & Weather */
+.status-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 480px) {
+  .status-card-header {
+    margin-bottom: 14px;
+  }
+  .status-card-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .status-card {
+    padding: 16px;
+  }
+}
+
+.status-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-meta-label {
+  font-size: 0.78rem;
+  color: var(--color-text-sub);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.status-time-digital {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.status-time-sub {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.status-time-date {
+  font-size: 0.82rem;
+  color: var(--color-text-sub);
+  margin-top: 2px;
+}
+
+.status-home-block {
+  margin-top: 14px;
+}
+
+/* Weather Column */
+.status-weather-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 4px 0;
+}
+
+.status-weather-main .weather-icon-box svg {
+  width: 28px;
+  height: 28px;
+}
+
+.status-weather-temp {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  line-height: 1.15;
+}
+
+.status-weather-desc-row {
+  font-size: 0.78rem;
+  color: var(--color-text-sub);
+  line-height: 1.35;
+}
+
+.weather-dot-sep {
+  color: var(--color-text-muted);
+}
+
+.status-weather-credit {
+  margin-top: 6px;
+}
+
+.status-weather-credit a {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.status-weather-credit a:hover {
+  text-decoration: underline;
+  color: var(--color-primary);
+}
+
+/* Map Destination City % Tooltip */
+.custom-map-pct-tooltip.leaflet-tooltip {
+  background: #ffffff;
+  border: 1.5px solid var(--color-primary, #1a73e8);
+  border-radius: 6px;
+  padding: 3px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+}
+
+.custom-map-pct-tooltip.leaflet-tooltip::before {
+  border-right-color: var(--color-primary, #1a73e8);
+}
+
+.map-city-pct-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.map-city-pct-badge .map-city-name {
+  color: #202124;
+}
+
+.map-city-pct-badge .map-city-pct {
+  color: var(--color-primary, #1a73e8);
+  font-weight: 800;
+  background-color: rgba(26, 115, 232, 0.1);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.custom-airplane-pin,
+.custom-map-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Map Section */
+.map-section {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: #e5e3df;
+  box-shadow: var(--shadow-sm);
+  isolation: isolate; /* Crucial: Traps all Leaflet internal z-indexes (1000) inside map section */
+  z-index: 1;
+}
+
+/* Constrain Leaflet Controls strictly within Map Canvas */
+.map-section .leaflet-bottom.leaflet-right {
+  bottom: 12px;
+  right: 12px;
+  z-index: 400;
+}
+
+.map-section .leaflet-control-zoom {
+  margin: 0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden;
+}
+
+.map-section .leaflet-control-zoom a {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 16px !important;
+  background-color: #ffffff !important;
+  color: var(--color-text-main) !important;
+}
+
+.map-section .leaflet-control-zoom a:hover {
+  background-color: #f1f3f4 !important;
+}
+
+.map-overlay-bar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 500;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  min-height: 40px;
+}
+
+.map-badge-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+}
+
+@media (max-width: 480px) {
+  .map-overlay-bar {
+    padding: 5px 10px;
+    left: 8px;
+    right: 8px;
+    top: 8px;
+  }
+  .map-badge-text {
+    font-size: 0.8125rem;
+    letter-spacing: -0.2px;
+  }
+}
+
+.map-control-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+#map-canvas {
+  width: 100%;
+  height: 340px;
+  min-height: 300px;
+}
+
+.map-error-banner {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 12px;
+  right: 12px;
+  z-index: 500;
+  background-color: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  color: var(--color-warning-text);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+}
+
+/* Leaflet & MapLibre Map Overrides */
+.map-section,
+#map-canvas,
+#map-canvas canvas,
+.maplibregl-canvas,
+.maplibregl-map,
+.leaflet-tile-pane,
+.leaflet-tile {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+.leaflet-control-zoom,
+.leaflet-bar {
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-radius: var(--radius-sm) !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a,
+.leaflet-bar a {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  line-height: 32px !important;
+  font-size: 16px !important;
+  color: var(--color-text-main) !important;
+  background-color: var(--color-surface) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--color-border-light) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Journey Card */
+.journey-section {
+  margin-top: 4px;
+}
+
+.journey-active-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.journey-active-card.is-current-journey {
+  border-left: 4px solid var(--color-accent);
+}
+
+.journey-active-card.is-next-journey {
+  border-left: 4px solid var(--color-primary);
+}
+
+.journey-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.journey-badge-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.04em;
+}
+
+.badge-current {
+  background-color: #fce8e6;
+  color: #c5221f;
+}
+
+.badge-next {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.badge-none {
+  background-color: var(--color-border-light);
+  color: var(--color-text-muted);
+}
+
+.journey-route-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.journey-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journey-info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.journey-info-row.secondary-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 480px) {
+  .journey-info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-info-row.secondary-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+.journey-info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.info-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  word-break: break-all;
+}
+
+.text-warning {
+  color: var(--color-danger);
+}
+
+.journey-empty-card {
+  padding: 24px 16px;
+  text-align: center;
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.journey-msg {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 8px 0 4px;
+}
+
+/* Desktop 2-Column Split for Calendar & List */
+.desktop-split-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 860px) {
+  .desktop-split-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+/* Calendar Card */
+.calendar-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.calendar-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cal-main-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.cal-month-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.calendar-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cal-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--color-text-sub);
+}
+
+.cal-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cal-dot-flight {
+  background-color: #1a73e8;
+}
+
+.cal-dot-stay {
+  background-color: #16a34a;
+}
+
+.cal-dot-today {
+  background-color: #202124;
+}
+
+.calendar-nav-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+  width: 100%;
+}
+
+.cal-header-cell {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-sub);
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.cal-day-cell {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px 1px 6px;
+  cursor: pointer;
+  min-height: 58px;
+  min-width: 0;
+  width: 100%;
+  transition: background-color 0.12s ease;
+  position: relative;
+  overflow: hidden;
+  color: var(--color-text-main);
+}
+
+.cal-day-cell:hover:not(.cal-empty-cell) {
+  background-color: var(--color-border-light);
+  border-radius: var(--radius-sm);
+}
+
+.cal-empty-cell {
+  cursor: default;
+  min-height: 58px;
+}
+
+.cal-day-num {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-main);
+  line-height: 1;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Highlight flight days with blue bold number */
+.cal-day-cell.has-flight .cal-day-num {
+  color: #1a73e8;
+  font-weight: 700;
+}
+
+/* Today subtle indicator when not selected */
+.cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  background-color: #1a73e8;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* Selected date: Filled blue circle around the date number */
+.cal-day-cell.is-selected .cal-day-num {
+  background-color: #1a73e8;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.cal-day-cell.is-selected:not(.is-today) {
+  background-color: rgba(26, 115, 232, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+/* Connected Journey Track styling across calendar days */
+.cal-day-cell.is-journey-day {
+  background-color: rgba(26, 115, 232, 0.05);
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   6 Distinct Color Palettes for Flight Journeys (여정별 구분 색상)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Palette 0: Modern Sapphire Blue (예: 도쿄 등) */
+.cal-day-cell.is-journey-day.journey-color-0 {
+  background-color: rgba(26, 115, 232, 0.07);
+  border-top-color: rgba(26, 115, 232, 0.35);
+  border-bottom-color: rgba(26, 115, 232, 0.35);
+}
+.cal-day-cell.is-journey-day.journey-color-0:hover:not(.cal-empty-cell) {
+  background-color: rgba(26, 115, 232, 0.15);
+}
+.cal-day-cell.journey-start.journey-color-0 {
+  border-left: 3px solid #1a73e8;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cal-day-cell.journey-end.journey-color-0 {
+  border-right: 3px solid #1a73e8;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cal-day-cell.journey-sameday.journey-color-0 {
+  border: 2px solid #1a73e8;
+  border-radius: 8px;
+}
+.cal-day-cell.is-journey-day.journey-color-0:not(.is-today):not(.is-selected) .cal-day-num {
+  color: #1557b0;
+  font-weight: 700;
+}
+.cal-label-flight.journey-color-0,
+.cal-label-return.journey-color-0 {
+  color: #1a73e8;
+  font-weight: 700;
+}
+.cal-label-stay.journey-color-0 {
+  color: #1557b0;
+  font-weight: 700;
+}
+
+/* Palette 1: Emerald Teal (예: 샌프란시스코 등) */
+.cal-day-cell.is-journey-day.journey-color-1 {
+  background-color: rgba(5, 150, 105, 0.07);
+  border-top-color: rgba(5, 150, 105, 0.35);
+  border-bottom-color: rgba(5, 150, 105, 0.35);
+}
+.cal-day-cell.is-journey-day.journey-color-1:hover:not(.cal-empty-cell) {
+  background-color: rgba(5, 150, 105, 0.15);
+}
+.cal-day-cell.journey-start.journey-color-1 {
+  border-left: 3px solid #059669;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cal-day-cell.journey-end.journey-color-1 {
+  border-right: 3px solid #059669;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cal-day-cell.journey-sameday.journey-color-1 {
+  border: 2px solid #059669;
+  border-radius: 8px;
+}
+.cal-day-cell.is-journey-day.journey-color-1:not(.is-today):not(.is-selected) .cal-day-num {
+  color: #047857;
+  font-weight: 700;
+}
+.cal-label-flight.journey-color-1,
+.cal-label-return.journey-color-1 {
+  color: #059669;
+  font-weight: 700;
+}
+.cal-label-stay.journey-color-1 {
+  color: #047857;
+  font-weight: 700;
+}
+
+/* Palette 2: Royal Violet (예: 런던/파리 등) */
+.cal-day-cell.is-journey-day.journey-color-2 {
+  background-color: rgba(124, 58, 237, 0.07);
+  border-top-color: rgba(124, 58, 237, 0.35);
+  border-bottom-color: rgba(124, 58, 237, 0.35);
+}
+.cal-day-cell.is-journey-day.journey-color-2:hover:not(.cal-empty-cell) {
+  background-color: rgba(124, 58, 237, 0.15);
+}
+.cal-day-cell.journey-start.journey-color-2 {
+  border-left: 3px solid #7c3aed;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cal-day-cell.journey-end.journey-color-2 {
+  border-right: 3px solid #7c3aed;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cal-day-cell.journey-sameday.journey-color-2 {
+  border: 2px solid #7c3aed;
+  border-radius: 8px;
+}
+.cal-day-cell.is-journey-day.journey-color-2:not(.is-today):not(.is-selected) .cal-day-num {
+  color: #6d28d9;
+  font-weight: 700;
+}
+.cal-label-flight.journey-color-2,
+.cal-label-return.journey-color-2 {
+  color: #7c3aed;
+  font-weight: 700;
+}
+.cal-label-stay.journey-color-2 {
+  color: #6d28d9;
+  font-weight: 700;
+}
+
+/* Palette 3: Crimson Rose */
+.cal-day-cell.is-journey-day.journey-color-3 {
+  background-color: rgba(225, 29, 72, 0.07);
+  border-top-color: rgba(225, 29, 72, 0.35);
+  border-bottom-color: rgba(225, 29, 72, 0.35);
+}
+.cal-day-cell.is-journey-day.journey-color-3:hover:not(.cal-empty-cell) {
+  background-color: rgba(225, 29, 72, 0.15);
+}
+.cal-day-cell.journey-start.journey-color-3 {
+  border-left: 3px solid #e11d48;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cal-day-cell.journey-end.journey-color-3 {
+  border-right: 3px solid #e11d48;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cal-day-cell.journey-sameday.journey-color-3 {
+  border: 2px solid #e11d48;
+  border-radius: 8px;
+}
+.cal-day-cell.is-journey-day.journey-color-3:not(.is-today):not(.is-selected) .cal-day-num {
+  color: #be123c;
+  font-weight: 700;
+}
+.cal-label-flight.journey-color-3,
+.cal-label-return.journey-color-3 {
+  color: #e11d48;
+  font-weight: 700;
+}
+.cal-label-stay.journey-color-3 {
+  color: #be123c;
+  font-weight: 700;
+}
+
+/* Palette 4: Warm Amber */
+.cal-day-cell.is-journey-day.journey-color-4 {
+  background-color: rgba(217, 119, 6, 0.07);
+  border-top-color: rgba(217, 119, 6, 0.35);
+  border-bottom-color: rgba(217, 119, 6, 0.35);
+}
+.cal-day-cell.is-journey-day.journey-color-4:hover:not(.cal-empty-cell) {
+  background-color: rgba(217, 119, 6, 0.15);
+}
+.cal-day-cell.journey-start.journey-color-4 {
+  border-left: 3px solid #d97706;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cal-day-cell.journey-end.journey-color-4 {
+  border-right: 3px solid #d97706;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cal-day-cell.journey-sameday.journey-color-4 {
+  border: 2px solid #d97706;
+  border-radius: 8px;
+}
+.cal-day-cell.is-journey-day.journey-color-4:not(.is-today):not(.is-selected) .cal-day-num {
+  color: #b45309;
+  font-weight: 700;
+}
+.cal-label-flight.journey-color-4,
+.cal-label-return.journey-color-4 {
+  color: #d97706;
+  font-weight: 700;
+}
+.cal-label-stay.journey-color-4 {
+  color: #b45309;
+  font-weight: 700;
+}
+
+/* Palette 5: Deep Ocean */
+.cal-day-cell.is-journey-day.journey-color-5 {
+  background-color: rgba(2, 132, 199, 0.07);
+  border-top-color: rgba(2, 132, 199, 0.35);
+  border-bottom-color: rgba(2, 132, 199, 0.35);
+}
+.cal-day-cell.is-journey-day.journey-color-5:hover:not(.cal-empty-cell) {
+  background-color: rgba(2, 132, 199, 0.15);
+}
+.cal-day-cell.journey-start.journey-color-5 {
+  border-left: 3px solid #0284c7;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cal-day-cell.journey-end.journey-color-5 {
+  border-right: 3px solid #0284c7;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cal-day-cell.journey-sameday.journey-color-5 {
+  border: 2px solid #0284c7;
+  border-radius: 8px;
+}
+.cal-day-cell.is-journey-day.journey-color-5:not(.is-today):not(.is-selected) .cal-day-num {
+  color: #0369a1;
+  font-weight: 700;
+}
+.cal-label-flight.journey-color-5,
+.cal-label-return.journey-color-5 {
+  color: #0284c7;
+  font-weight: 700;
+}
+.cal-label-stay.journey-color-5 {
+  color: #0369a1;
+  font-weight: 700;
+}
+
+.cal-dots-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: 2px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 1px;
+}
+
+/* Clean text labels below date number */
+.cal-label-flight,
+.cal-label-arrival,
+.cal-label-return,
+.cal-label-standby,
+.cal-label-stay {
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.15;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.04em;
+  text-align: center;
+}
+
+.cal-label-flight {
+  color: #1a73e8;
+}
+
+.cal-label-arrival {
+  color: #0284c7;
+}
+
+.cal-label-return {
+  color: #0284c7;
+}
+
+.cal-label-standby {
+  color: #d97706;
+}
+
+.cal-label-stay {
+  color: #15803d;
+}
+
+.cal-basis-notice {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 10px;
+  text-align: right;
+}
+
+@media (max-width: 400px) {
+  .calendar-card {
+    padding: 14px 10px;
+  }
+  .cal-day-cell,
+  .cal-empty-cell {
+    min-height: 52px;
+    padding: 5px 1px 5px;
+  }
+  .cal-day-num {
+    width: 22px;
+    height: 22px;
+    font-size: 0.8rem;
+  }
+  .cal-label-flight,
+  .cal-label-arrival,
+  .cal-label-return,
+  .cal-label-standby,
+  .cal-label-stay {
+    font-size: 0.58rem;
+    letter-spacing: -0.05em;
+  }
+}
+
+/* Flight List Card Container (Matches Reference Image) */
+.calendar-list-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 18px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.flight-list-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.flight-list-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+}
+
+.btn-view-all-link {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.btn-view-all-link:hover {
+  background-color: var(--color-primary-light);
+}
+
+.empty-notice-card {
+  background-color: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.empty-notice-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.flight-items-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.flight-item-card {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flight-item-card:first-child {
+  padding-top: 4px;
+}
+
+.flight-item-card:last-child {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.flight-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-text-sub);
+  margin-bottom: 2px;
+}
+
+.flight-dep-date-label {
+  font-weight: 500;
+}
+
+.flight-num-label {
+  font-weight: 600;
+  color: var(--color-text-sub);
+}
+
+.flight-row-cities {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.flight-city-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.flight-city-name.is-arr {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.flight-country-tag {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-sub);
+}
+
+.flight-city-arrow {
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.flight-row-codes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-main);
+}
+
+.flight-code-time.is-arr {
+  text-align: right;
+}
+
+.flight-row-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-sub);
+  margin-top: 4px;
+}
+
+.flight-row-meta strong {
+  font-weight: 500;
+}
+
+.flight-row-meta strong.arr-date-diff {
+  color: #1a73e8;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Consolidated Journey Schedule Card (비행 일정 / 여정 카드)
+   ========================================================================== */
+.journey-schedule-card {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.journey-schedule-card:first-child {
+  padding-top: 4px;
+}
+
+.journey-schedule-card:last-child {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.jsc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jsc-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jsc-date-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  letter-spacing: -0.01em;
+}
+
+.jsc-duration-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1a73e8;
+  background-color: rgba(26, 115, 232, 0.08);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.jsc-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.jsc-badge-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.jsc-badge-upcoming {
+  background-color: rgba(26, 115, 232, 0.12);
+  color: #1a73e8;
+}
+
+.jsc-badge-completed {
+  background-color: var(--color-border-light);
+  color: var(--color-text-sub);
+}
+
+.jsc-badge-standby {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.jsc-badge-dot {
+  font-size: 0.65rem;
+}
+
+.jsc-main-route {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jsc-dest-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+}
+
+.jsc-flight-numbers {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+}
+
+/* Timeline Legs Container inside Journey Card */
+.jsc-legs-container {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.jsc-leg-row {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--color-surface);
+}
+
+.jsc-leg-row + .jsc-leg-row {
+  border-top: 1px solid var(--color-border-light);
+}
+
+.jsc-leg-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-text-sub);
+}
+
+.jsc-leg-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+.jsc-leg-tag.outbound {
+  background-color: rgba(26, 115, 232, 0.1);
+  color: #1a73e8;
+}
+
+.jsc-leg-tag.inbound {
+  background-color: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+}
+
+.jsc-leg-tag.inter {
+  background-color: var(--color-border-light);
+  color: var(--color-text-sub);
+}
+
+.jsc-leg-tag.standby {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.jsc-leg-date {
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.jsc-leg-cities {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  letter-spacing: -0.01em;
+}
+
+.jsc-arrow {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.jsc-leg-times {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--color-text-sub);
+}
+
+.jsc-time-code {
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.jsc-time-arrow {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.jsc-tz-hint {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-left: 2px;
+}
+
+.jsc-leg-diff-date {
+  font-size: 0.75rem;
+  color: #1a73e8;
+  margin-top: 2px;
+}
+
+.jsc-leg-diff-date strong {
+  font-weight: 700;
+}
+
+/* Intermediate Stay Notice within Journey */
+.jsc-stay-notice {
+  background-color: rgba(21, 128, 61, 0.06);
+  border-top: 1px dashed rgba(21, 128, 61, 0.25);
+  border-bottom: 1px dashed rgba(21, 128, 61, 0.25);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+.jsc-stay-icon {
+  font-size: 0.9rem;
+}
+
+.jsc-stay-sub {
+  font-size: 0.74rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.jsc-open-stay {
+  background-color: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.25);
+  color: #b45309;
+}
+
+.jsc-footer {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  padding-top: 6px;
+  border-top: 1px dashed var(--color-border-light);
+  line-height: 1.4;
+}
+
+.jsc-footer strong {
+  color: var(--color-text-sub);
+  font-weight: 600;
+}
+
+[data-theme="asiana"] .jsc-duration-badge,
+[data-theme="asiana"] .jsc-leg-tag.outbound,
+[data-theme="asiana"] .jsc-badge-upcoming {
+  color: #8b1d40;
+  background-color: rgba(139, 29, 64, 0.1);
+}
+
+[data-theme="koreanair"] .jsc-duration-badge,
+[data-theme="koreanair"] .jsc-leg-tag.outbound,
+[data-theme="koreanair"] .jsc-badge-upcoming {
+  color: #006ac1;
+  background-color: rgba(0, 106, 193, 0.1);
+}
+
+/* Journey Schedule Card Distinct Left Accents & Color Highlights */
+.journey-schedule-card.journey-color-0 {
+  border-left: 4px solid #1a73e8;
+  padding-left: 14px;
+}
+.journey-schedule-card.journey-color-0 .jsc-duration-badge {
+  background-color: rgba(26, 115, 232, 0.1);
+  color: #1a73e8;
+}
+.journey-schedule-card.journey-color-0 .jsc-leg-tag.outbound,
+.journey-schedule-card.journey-color-0 .jsc-leg-tag.inbound {
+  background-color: rgba(26, 115, 232, 0.1);
+  color: #1a73e8;
+}
+
+.journey-schedule-card.journey-color-1 {
+  border-left: 4px solid #059669;
+  padding-left: 14px;
+}
+.journey-schedule-card.journey-color-1 .jsc-duration-badge {
+  background-color: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+.journey-schedule-card.journey-color-1 .jsc-leg-tag.outbound,
+.journey-schedule-card.journey-color-1 .jsc-leg-tag.inbound {
+  background-color: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+.journey-schedule-card.journey-color-1 .jsc-stay-notice {
+  background-color: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.25);
+  color: #047857;
+}
+
+.journey-schedule-card.journey-color-2 {
+  border-left: 4px solid #7c3aed;
+  padding-left: 14px;
+}
+.journey-schedule-card.journey-color-2 .jsc-duration-badge {
+  background-color: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+}
+.journey-schedule-card.journey-color-2 .jsc-leg-tag.outbound,
+.journey-schedule-card.journey-color-2 .jsc-leg-tag.inbound {
+  background-color: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+}
+.journey-schedule-card.journey-color-2 .jsc-stay-notice {
+  background-color: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.25);
+  color: #6d28d9;
+}
+
+.journey-schedule-card.journey-color-3 {
+  border-left: 4px solid #e11d48;
+  padding-left: 14px;
+}
+.journey-schedule-card.journey-color-3 .jsc-duration-badge {
+  background-color: rgba(225, 29, 72, 0.1);
+  color: #e11d48;
+}
+.journey-schedule-card.journey-color-3 .jsc-leg-tag.outbound,
+.journey-schedule-card.journey-color-3 .jsc-leg-tag.inbound {
+  background-color: rgba(225, 29, 72, 0.1);
+  color: #e11d48;
+}
+.journey-schedule-card.journey-color-3 .jsc-stay-notice {
+  background-color: rgba(225, 29, 72, 0.08);
+  border-color: rgba(225, 29, 72, 0.25);
+  color: #be123c;
+}
+
+.journey-schedule-card.journey-color-4 {
+  border-left: 4px solid #d97706;
+  padding-left: 14px;
+}
+.journey-schedule-card.journey-color-4 .jsc-duration-badge {
+  background-color: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+}
+.journey-schedule-card.journey-color-4 .jsc-leg-tag.outbound,
+.journey-schedule-card.journey-color-4 .jsc-leg-tag.inbound {
+  background-color: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+}
+.journey-schedule-card.journey-color-4 .jsc-stay-notice {
+  background-color: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.25);
+  color: #b45309;
+}
+
+.journey-schedule-card.journey-color-5 {
+  border-left: 4px solid #0284c7;
+  padding-left: 14px;
+}
+.journey-schedule-card.journey-color-5 .jsc-duration-badge {
+  background-color: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+}
+.journey-schedule-card.journey-color-5 .jsc-leg-tag.outbound,
+.journey-schedule-card.journey-color-5 .jsc-leg-tag.inbound {
+  background-color: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+}
+.journey-schedule-card.journey-color-5 .jsc-stay-notice {
+  background-color: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.25);
+  color: #0369a1;
+}
+
+.journey-schedule-card.journey-color-standby {
+  border-left: 4px solid #d97706;
+  padding-left: 14px;
+}
+
+.show-more-box {
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Schedule Manager Fullscreen Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(32, 33, 36, 0.6);
+  z-index: 1000;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-overlay.is-active {
+  display: block;
+}
+
+.modal-dialog {
+  background-color: var(--color-surface);
+  min-height: 100vh;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 900px) {
+  .modal-overlay {
+    padding: 24px 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.is-active {
+    display: flex;
+  }
+  .modal-dialog {
+    min-height: auto;
+    max-height: 90vh;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+}
+
+.modal-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mgmt-section-box {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.mgmt-section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mgmt-import-btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+}
+
+.mgmt-import-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+@media (max-width: 360px) {
+  .mgmt-import-btn {
+    padding: 7px 6px;
+    font-size: 0.78rem;
+    gap: 4px;
+  }
+}
+
+.form-grid-2,
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.form-group label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+}
+
+.form-input, .form-select {
+  min-height: var(--min-touch-target);
+  font-size: 1rem; /* Prevent iOS zoom */
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+/* Field States */
+.highlight-uncertain {
+  background-color: var(--color-warning-bg) !important;
+  border-color: var(--color-warning-border) !important;
+}
+
+.field-error {
+  border-color: var(--color-danger) !important;
+  background-color: var(--color-danger-light) !important;
+}
+
+.mgmt-row-card.row-error {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 2px var(--color-danger-light);
+}
+
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.autocomplete-item:hover {
+  background-color: var(--color-primary-light);
+}
+
+.country-sub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Row card in editor */
+.mgmt-row-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.mgmt-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border-light);
+  gap: 8px;
+}
+
+.mgmt-row-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.mgmt-flt-num-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mgmt-flt-num-inline label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  white-space: nowrap;
+}
+
+.mgmt-flt-num-inline input {
+  width: 80px;
+  height: 30px;
+  min-height: 30px;
+  padding: 2px 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 0.8125rem;
+}
+
+.row-num-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--color-border-light);
+  color: var(--color-text-main);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.btn-delete-row {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.btn-delete-row:hover {
+  background-color: var(--color-danger-light);
+}
+
+.mgmt-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mgmt-flight-line {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.mgmt-col-airport {
+  position: relative;
+}
+
+.mgmt-col-airport .autocomplete-dropdown {
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.mgmt-col-airport label,
+.mgmt-col-datetime label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+/* Compact input styling specifically for flight schedule cards */
+.form-input.form-input-compact {
+  min-height: 32px;
+  height: 32px;
+  padding: 4px 8px;
+  font-size: 0.8125rem;
+  border-radius: 6px;
+}
+
+.form-input.form-input-compact[type="datetime-local"] {
+  padding: 4px 6px;
+  font-size: 0.8125rem;
+  letter-spacing: -0.3px;
+  width: 100%;
+}
+
+.form-input.form-input-compact[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.form-input.form-input-compact[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.mgmt-row-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+/* Progress & Notices */
+.ocr-progress-box {
+  margin-top: 10px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-primary);
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* Guard Checkbox & Footer */
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confirm-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+
+.modal-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Mobile Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+  box-shadow: 0 -1px 3px rgba(60, 64, 67, 0.08);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  background: none;
+  border: none;
+  color: var(--color-text-sub);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  gap: 3px;
+  transition: color 0.15s ease;
+}
+
+.bottom-nav-item svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-item.active {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Utilities */
+.subtext {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.hidden {
+  display: none !important;
+}
