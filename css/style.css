@@ -758,7 +758,7 @@ html[data-theme="hellokitty"] .cal-day-cell.is-today:not(.is-selected) .cal-day-
   background-color: #ff0055;
 }
 
-/* Hello Kitty: Flight Calendar Top-Right Sparkling Kitty Mascot */
+/* Hello Kitty: Flight Calendar Top-Right Sparkling Kitty Mascot (Border Spacing Match) */
 html[data-theme="hellokitty"] .calendar-card {
   position: relative;
 }
@@ -766,10 +766,10 @@ html[data-theme="hellokitty"] .calendar-card {
 html[data-theme="hellokitty"] .calendar-card::before {
   content: "";
   position: absolute;
-  top: 10px;
-  right: 14px;
-  width: 42px;
-  height: 33px;
+  top: -14px;
+  right: 16px;
+  width: 40px;
+  height: 31px;
   background: url("../assets/img/hk-sparkle.png") no-repeat center / contain;
   filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
   pointer-events: none;
@@ -777,11 +777,7 @@ html[data-theme="hellokitty"] .calendar-card::before {
   animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
 }
 
-html[data-theme="hellokitty"] .calendar-card .calendar-header {
-  padding-right: 48px;
-}
-
-/* Hello Kitty: Journey Card Running Kitty in Top-Right Corner */
+/* Hello Kitty: Journey Card Running Kitty in Top-Right Corner (Border Spacing Match) */
 html[data-theme="hellokitty"] .journey-active-card,
 html[data-theme="hellokitty"] .journey-empty-card {
   position: relative;
@@ -793,19 +789,15 @@ html[data-theme="hellokitty"] .journey-active-card::before,
 html[data-theme="hellokitty"] .journey-empty-card::before {
   content: "";
   position: absolute;
-  top: 10px;
-  right: 14px;
-  width: 36px;
-  height: 38px;
+  top: -14px;
+  right: 16px;
+  width: 34px;
+  height: 36px;
   background: url("../assets/img/hk-running.png") no-repeat center / contain;
   filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
   pointer-events: none;
-  z-index: 2;
+  z-index: 5;
   animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
-}
-
-html[data-theme="hellokitty"] .journey-active-card .journey-card-header {
-  padding-right: 44px;
 }
 
 html[data-theme="hellokitty"] .journey-badge-pill {
@@ -1262,6 +1254,8 @@ html[data-theme="hellokitty"] .journey-badge-pill {
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .journey-badge-pill {
