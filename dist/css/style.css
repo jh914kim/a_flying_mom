@@ -2796,6 +2796,9 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 10px 14px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .mgmt-section-title {
@@ -2837,8 +2840,22 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
 .form-grid-2,
 .form-grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .modal-body {
+    padding: 12px 14px;
+  }
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
 .form-group {
@@ -2846,6 +2863,10 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
   flex-direction: column;
   gap: 4px;
   position: relative;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group label {
@@ -2865,6 +2886,43 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  display: block;
+}
+
+/* iOS Safari WebKit input[type="month"] and date overflow & alignment fix */
+.form-input[type="month"],
+.form-input[type="date"],
+.form-input[type="datetime-local"],
+#mgmt-month-input {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--color-surface);
+}
+
+.form-input[type="month"]::-webkit-date-and-time-value,
+.form-input[type="date"]::-webkit-date-and-time-value,
+.form-input[type="datetime-local"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.4em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input[type="month"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.form-input[type="month"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .form-input:focus, .form-select:focus {
