@@ -1,5 +1,5 @@
 /**
- * a flying mom - Custom MapLibre GL Style for OpenFreeMap
+ * flying mom - Custom MapLibre GL Style for OpenFreeMap
  * 
  * Based on Positron, heavily customized:
  * - Land background: #F6F5EF

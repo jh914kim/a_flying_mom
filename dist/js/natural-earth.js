@@ -1,5 +1,5 @@
 /**
- * a flying mom - Natural Earth Simplified World Landmass GeoJSON (1:110m)
+ * flying mom - Natural Earth Simplified World Landmass GeoJSON (1:110m)
  * Embedded locally to provide an instant offline fallback map when OpenFreeMap connection fails.
  */
 

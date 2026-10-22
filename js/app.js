@@ -1,5 +1,5 @@
 /**
- * a flying mom - Main Application Coordinator
+ * flying mom - Main Application Coordinator
  * Bootstraps modules, manages live clock ticker, weather updates,
  * lazy-loaded map, multi-tab sync, and mobile bottom navigation.
  */

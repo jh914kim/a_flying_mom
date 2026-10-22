@@ -1,5 +1,5 @@
 /**
- * a flying mom - Global IATA Airport Database (Static Bundle)
+ * flying mom - Global IATA Airport Database (Static Bundle)
  * Total Airports: 4031 global commercial IATA airports.
  * Fields per airport: code (IATA), city (Korean/local), cityEn (English), country (Korean), countryEn (English), lat, lng, tz (IANA Timezone, DST-aware).
  *
@@ -34,12 +34,13 @@ export const AIRPORT_DATA_META = {
 export const GWACHEON_BASE = {
   code: 'HOME',
   name: '집 (과천)',
+  address: '경기도 과천시 과천대로 8길 65',
   city: '과천',
   cityEn: 'Gwacheon',
   country: '대한민국',
   countryEn: 'South Korea',
-  lat: 37.4292,
-  lng: 126.9876,
+  lat: 37.411771,
+  lng: 126.989474,
   tz: 'Asia/Seoul'
 };
 

@@ -1,5 +1,5 @@
 /**
- * a flying mom - Open-Meteo Weather Service
+ * flying mom - Open-Meteo Weather Service
  * Free API-key-free weather fetching with 10-minute client caching.
  * Translates WMO weather codes to Korean descriptions and SVG icons.
  * Gracefully reports "확인 불가" on network or parsing failure.
@@ -7,6 +7,13 @@
 
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const weatherCache = new Map();
+
+/**
+ * Clear client-side weather cache for manual refresh
+ */
+export function clearWeatherCache() {
+  weatherCache.clear();
+}
 
 /**
  * Maps WMO weather interpretation codes to Korean descriptions & SVG icons
@@ -127,7 +134,7 @@ export async function fetchCurrentWeather(lat, lng) {
     const meta = getWeatherMeta(code);
 
     const updateDate = new Date();
-    const updatedTime = `${String(updateDate.getHours()).padStart(2, '0')}:${String(updateDate.getMinutes()).padStart(2, '0')} 한국 기준 갱신`;
+    const updatedTime = `${String(updateDate.getHours()).padStart(2, '0')}:${String(updateDate.getMinutes()).padStart(2, '0')} 확인`;
 
     const result = {
       available: true,

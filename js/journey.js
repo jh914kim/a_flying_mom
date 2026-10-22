@@ -1,5 +1,5 @@
 /**
- * a flying mom - Journey (여정) Tracker
+ * flying mom - Journey (여정) Tracker
  * Groups flights into round-trip or multi-leg journeys between Korea and overseas.
  * Displays CURRENT JOURNEY or NEXT JOURNEY in Korea Standard Time (KST).
  */

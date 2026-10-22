@@ -1,5 +1,5 @@
 /**
- * a flying mom - Schedule Manager Modal & Editor
+ * flying mom - Schedule Manager Modal & Editor
  * Fullscreen mobile responsive editor, photo OCR import, text paste parser,
  * JSON backup/restore with deep verification, row numbering, uncertainty highlights,
  * field jump-on-error, and confirmation guard checkbox.

@@ -1,5 +1,5 @@
 /**
- * a flying mom - Open-Meteo Weather Service
+ * flying mom - Open-Meteo Weather Service
  * Free API-key-free weather fetching with 10-minute client caching.
  * Translates WMO weather codes to Korean descriptions and SVG icons.
  * Gracefully reports "확인 불가" on network or parsing failure.

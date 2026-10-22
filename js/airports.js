@@ -1,5 +1,5 @@
 /**
- * a flying mom - Global IATA Airport Database (Static Bundle)
+ * flying mom - Global IATA Airport Database (Static Bundle)
  * Total Airports: 4031 global commercial IATA airports.
  * Fields per airport: code (IATA), city (Korean/local), cityEn (English), country (Korean), countryEn (English), lat, lng, tz (IANA Timezone, DST-aware).
  *

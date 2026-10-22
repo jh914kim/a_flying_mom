@@ -1,5 +1,5 @@
 /**
- * a flying mom - Timezone & UTC Conversion Utilities
+ * flying mom - Timezone & UTC Conversion Utilities
  * Handles IANA timezones, Daylight Saving Time (DST), and UTC conversions using native Intl API.
  */
 

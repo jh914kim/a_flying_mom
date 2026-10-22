@@ -1,12 +1,12 @@
 /**
- * a flying mom - Main Application Coordinator
+ * flying mom - Main Application Coordinator
  * Bootstraps modules, manages live clock ticker, weather updates,
  * lazy-loaded map, multi-tab sync, and mobile bottom navigation.
  */
 
 import { determineCurrentStatus, STATUS_TYPES, getDirectionParticle } from './location-engine.js';
 import { getCurrentOrNextJourney } from './journey.js';
-import { fetchCurrentWeather } from './weather.js';
+import { fetchCurrentWeather, clearWeatherCache } from './weather.js';
 import { formatLocationTime, formatTzDateTime, formatMetaTime } from './timezone.js';
 import { initMap, updateMapWithStatus, resetToWorldView, focusCurrentLocation } from './map.js';
 import { initCalendar, prevCalendarMonth, nextCalendarMonth, renderCalendar } from './calendar.js';
@@ -61,6 +61,9 @@ export async function initApp() {
 
   // Setup Bottom Navigation Bar (Mobile)
   setupBottomNav();
+
+  // Setup Screen Refresh Button
+  setupScreenRefresh();
 
   // Initial Full Render
   await refreshAllViews();
@@ -170,6 +173,28 @@ function setActiveNav(activeBtn) {
 }
 
 /**
+ * Setup Screen Refresh Button on Status Card Top-Right
+ */
+function setupScreenRefresh() {
+  const btnRefresh = document.getElementById('btn-screen-refresh');
+  if (!btnRefresh) return;
+
+  btnRefresh.addEventListener('click', async () => {
+    btnRefresh.classList.add('is-spinning');
+    try {
+      clearWeatherCache();
+      await refreshAllViews();
+    } catch (err) {
+      console.error('Refresh views error:', err);
+    } finally {
+      setTimeout(() => {
+        btnRefresh.classList.remove('is-spinning');
+      }, 600);
+    }
+  });
+}
+
+/**
  * Refreshes current status, integrated card, map, journey card, and calendar
  */
 export async function refreshAllViews() {
@@ -222,10 +247,20 @@ function updateLiveTick() {
   }
 
   // 3. In-flight progress bar update
+  const remainingEl = document.getElementById('status-remaining-time');
   if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
     const progressFill = document.getElementById('status-progress-fill');
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
     if (progressFill) progressFill.style.width = `${pct}%`;
+    if (remainingEl) {
+      remainingEl.textContent = statusData.remainingTimeText || '';
+      remainingEl.style.display = 'inline-block';
+    }
+  } else {
+    if (remainingEl) {
+      remainingEl.textContent = '';
+      remainingEl.style.display = 'none';
+    }
   }
 
   // 4. Update map aircraft position & progress if in flight
@@ -257,9 +292,15 @@ async function updateStatusCard(statusData, now) {
   const titleEl = document.getElementById('status-card-title');
   const descEl = document.getElementById('status-card-desc');
   if (titleEl) {
-    if (statusData.status === STATUS_TYPES.IN_FLIGHT && statusData.cityHighlight) {
-      const dir = getDirectionParticle(statusData.cityHighlight);
-      titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${statusData.cityHighlight}</span>${dir} 날아가고 있어요`;
+    if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
+      if (statusData.isReturningToKorea) {
+        titleEl.innerHTML = `엄마는 <span class="status-city-highlight">한국</span>으로 오고 있어요`;
+      } else if (statusData.cityHighlight) {
+        const dir = getDirectionParticle(statusData.cityHighlight);
+        titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${statusData.cityHighlight}</span>${dir} 날아가고 있어요`;
+      } else {
+        titleEl.textContent = statusData.title || '엄마의 일정을 확인하는 중...';
+      }
     } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY && statusData.cityHighlight) {
       titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${statusData.cityHighlight}</span>에 머무르고 있어요`;
     } else if (statusData.status === STATUS_TYPES.HOME) {
@@ -269,6 +310,17 @@ async function updateStatusCard(statusData, now) {
     }
   }
   if (descEl) descEl.textContent = statusData.description;
+
+  const remainingEl = document.getElementById('status-remaining-time');
+  if (remainingEl) {
+    if (statusData.status === STATUS_TYPES.IN_FLIGHT && statusData.remainingTimeText) {
+      remainingEl.textContent = statusData.remainingTimeText;
+      remainingEl.style.display = 'inline-block';
+    } else {
+      remainingEl.textContent = '';
+      remainingEl.style.display = 'none';
+    }
+  }
 
   // 4. In-flight Progress Bar
   const progressContainer = document.getElementById('status-progress-container');

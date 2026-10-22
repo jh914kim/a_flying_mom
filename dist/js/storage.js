@@ -1,5 +1,5 @@
 /**
- * a flying mom - Local Storage Manager
+ * flying mom - Local Storage Manager
  * Handles client-side persistent storage per month, backup/restore with deep JSON schema validation,
  * atomic transactions, quota error catching, and cross-tab synchronization.
  */

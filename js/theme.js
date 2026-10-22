@@ -1,5 +1,5 @@
 /**
- * a flying mom - Theme Manager Module
+ * flying mom - Theme Manager Module
  * 
  * Supports 3 distinct airline/flight themes:
  * 1. 'default'   : Google Flights (https://www.google.com/travel/flights)

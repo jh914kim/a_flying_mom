@@ -1,5 +1,5 @@
 /**
- * a flying mom - Interactive Map Module (OpenFreeMap + MapLibre GL JS + Leaflet)
+ * flying mom - Interactive Map Module (OpenFreeMap + MapLibre GL JS + Leaflet)
  * 
  * - Map Provider: OpenFreeMap (Not Google Maps, zero API keys required).
  * - Map Data: OpenStreetMap based data provided via OpenFreeMap.

@@ -1,5 +1,5 @@
 /**
- * a flying mom - Flight Calendar Module
+ * flying mom - Flight Calendar Module
  * 
  * Matches the clean reference calendar UI:
  * - Legend: ● 비행  ● 해외 체류  ● 오늘

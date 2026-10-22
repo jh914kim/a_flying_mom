@@ -1,5 +1,5 @@
 /**
- * a flying mom - Location & Flight Calculation Engine
+ * flying mom - Location & Flight Calculation Engine
  * Estimates current status, location, in-flight progress, and geodesic great-circle flight paths.
  */
 
@@ -130,14 +130,46 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       const depCity = f.depAirport ? f.depAirport.city.split('/')[0] : f.from;
       const dirParticle = getDirectionParticle(targetCity);
 
+      // Check if arriving into Incheon (ICN) or Gimpo (GMP)
+      const arrCode = (f.arrAirport?.code || f.to || '').toUpperCase();
+      const arrCity = f.arrAirport?.city || '';
+      const isReturningToKorea = isKoreaBase(arrCode) || 
+                                ['ICN', 'GMP'].includes(arrCode) || 
+                                arrCity.includes('인천') || 
+                                arrCity.includes('김포') ||
+                                String(f.to).includes('인천') ||
+                                String(f.to).includes('김포');
+
+      const displayTitle = isReturningToKorea
+        ? '엄마는 한국으로 오고 있어요'
+        : `엄마는 ${targetCity}${dirParticle} 날아가고 있어요`;
+
+      // Calculate remaining flight time
+      const remainingMs = Math.max(0, arrTs - nowTs);
+      const remainingTotalMin = Math.round(remainingMs / (1000 * 60));
+      const remainingH = Math.floor(remainingTotalMin / 60);
+      const remainingM = remainingTotalMin % 60;
+      let remainingFormatted = '';
+      if (remainingH > 0 && remainingM > 0) {
+        remainingFormatted = `${remainingH}시간 ${remainingM}분`;
+      } else if (remainingH > 0) {
+        remainingFormatted = `${remainingH}시간`;
+      } else if (remainingM > 0) {
+        remainingFormatted = `${remainingM}분`;
+      } else {
+        remainingFormatted = '1분 미만';
+      }
+      const remainingTimeText = `남은 비행시간 ${remainingFormatted}`;
+
       return {
         status: STATUS_TYPES.IN_FLIGHT,
         badgeText: '예정상 비행 중',
         badgeType: 'flight',
-        cityHighlight: targetCity,
+        isReturningToKorea,
+        cityHighlight: isReturningToKorea ? '한국' : targetCity,
         destCityName: targetCity,
-        title: `엄마는 ${targetCity}${dirParticle} 날아가고 있어요`,
-        description: `${f.number} · ${depCity} → ${targetCity} · 예정 비행시간 기준`,
+        title: displayTitle,
+        description: `${f.number} · ${depCity} → ${targetCity}`,
         locationName: `${f.from} ➔ ${f.to}`,
         airport: f.arrAirport, // Weather is for arrival destination
         weatherAirport: f.arrAirport,
@@ -147,6 +179,9 @@ export function determineCurrentStatus(nowUtc = new Date()) {
         flight: f,
         nextFlight: timeline[i + 1] || null,
         progress,
+        remainingMs,
+        remainingFormatted,
+        remainingTimeText,
         flightPath: generateGreatCirclePath(fromCoords, toCoords)
       };
     }
@@ -170,6 +205,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
     const airport = prevFlight.arrAirport || getAirport(prevFlight.to);
     const city = airport ? airport.city.split('/')[0] : prevFlight.to;
     const coords = airport ? [airport.lat, airport.lng] : [GWACHEON_BASE.lat, GWACHEON_BASE.lng];
+    const nextDepCity = nextFlight && nextFlight.depAirport ? nextFlight.depAirport.city.split('/')[0] : (nextFlight ? nextFlight.from : '');
     const nextCity = nextFlight && nextFlight.arrAirport ? nextFlight.arrAirport.city.split('/')[0] : (nextFlight ? nextFlight.to : '');
 
     return {
@@ -179,7 +215,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       cityHighlight: city,
       destCityName: city,
       title: `엄마는 ${city}에 머무르고 있어요`,
-      description: nextFlight ? `${prevFlight.number} 도착 후 체류 중 · 다음 비행: ${nextFlight.number} (${prevFlight.to} → ${nextCity || nextFlight.to})` : `${prevFlight.number} 도착 후 현지 체류 중`,
+      description: nextFlight ? `${prevFlight.number} 도착 후 체류 중 · 다음 비행: ${nextFlight.number} (${nextDepCity || prevFlight.to} → ${nextCity || nextFlight.to})` : `${prevFlight.number} 도착 후 현지 체류 중`,
       locationName: airport ? `${airport.city} (${airport.code})` : prevFlight.to,
       airport: airport || GWACHEON_BASE,
       weatherAirport: airport || GWACHEON_BASE,
@@ -216,6 +252,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
   }
 
   // 5. If has schedule in current month and at home base
+  const nextDepCity = nextFlight && nextFlight.depAirport ? nextFlight.depAirport.city.split('/')[0] : (nextFlight ? nextFlight.from : '');
   const nextCity = nextFlight && nextFlight.arrAirport ? nextFlight.arrAirport.city.split('/')[0] : (nextFlight ? nextFlight.to : '');
   return {
     status: STATUS_TYPES.HOME,
@@ -224,7 +261,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
     cityHighlight: '우리 집',
     destCityName: '우리 집 (과천)',
     title: '엄마는 우리 집에 있어요',
-    description: nextFlight ? `다음 비행: ${nextFlight.number} · ${nextFlight.from} → ${nextCity || nextFlight.to}` : '현재 예정된 비행 일정이 없어요.',
+    description: nextFlight ? `다음 비행: ${nextFlight.number} · ${nextDepCity} → ${nextCity || nextFlight.to}` : '현재 예정된 비행 일정이 없어요.',
     locationName: '과천 (집)',
     airport: GWACHEON_BASE,
     weatherAirport: GWACHEON_BASE,

@@ -1,5 +1,5 @@
 /**
- * a flying mom - Location & Flight Calculation Engine
+ * flying mom - Location & Flight Calculation Engine
  * Estimates current status, location, in-flight progress, and geodesic great-circle flight paths.
  */
 
