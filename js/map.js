@@ -250,6 +250,21 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
     });
   }
 
+  if (themeId === 'rilakkuma') {
+    const html = `
+      <div class="rk-home-marker-wrapper" style="width: 54px; height: 40px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/rk-home-rilakkuma.png" width="52" height="38" alt="우리 집 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-home-pin rk-home-pin',
+      html: html,
+      iconSize: [54, 40],
+      iconAnchor: [27, 20],
+      popupAnchor: [0, -18]
+    });
+  }
+
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
@@ -300,6 +315,7 @@ function createAirportIcon(L, color = '#5f6368') {
  */
 function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor = '#ffffff', themeId = 'default') {
   const isHelloKitty = themeId === 'hellokitty' || (typeof fillColor === 'object' && fillColor.id === 'hellokitty');
+  const isRilakkuma = themeId === 'rilakkuma' || (typeof fillColor === 'object' && fillColor.id === 'rilakkuma');
   const actualFill = typeof fillColor === 'object' ? (fillColor.airplaneColor || '#1A73E8') : fillColor;
   const actualStroke = typeof fillColor === 'object' ? (fillColor.airplaneStroke || strokeColor) : strokeColor;
 
@@ -312,8 +328,6 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
     const imgSrc = isWestbound ? 'assets/img/hk-airplane-west.png' : 'assets/img/hk-airplane-east.png';
 
     // Calculate natural climb/descent pitch angle (clamped within ±25 deg)
-    // Eastbound: heading 90 = 0deg, heading 45 = -18deg (climb NE), heading 135 = +18deg (descend SE)
-    // Westbound: heading 270 = 0deg, heading 315 = -18deg (climb NW), heading 225 = +18deg (descend SW)
     const pitch = isWestbound
       ? Math.max(-25, Math.min(25, (270 - normalized) * 0.4))
       : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
@@ -329,6 +343,29 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
       html: html,
       iconSize: [48, 46],
       iconAnchor: [24, 23]
+    });
+  }
+
+  if (isRilakkuma) {
+    const normalized = ((heading % 360) + 360) % 360;
+    const isWestbound = normalized >= 180 && normalized < 360;
+    const imgSrc = isWestbound ? 'assets/img/rk-airplane-west.png' : 'assets/img/rk-airplane-east.png';
+
+    const pitch = isWestbound
+      ? Math.max(-25, Math.min(25, (270 - normalized) * 0.4))
+      : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
+
+    const html = `
+      <div class="rk-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 50px; height: 42px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="${imgSrc}" width="48" height="40" alt="리락쿠마 비행기" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+
+    return L.divIcon({
+      className: 'custom-airplane-pin rk-airplane-pin',
+      html: html,
+      iconSize: [50, 42],
+      iconAnchor: [25, 21]
     });
   }
 
@@ -382,12 +419,12 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
   } else if (statusData.status === STATUS_TYPES.HOME) {
-    const isHK = theme.id === 'hellokitty';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
     currentMarker = L.marker(coords, {
       icon: createHomeIcon(L, theme.primaryColor, theme.id),
       zIndexOffset: 1000
     });
-    currentMarker.bindTooltip('우리 집', { direction: 'top', offset: isHK ? [0, -19] : [0, -34] });
+    currentMarker.bindTooltip('우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>경기도 과천시 과천대로 8길 65`);
   } else {
     currentMarker = L.marker(coords, {

@@ -134,6 +134,35 @@ html[data-theme="hellokitty"] {
   --hk-ribbon: url("../assets/img/hellokitty-official-ribbon.png");
 }
 
+/* Theme 5: Rilakkuma (리락쿠마 - San-X Relaxing Bear, Warm Caramel Honey & Biscuit Cream) */
+html[data-theme="rilakkuma"] {
+  --color-bg: #fffdf5;
+  --color-surface: #ffffff;
+  --color-primary: #7a4422;
+  --color-primary-hover: #633517;
+  --color-primary-light: #fff3db;
+  --color-secondary-hover: #ffeac2;
+  --color-accent: #f5a623;
+  --color-brand-title: #5c341b;
+  --color-header-bg: rgba(255, 255, 255, 0.95);
+  --color-header-border: #eddcc7;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #fffbf0 50%, #fff7e6 100%);
+  --color-status-border: #eedbc3;
+  --color-cal-flight-bg: #fff0d4;
+  --color-cal-stay-bg: #fff9ec;
+  --color-cal-stay-badge: #f5a623;
+  --color-text-main: #382315;
+  --color-text-sub: #6e4f3a;
+  --color-text-muted: #9b7c67;
+  --color-border: #ecd8bf;
+  --color-border-light: #f6ebe0;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(122, 68, 34, 0.08), 0 1px 3px rgba(245, 166, 35, 0.05);
+  --shadow-md: 0 6px 18px rgba(122, 68, 34, 0.12);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -164,6 +193,18 @@ html[data-theme="hellokitty"] body {
     radial-gradient(circle at 90% 20%, rgba(255, 105, 180, 0.3) 0%, transparent 30%),
     radial-gradient(circle at 50% 85%, rgba(255, 192, 203, 0.35) 0%, transparent 40%),
     radial-gradient(#ffccd9 0.75px, transparent 0.75px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
+}
+
+/* Rilakkuma: Warm Cream Background with Soft Caramel Honey Nuance */
+html[data-theme="rilakkuma"] body {
+  background-color: #fffdf5;
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(255, 230, 168, 0.45) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(245, 166, 35, 0.25) 0%, transparent 30%),
+    radial-gradient(circle at 50% 85%, rgba(255, 240, 200, 0.4) 0%, transparent 40%),
+    radial-gradient(#ebd8bf 0.8px, transparent 0.8px);
   background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
   background-attachment: fixed;
 }
@@ -213,6 +254,13 @@ html[data-theme="hellokitty"] .app-header::before {
   background: linear-gradient(90deg, #ff0055 0%, #ff4081 25%, #ffb6c1 50%, #ff4081 75%, #ff0055 100%);
   background-size: 200% 100%;
   animation: hk-shimmer 4s linear infinite;
+}
+
+/* Rilakkuma Header signature Warm Caramel, Honey Amber & Cream top bar with Shimmer */
+html[data-theme="rilakkuma"] .app-header::before {
+  background: linear-gradient(90deg, #7a4422 0%, #f5a623 25%, #ffe082 50%, #f5a623 75%, #7a4422 100%);
+  background-size: 200% 100%;
+  animation: hk-shimmer 5s linear infinite;
 }
 
 .header-content {
@@ -446,8 +494,39 @@ html[data-theme="hellokitty"] .brand-logo-icon {
   box-shadow: 0 0 0 2px rgba(255, 0, 85, 0.35);
 }
 
+/* 5th Dot: Rilakkuma (San-X Official) */
+.theme-circle-rilakkuma {
+  background-color: #ffffff;
+  border-color: #ecd2b0;
+  box-shadow: 0 1px 4px rgba(122, 68, 34, 0.15);
+  overflow: visible;
+}
+
+.theme-circle-rilakkuma .theme-rilakkuma-img {
+  width: 22px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(122, 68, 34, 0.2));
+  transform: scale(1.05);
+}
+
+.theme-dot-btn[data-theme-option="rilakkuma"].is-selected .theme-circle {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+}
+
 .brand-kitty-img {
   width: 32px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-rilakkuma-img {
+  width: 30px;
   height: auto;
   object-fit: contain;
   display: block;
@@ -822,6 +901,157 @@ html[data-theme="hellokitty"] .calendar-list-card::before {
   height: 36px;
   background: url("../assets/img/hk-food.png") no-repeat center / contain;
   filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
+}
+
+/* Rilakkuma Cards Accent */
+html[data-theme="rilakkuma"] .calendar-card,
+html[data-theme="rilakkuma"] .journey-active-card,
+html[data-theme="rilakkuma"] .map-card {
+  border-top: 3.5px solid #f5a623;
+  border-color: #ecd8bf;
+  box-shadow: 0 8px 24px rgba(122, 68, 34, 0.08), 0 2px 6px rgba(245, 166, 35, 0.05);
+}
+
+/* Rilakkuma: Relaxing Bottom Nav */
+html[data-theme="rilakkuma"] .bottom-nav {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid #ecd8bf;
+  box-shadow: 0 -4px 16px rgba(122, 68, 34, 0.08);
+}
+
+html[data-theme="rilakkuma"] .nav-item.is-active {
+  color: #7a4422;
+  font-weight: 700;
+}
+
+/* Rilakkuma: Status Card Warmth */
+html[data-theme="rilakkuma"] .status-card {
+  border: 1.5px solid #ecd8bf;
+  box-shadow: 0 8px 24px rgba(122, 68, 34, 0.08), 0 2px 8px rgba(245, 166, 35, 0.06);
+  position: relative;
+}
+
+/* Rilakkuma: Status Badge Pills */
+html[data-theme="rilakkuma"] .status-badge-pill {
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+}
+
+html[data-theme="rilakkuma"] .status-badge-pill.badge-home {
+  background-color: #fff6e0;
+  color: #7a4422;
+  border: 1px solid #fedb99;
+}
+
+html[data-theme="rilakkuma"] .status-badge-pill.badge-flight {
+  background-color: #eaf8ff;
+  color: #0077a8;
+  border: 1px solid #bce6fa;
+}
+
+html[data-theme="rilakkuma"] .status-badge-pill.badge-stay {
+  background-color: #fff0db;
+  color: #c96b00;
+  border: 1px solid #ffd399;
+}
+
+/* Rilakkuma: Refresh button */
+html[data-theme="rilakkuma"] .btn-refresh-screen {
+  border-color: #ecd8bf;
+  color: #7a4422;
+  background-color: #ffffff;
+}
+
+html[data-theme="rilakkuma"] .btn-refresh-screen:hover {
+  background-color: #fff3db;
+  border-color: #f5a623;
+  box-shadow: 0 0 12px rgba(245, 166, 35, 0.3);
+}
+
+/* Rilakkuma: Calendar Selected Cell & Today */
+html[data-theme="rilakkuma"] .cal-day-cell.is-selected {
+  background-color: #fff6e0 !important;
+  border: 1.5px solid #f5a623 !important;
+  box-shadow: 0 0 8px rgba(245, 166, 35, 0.25) !important;
+}
+
+html[data-theme="rilakkuma"] .cal-day-cell.is-selected .cal-day-num,
+html[data-theme="rilakkuma"] .cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  background-color: #f5a623;
+  color: #ffffff;
+}
+
+/* Rilakkuma: Flight Calendar Top-Right Dancing Trio Mascot (Border Spacing Match) */
+html[data-theme="rilakkuma"] .calendar-card {
+  position: relative;
+}
+
+html[data-theme="rilakkuma"] .calendar-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 44px;
+  height: 38px;
+  background: url("../assets/img/rk-calendar.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(122, 68, 34, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
+}
+
+/* Rilakkuma: Journey Card Korilakkuma Mascot in Top-Right Corner (Border Spacing Match) */
+html[data-theme="rilakkuma"] .journey-active-card,
+html[data-theme="rilakkuma"] .journey-empty-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #fffdf8 100%);
+  border: 1.5px solid #ecd8bf;
+}
+
+html[data-theme="rilakkuma"] .journey-active-card::before,
+html[data-theme="rilakkuma"] .journey-empty-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 36px;
+  height: 38px;
+  background: url("../assets/img/rk-journey.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(122, 68, 34, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="rilakkuma"] .journey-badge-pill {
+  background: linear-gradient(135deg, #7a4422 0%, #f5a623 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(122, 68, 34, 0.2);
+  font-weight: 700;
+}
+
+/* Rilakkuma: Flight List Schedule Card Dango-Eating Rilakkuma Mascot (Border Spacing Match) */
+html[data-theme="rilakkuma"] .calendar-list-card {
+  position: relative;
+}
+
+html[data-theme="rilakkuma"] .calendar-list-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 40px;
+  height: 42px;
+  background: url("../assets/img/rk-schedule.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(122, 68, 34, 0.25));
   pointer-events: none;
   z-index: 5;
   animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
@@ -2362,6 +2592,13 @@ html[data-theme="hellokitty"] .calendar-list-card::before {
 [data-theme="hellokitty"] .jsc-badge-upcoming {
   color: #ff1a75;
   background-color: rgba(255, 26, 117, 0.1);
+}
+
+[data-theme="rilakkuma"] .jsc-duration-badge,
+[data-theme="rilakkuma"] .jsc-leg-tag.outbound,
+[data-theme="rilakkuma"] .jsc-badge-upcoming {
+  color: #7a4422;
+  background-color: rgba(245, 166, 35, 0.18);
 }
 
 /* Journey Schedule Card Distinct Left Accents & Color Highlights */

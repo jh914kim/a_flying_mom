@@ -51,6 +51,34 @@ function getKoreanAir2025Svg(size = 22) {
   `;
 }
 
+export function getHelloKittySvg(size = 30) {
+  const height = Math.round(size * 201 / 309);
+  return `
+    <svg viewBox="0 0 309 201" width="${size}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <image href="assets/img/hellokitty-face-hq.png" width="309" height="201"/>
+    </svg>
+  `;
+}
+
+export function getHelloKittyIconHtml(size = 30) {
+  const height = Math.round(size * 201 / 309);
+  return `<img src="assets/img/hellokitty-face-hq.png" class="brand-kitty-img" width="${size}" height="${height}" alt="헬로키티" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(255,26,89,0.25));">`;
+}
+
+export function getRilakkumaSvg(size = 30) {
+  const height = Math.round(size * 59 / 65);
+  return `
+    <svg viewBox="0 0 65 59" width="${size}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <image href="assets/img/rilakkuma-head.png" width="65" height="59"/>
+    </svg>
+  `;
+}
+
+export function getRilakkumaIconHtml(size = 30) {
+  const height = Math.round(size * 59 / 65);
+  return `<img src="assets/img/rilakkuma-head.png" class="brand-rilakkuma-img" width="${size}" height="${height}" alt="리락쿠마" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(122,68,34,0.25));">`;
+}
+
 export const THEMES = {
   default: {
     id: 'default',
@@ -103,6 +131,36 @@ export const THEMES = {
     brandIconHtml: getKoreanAir2025Svg(22),
     toggleIconHtml: getKoreanAir2025Svg(18),
     faviconSvg: getKoreanAir2025Svg(64).trim()
+  },
+  hellokitty: {
+    id: 'hellokitty',
+    name: '헬로키티 (Hello Kitty)',
+    shortName: '헬로키티',
+    primaryColor: '#ff0055',
+    destPinColor: '#ff0055',
+    depPinColor: '#8a5a6c',
+    flightPathColor: '#ff4081',
+    airplaneColor: '#ff0055',
+    airplaneStroke: '#ffffff',
+    brandIconHtml: getHelloKittyIconHtml(32),
+    toggleIconHtml: getHelloKittyIconHtml(24),
+    faviconPng: 'assets/img/hellokitty-favicon.png',
+    faviconSvg: getHelloKittySvg(64).trim()
+  },
+  rilakkuma: {
+    id: 'rilakkuma',
+    name: '리락쿠마 (Rilakkuma)',
+    shortName: '리락쿠마',
+    primaryColor: '#7a4422',
+    destPinColor: '#f5a623',
+    depPinColor: '#8c6b54',
+    flightPathColor: '#f5a623',
+    airplaneColor: '#7a4422',
+    airplaneStroke: '#ffffff',
+    brandIconHtml: getRilakkumaIconHtml(32),
+    toggleIconHtml: getRilakkumaIconHtml(24),
+    faviconPng: 'assets/img/rilakkuma-favicon.png',
+    faviconSvg: getRilakkumaSvg(64).trim()
   }
 };
 
@@ -237,10 +295,16 @@ export function applyTheme(themeId, persist = true) {
     toggleBtn.title = `테마 변경 (현재: ${theme.name})`;
   }
 
-  // 5. Update Browser Favicon SVG
+  // 5. Update Browser Favicon (PNG or SVG)
   const faviconEl = document.getElementById('app-favicon');
-  if (faviconEl && theme.faviconSvg) {
-    faviconEl.href = `data:image/svg+xml,${encodeURIComponent(theme.faviconSvg)}`;
+  if (faviconEl) {
+    if (theme.faviconPng) {
+      faviconEl.type = 'image/png';
+      faviconEl.href = theme.faviconPng;
+    } else if (theme.faviconSvg) {
+      faviconEl.type = 'image/svg+xml';
+      faviconEl.href = `data:image/svg+xml,${encodeURIComponent(theme.faviconSvg)}`;
+    }
   }
 
   // 6. Update active state of the 3 circles (o o o)

@@ -104,6 +104,65 @@ html[data-theme="koreanair"] {
   --shadow-md: 0 4px 12px rgba(5, 23, 102, 0.15);
 }
 
+/* Theme 4: Hello Kitty (헬로키티 - Glamorous Pink, Iconic Red Ribbon & Sweet Rose) */
+html[data-theme="hellokitty"] {
+  --color-bg: #fff3f7;
+  --color-surface: #ffffff;
+  --color-primary: #ff0055;
+  --color-primary-hover: #d90048;
+  --color-primary-light: #ffe4ee;
+  --color-secondary-hover: #ffcce0;
+  --color-accent: #ff0055;
+  --color-brand-title: #e6004c;
+  --color-header-bg: rgba(255, 255, 255, 0.95);
+  --color-header-border: #ffccd9;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #fff2f6 50%, #ffeaf1 100%);
+  --color-status-border: #ffccd9;
+  --color-cal-flight-bg: #ffe4ee;
+  --color-cal-stay-bg: #fff0f5;
+  --color-cal-stay-badge: #ff0055;
+  --color-text-main: #3d1c28;
+  --color-text-sub: #703c4f;
+  --color-text-muted: #9e6d7f;
+  --color-border: #ffccd9;
+  --color-border-light: #ffedf2;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(255, 0, 85, 0.08), 0 1px 3px rgba(255, 0, 85, 0.05);
+  --shadow-md: 0 6px 18px rgba(255, 0, 85, 0.12);
+  --hk-ribbon: url("../assets/img/hellokitty-official-ribbon.png");
+}
+
+/* Theme 5: Rilakkuma (리락쿠마 - San-X Relaxing Bear, Warm Caramel Honey & Biscuit Cream) */
+html[data-theme="rilakkuma"] {
+  --color-bg: #fffdf5;
+  --color-surface: #ffffff;
+  --color-primary: #7a4422;
+  --color-primary-hover: #633517;
+  --color-primary-light: #fff3db;
+  --color-secondary-hover: #ffeac2;
+  --color-accent: #f5a623;
+  --color-brand-title: #5c341b;
+  --color-header-bg: rgba(255, 255, 255, 0.95);
+  --color-header-border: #eddcc7;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #fffbf0 50%, #fff7e6 100%);
+  --color-status-border: #eedbc3;
+  --color-cal-flight-bg: #fff0d4;
+  --color-cal-stay-bg: #fff9ec;
+  --color-cal-stay-badge: #f5a623;
+  --color-text-main: #382315;
+  --color-text-sub: #6e4f3a;
+  --color-text-muted: #9b7c67;
+  --color-border: #ecd8bf;
+  --color-border-light: #f6ebe0;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(122, 68, 34, 0.08), 0 1px 3px rgba(245, 166, 35, 0.05);
+  --shadow-md: 0 6px 18px rgba(122, 68, 34, 0.12);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -124,6 +183,30 @@ body {
   padding-bottom: 80px; /* Space for mobile bottom bar */
   overflow-x: hidden;
   width: 100%;
+}
+
+/* Hello Kitty Glamorous Background */
+html[data-theme="hellokitty"] body {
+  background-color: #fff4f8;
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(255, 182, 218, 0.45) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(255, 105, 180, 0.3) 0%, transparent 30%),
+    radial-gradient(circle at 50% 85%, rgba(255, 192, 203, 0.35) 0%, transparent 40%),
+    radial-gradient(#ffccd9 0.75px, transparent 0.75px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
+}
+
+/* Rilakkuma: Warm Cream Background with Soft Caramel Honey Nuance */
+html[data-theme="rilakkuma"] body {
+  background-color: #fffdf5;
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(255, 230, 168, 0.45) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(245, 166, 35, 0.25) 0%, transparent 30%),
+    radial-gradient(circle at 50% 85%, rgba(255, 240, 200, 0.4) 0%, transparent 40%),
+    radial-gradient(#ebd8bf 0.8px, transparent 0.8px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
 }
 
 body.modal-open {
@@ -166,6 +249,20 @@ html[data-theme="koreanair"] .app-header::before {
   background: linear-gradient(90deg, #051766 0%, #051766 65%, #3b68b5 65%, #3b68b5 90%, #8eb3e6 90%, #8eb3e6 100%);
 }
 
+/* Hello Kitty Header signature Pink & Ribbon Red top bar with Shimmer */
+html[data-theme="hellokitty"] .app-header::before {
+  background: linear-gradient(90deg, #ff0055 0%, #ff4081 25%, #ffb6c1 50%, #ff4081 75%, #ff0055 100%);
+  background-size: 200% 100%;
+  animation: hk-shimmer 4s linear infinite;
+}
+
+/* Rilakkuma Header signature Warm Caramel, Honey Amber & Cream top bar with Shimmer */
+html[data-theme="rilakkuma"] .app-header::before {
+  background: linear-gradient(90deg, #7a4422 0%, #f5a623 25%, #ffe082 50%, #f5a623 75%, #7a4422 100%);
+  background-size: 200% 100%;
+  animation: hk-shimmer 5s linear infinite;
+}
+
 .header-content {
   max-width: 1024px;
   margin: 0 auto;
@@ -197,6 +294,25 @@ html[data-theme="koreanair"] .app-header::before {
   gap: 6px;
   letter-spacing: -0.02em;
   transition: color 0.2s ease;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+.brand-title span {
+  white-space: nowrap !important;
+}
+
+/* Hello Kitty Brand Title Ribbon Accent */
+html[data-theme="hellokitty"] .brand-title::after {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 19px;
+  margin-left: 6px;
+  background: var(--hk-ribbon) no-repeat center / contain;
+  vertical-align: middle;
+  filter: drop-shadow(0 2px 4px rgba(229, 0, 60, 0.35));
+  animation: hk-ribbon-wiggle 3.5s ease-in-out infinite;
 }
 
 .brand-logo-icon {
@@ -206,6 +322,18 @@ html[data-theme="koreanair"] .app-header::before {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+}
+
+html[data-theme="hellokitty"] .brand-logo-icon {
+  width: 32px;
+  height: 24px;
+}
+
+.brand-logo-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 /* Theme Switcher Icon & Popover (o o o) */
@@ -259,11 +387,11 @@ html[data-theme="koreanair"] .app-header::before {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  padding: 5px 10px;
+  padding: 4px 6px;
   box-shadow: var(--shadow-md);
   z-index: 1050;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   white-space: nowrap;
   animation: themePopoverFadeIn 0.16s ease-out;
 }
@@ -285,28 +413,30 @@ html[data-theme="koreanair"] .app-header::before {
 
 .theme-dot-btn {
   background: none;
-  border: 1px solid transparent;
-  padding: 4px 8px 4px 5px;
+  border: 2px solid transparent;
+  padding: 2px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border-radius: var(--radius-full);
+  justify-content: center;
+  border-radius: 50%;
   transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .theme-dot-btn:hover {
   background-color: var(--color-border-light);
+  transform: scale(1.1);
 }
 
 .theme-dot-btn.is-selected {
   background-color: var(--color-primary-light);
   border-color: var(--color-primary);
+  transform: scale(1.05);
 }
 
 .theme-circle {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -340,11 +470,70 @@ html[data-theme="koreanair"] .app-header::before {
   border-color: #d8e0ea;
 }
 
+/* 4th Dot: Hello Kitty (Sanrio Official) */
+.theme-circle-hellokitty {
+  background-color: #ffffff;
+  border-color: #ffb3c6;
+  box-shadow: 0 1px 4px rgba(255, 0, 85, 0.2);
+  overflow: visible;
+}
+
+.theme-circle-hellokitty .theme-kitty-img {
+  width: 24px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(255, 0, 85, 0.2));
+  transform: scale(1.05);
+}
+
+.theme-dot-btn[data-theme-option="hellokitty"].is-selected .theme-circle {
+  border-color: #ff0055;
+  box-shadow: 0 0 0 2px rgba(255, 0, 85, 0.35);
+}
+
+/* 5th Dot: Rilakkuma (San-X Official) */
+.theme-circle-rilakkuma {
+  background-color: #ffffff;
+  border-color: #ecd2b0;
+  box-shadow: 0 1px 4px rgba(122, 68, 34, 0.15);
+  overflow: visible;
+}
+
+.theme-circle-rilakkuma .theme-rilakkuma-img {
+  width: 22px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(122, 68, 34, 0.2));
+  transform: scale(1.05);
+}
+
+.theme-dot-btn[data-theme-option="rilakkuma"].is-selected .theme-circle {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+}
+
+.brand-kitty-img {
+  width: 32px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-rilakkuma-img {
+  width: 30px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .theme-dot-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-sub);
-  padding-right: 3px;
+  display: none !important;
 }
 
 .theme-dot-btn.is-selected .theme-dot-label {
@@ -493,10 +682,50 @@ html[data-theme="koreanair"] .app-header::before {
 }
 
 @media (max-width: 480px) {
+  .header-content {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .brand-title {
+    font-size: 1.05rem;
+    gap: 4px;
+    white-space: nowrap !important;
+  }
+  .brand-logo-icon {
+    width: 20px;
+    height: 20px;
+  }
+  html[data-theme="hellokitty"] .brand-logo-icon {
+    width: 26px;
+    height: 20px;
+  }
+  html[data-theme="hellokitty"] .brand-title::after {
+    width: 18px;
+    height: 15px;
+    margin-left: 4px;
+  }
   .meta-live-time {
-    font-size: 0.775rem;
-    padding: 3px 8px;
-    gap: 5px;
+    font-size: 0.72rem;
+    padding: 2px 6px;
+    gap: 4px;
+  }
+  .theme-popover {
+    padding: 3px 5px;
+    gap: 4px;
+  }
+  .theme-circle {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-title {
+    font-size: 0.95rem;
+  }
+  .meta-live-time {
+    font-size: 0.68rem;
+    padding: 2px 4px;
   }
 }
 
@@ -523,6 +752,15 @@ html[data-theme="koreanair"] .journey-active-card {
   border-top: 3px solid #051766;
 }
 
+/* Hello Kitty Cards Accent */
+html[data-theme="hellokitty"] .calendar-card,
+html[data-theme="hellokitty"] .journey-active-card,
+html[data-theme="hellokitty"] .map-card {
+  border-top: 3.5px solid #ff0055;
+  border-color: #ffccd9;
+  box-shadow: 0 8px 24px rgba(255, 0, 85, 0.1), 0 2px 6px rgba(255, 0, 85, 0.05);
+}
+
 html[data-theme="asiana"] .bottom-nav {
   background-color: #fffdfa;
   border-top: 2px solid #c80815;
@@ -533,9 +771,343 @@ html[data-theme="koreanair"] .bottom-nav {
   border-top: 2px solid #051766;
 }
 
-/* Status Badge Pill (e.g. • 예정상 비행 중) */
+/* Hello Kitty: Glamorous Bottom Nav */
+html[data-theme="hellokitty"] .bottom-nav {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid #ffccd9;
+  box-shadow: 0 -4px 16px rgba(255, 0, 85, 0.08);
+}
+
+html[data-theme="hellokitty"] .nav-item.is-active {
+  color: #ff0055;
+  font-weight: 700;
+}
+
+/* Hello Kitty: Status Card Glamour */
+html[data-theme="hellokitty"] .status-card {
+  border: 1.5px solid #ffccd9;
+  box-shadow: 0 8px 24px rgba(255, 0, 85, 0.12), 0 2px 8px rgba(255, 0, 85, 0.06);
+  position: relative;
+}
+
+/* Hello Kitty: Status Badge Pills */
+html[data-theme="hellokitty"] .status-badge-pill {
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+}
+
+html[data-theme="hellokitty"] .status-badge-pill.badge-flight {
+  background-color: #ffe4ee;
+  color: #d90048;
+  border: 1px solid #ffb3c6;
+}
+
+html[data-theme="hellokitty"] .status-badge-pill.badge-stay {
+  background-color: #fff0f5;
+  color: #ff0055;
+  border: 1px solid #ffccd9;
+}
+
+/* Hello Kitty: Refresh button */
+html[data-theme="hellokitty"] .btn-refresh-screen {
+  border-color: #ffccd9;
+  color: #ff0055;
+  background-color: #ffffff;
+}
+
+html[data-theme="hellokitty"] .btn-refresh-screen:hover {
+  background-color: #ffe4ee;
+  border-color: #ff0055;
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.3);
+}
+
+/* Hello Kitty: Calendar Selected Cell & Today */
+html[data-theme="hellokitty"] .cal-day-cell.is-selected {
+  background-color: #fff0f5 !important;
+  border: 1.5px solid #ff0055 !important;
+  box-shadow: 0 0 8px rgba(255, 0, 85, 0.25) !important;
+}
+
+html[data-theme="hellokitty"] .cal-day-cell.is-selected .cal-day-num,
+html[data-theme="hellokitty"] .cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  background-color: #ff0055;
+}
+
+/* Hello Kitty: Flight Calendar Top-Right Sparkling Kitty Mascot (Border Spacing Match) */
+html[data-theme="hellokitty"] .calendar-card {
+  position: relative;
+}
+
+html[data-theme="hellokitty"] .calendar-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 40px;
+  height: 31px;
+  background: url("../assets/img/hk-sparkle.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
+}
+
+/* Hello Kitty: Journey Card Running Kitty in Top-Right Corner (Border Spacing Match) */
+html[data-theme="hellokitty"] .journey-active-card,
+html[data-theme="hellokitty"] .journey-empty-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #fff7fa 100%);
+  border: 1.5px solid #ffccd9;
+}
+
+html[data-theme="hellokitty"] .journey-active-card::before,
+html[data-theme="hellokitty"] .journey-empty-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 34px;
+  height: 36px;
+  background: url("../assets/img/hk-running.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="hellokitty"] .journey-badge-pill {
+  background: linear-gradient(135deg, #ff0055 0%, #ff4081 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(255, 0, 85, 0.25);
+  font-weight: 700;
+}
+
+/* Hello Kitty: Flight List Schedule Card Food-Thinking Kitty Mascot (Border Spacing Match) */
+html[data-theme="hellokitty"] .calendar-list-card {
+  position: relative;
+}
+
+html[data-theme="hellokitty"] .calendar-list-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 44px;
+  height: 36px;
+  background: url("../assets/img/hk-food.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(229, 0, 60, 0.28));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
+}
+
+/* Rilakkuma Cards Accent */
+html[data-theme="rilakkuma"] .calendar-card,
+html[data-theme="rilakkuma"] .journey-active-card,
+html[data-theme="rilakkuma"] .map-card {
+  border-top: 3.5px solid #f5a623;
+  border-color: #ecd8bf;
+  box-shadow: 0 8px 24px rgba(122, 68, 34, 0.08), 0 2px 6px rgba(245, 166, 35, 0.05);
+}
+
+/* Rilakkuma: Relaxing Bottom Nav */
+html[data-theme="rilakkuma"] .bottom-nav {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid #ecd8bf;
+  box-shadow: 0 -4px 16px rgba(122, 68, 34, 0.08);
+}
+
+html[data-theme="rilakkuma"] .nav-item.is-active {
+  color: #7a4422;
+  font-weight: 700;
+}
+
+/* Rilakkuma: Status Card Warmth */
+html[data-theme="rilakkuma"] .status-card {
+  border: 1.5px solid #ecd8bf;
+  box-shadow: 0 8px 24px rgba(122, 68, 34, 0.08), 0 2px 8px rgba(245, 166, 35, 0.06);
+  position: relative;
+}
+
+/* Rilakkuma: Status Badge Pills */
+html[data-theme="rilakkuma"] .status-badge-pill {
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+}
+
+html[data-theme="rilakkuma"] .status-badge-pill.badge-home {
+  background-color: #fff6e0;
+  color: #7a4422;
+  border: 1px solid #fedb99;
+}
+
+html[data-theme="rilakkuma"] .status-badge-pill.badge-flight {
+  background-color: #eaf8ff;
+  color: #0077a8;
+  border: 1px solid #bce6fa;
+}
+
+html[data-theme="rilakkuma"] .status-badge-pill.badge-stay {
+  background-color: #fff0db;
+  color: #c96b00;
+  border: 1px solid #ffd399;
+}
+
+/* Rilakkuma: Refresh button */
+html[data-theme="rilakkuma"] .btn-refresh-screen {
+  border-color: #ecd8bf;
+  color: #7a4422;
+  background-color: #ffffff;
+}
+
+html[data-theme="rilakkuma"] .btn-refresh-screen:hover {
+  background-color: #fff3db;
+  border-color: #f5a623;
+  box-shadow: 0 0 12px rgba(245, 166, 35, 0.3);
+}
+
+/* Rilakkuma: Calendar Selected Cell & Today */
+html[data-theme="rilakkuma"] .cal-day-cell.is-selected {
+  background-color: #fff6e0 !important;
+  border: 1.5px solid #f5a623 !important;
+  box-shadow: 0 0 8px rgba(245, 166, 35, 0.25) !important;
+}
+
+html[data-theme="rilakkuma"] .cal-day-cell.is-selected .cal-day-num,
+html[data-theme="rilakkuma"] .cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  background-color: #f5a623;
+  color: #ffffff;
+}
+
+/* Rilakkuma: Flight Calendar Top-Right Dancing Trio Mascot (Border Spacing Match) */
+html[data-theme="rilakkuma"] .calendar-card {
+  position: relative;
+}
+
+html[data-theme="rilakkuma"] .calendar-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 44px;
+  height: 38px;
+  background: url("../assets/img/rk-calendar.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(122, 68, 34, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
+}
+
+/* Rilakkuma: Journey Card Korilakkuma Mascot in Top-Right Corner (Border Spacing Match) */
+html[data-theme="rilakkuma"] .journey-active-card,
+html[data-theme="rilakkuma"] .journey-empty-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #fffdf8 100%);
+  border: 1.5px solid #ecd8bf;
+}
+
+html[data-theme="rilakkuma"] .journey-active-card::before,
+html[data-theme="rilakkuma"] .journey-empty-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 36px;
+  height: 38px;
+  background: url("../assets/img/rk-journey.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(122, 68, 34, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="rilakkuma"] .journey-badge-pill {
+  background: linear-gradient(135deg, #7a4422 0%, #f5a623 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(122, 68, 34, 0.2);
+  font-weight: 700;
+}
+
+/* Rilakkuma: Flight List Schedule Card Dango-Eating Rilakkuma Mascot (Border Spacing Match) */
+html[data-theme="rilakkuma"] .calendar-list-card {
+  position: relative;
+}
+
+html[data-theme="rilakkuma"] .calendar-list-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 40px;
+  height: 42px;
+  background: url("../assets/img/rk-schedule.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(122, 68, 34, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
+}
+
+/* Status Badge Pill & Refresh Action Container */
 .status-badge-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
+}
+
+.btn-refresh-screen {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-sub);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-refresh-screen:hover {
+  background-color: var(--color-border-light);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: rotate(45deg);
+}
+
+@keyframes refresh-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.btn-refresh-screen:active {
+  transform: rotate(45deg);
+}
+
+.btn-refresh-screen.is-spinning {
+  animation: refresh-spin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-refresh-screen:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .status-badge-pill {
@@ -591,11 +1163,37 @@ html[data-theme="koreanair"] .bottom-nav {
   font-weight: 800;
 }
 
+.status-desc-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+  margin-top: 4px;
+}
+
 .status-sub-desc {
   font-size: 0.88rem;
   color: var(--color-text-sub);
   margin-top: 4px;
   line-height: 1.4;
+}
+
+.status-desc-row .status-sub-desc {
+  margin-top: 0;
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-remaining-time {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* In-flight Progress Bar */
@@ -700,6 +1298,7 @@ html[data-theme="koreanair"] .bottom-nav {
   font-size: 0.78rem;
   color: var(--color-text-sub);
   line-height: 1.35;
+  white-space: nowrap;
 }
 
 .weather-dot-sep {
@@ -708,17 +1307,28 @@ html[data-theme="koreanair"] .bottom-nav {
 
 .status-weather-credit {
   margin-top: 6px;
+  overflow: hidden;
 }
 
 .status-weather-credit a {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--color-text-muted);
   text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .status-weather-credit a:hover {
   text-decoration: underline;
   color: var(--color-primary);
+}
+
+@media (max-width: 380px) {
+  .status-weather-credit a {
+    font-size: 0.62rem;
+  }
 }
 
 /* Map Destination City % Tooltip */
@@ -757,9 +1367,21 @@ html[data-theme="koreanair"] .bottom-nav {
 }
 
 .custom-airplane-pin,
-.custom-map-pin {
+.custom-map-pin,
+.hk-airplane-pin,
+.custom-home-pin,
+.hk-home-pin,
+.custom-airport-pin {
   background: transparent !important;
   border: none !important;
+}
+
+.hk-home-marker-wrapper {
+  transition: transform 0.2s ease;
+}
+
+.hk-airplane-marker-wrapper {
+  transition: transform 0.3s ease;
 }
 
 /* Map Section */
@@ -934,6 +1556,8 @@ html[data-theme="koreanair"] .bottom-nav {
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .journey-badge-pill {
@@ -1963,6 +2587,20 @@ html[data-theme="koreanair"] .bottom-nav {
   background-color: rgba(0, 106, 193, 0.1);
 }
 
+[data-theme="hellokitty"] .jsc-duration-badge,
+[data-theme="hellokitty"] .jsc-leg-tag.outbound,
+[data-theme="hellokitty"] .jsc-badge-upcoming {
+  color: #ff1a75;
+  background-color: rgba(255, 26, 117, 0.1);
+}
+
+[data-theme="rilakkuma"] .jsc-duration-badge,
+[data-theme="rilakkuma"] .jsc-leg-tag.outbound,
+[data-theme="rilakkuma"] .jsc-badge-upcoming {
+  color: #7a4422;
+  background-color: rgba(245, 166, 35, 0.18);
+}
+
 /* Journey Schedule Card Distinct Left Accents & Color Highlights */
 .journey-schedule-card.journey-color-0 {
   border-left: 4px solid #1a73e8;
@@ -2534,4 +3172,59 @@ html[data-theme="koreanair"] .bottom-nav {
 
 .hidden {
   display: none !important;
+}
+
+/* Hello Kitty Keyframe Animations */
+@keyframes hk-ribbon-wiggle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-6deg) scale(1.05);
+  }
+  75% {
+    transform: rotate(6deg) scale(1.05);
+  }
+}
+
+@keyframes hk-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes hk-float-plane {
+  0% {
+    transform: translateY(0px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+}
+
+@keyframes hk-run-bounce {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+}
+
+@keyframes hk-sparkle-bob {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.04);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }

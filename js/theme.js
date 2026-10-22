@@ -65,6 +65,20 @@ export function getHelloKittyIconHtml(size = 30) {
   return `<img src="assets/img/hellokitty-face-hq.png" class="brand-kitty-img" width="${size}" height="${height}" alt="헬로키티" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(255,26,89,0.25));">`;
 }
 
+export function getRilakkumaSvg(size = 30) {
+  const height = Math.round(size * 59 / 65);
+  return `
+    <svg viewBox="0 0 65 59" width="${size}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <image href="assets/img/rilakkuma-head.png" width="65" height="59"/>
+    </svg>
+  `;
+}
+
+export function getRilakkumaIconHtml(size = 30) {
+  const height = Math.round(size * 59 / 65);
+  return `<img src="assets/img/rilakkuma-head.png" class="brand-rilakkuma-img" width="${size}" height="${height}" alt="리락쿠마" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(122,68,34,0.25));">`;
+}
+
 export const THEMES = {
   default: {
     id: 'default',
@@ -132,6 +146,21 @@ export const THEMES = {
     toggleIconHtml: getHelloKittyIconHtml(24),
     faviconPng: 'assets/img/hellokitty-favicon.png',
     faviconSvg: getHelloKittySvg(64).trim()
+  },
+  rilakkuma: {
+    id: 'rilakkuma',
+    name: '리락쿠마 (Rilakkuma)',
+    shortName: '리락쿠마',
+    primaryColor: '#7a4422',
+    destPinColor: '#f5a623',
+    depPinColor: '#8c6b54',
+    flightPathColor: '#f5a623',
+    airplaneColor: '#7a4422',
+    airplaneStroke: '#ffffff',
+    brandIconHtml: getRilakkumaIconHtml(32),
+    toggleIconHtml: getRilakkumaIconHtml(24),
+    faviconPng: 'assets/img/rilakkuma-favicon.png',
+    faviconSvg: getRilakkumaSvg(64).trim()
   }
 };
 
