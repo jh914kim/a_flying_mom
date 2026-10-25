@@ -1,3 +1,4 @@
+import { initHomeManager, openHomeModal } from './home-manager.js';
 /**
  * flying mom - Schedule Manager Modal & Editor
  * Fullscreen mobile responsive editor, photo OCR import, text paste parser,
@@ -633,6 +634,12 @@ export function initManagerListeners() {
     };
     saveBtn.onclick = () => handleSaveSchedule();
   }
+
+  // Home location modal trigger
+  initHomeManager();
+  document.getElementById('btn-open-home-modal')?.addEventListener('click', () => {
+    openHomeModal();
+  });
 
   // Delete current month
   document.getElementById('btn-delete-month')?.addEventListener('click', () => {

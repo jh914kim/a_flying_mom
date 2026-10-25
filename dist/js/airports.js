@@ -33,7 +33,7 @@ export const AIRPORT_DATA_META = {
 
 export const GWACHEON_BASE = {
   code: 'HOME',
-  name: '집 (과천)',
+  name: '우리 집',
   address: '경기도 과천시 과천대로 8길 65',
   city: '과천',
   cityEn: 'Gwacheon',
@@ -43,6 +43,63 @@ export const GWACHEON_BASE = {
   lng: 126.989474,
   tz: 'Asia/Seoul'
 };
+
+/**
+ * Get current home base (custom user-registered home or default Gwacheon)
+ */
+export function getHomeBase() {
+  try {
+    const raw = localStorage.getItem('flyingmom_home_base');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.lat === 'number' && typeof parsed.lng === 'number' && !isNaN(parsed.lat) && !isNaN(parsed.lng)) {
+        return {
+          code: 'HOME',
+          name: parsed.name || '우리 집',
+          address: parsed.address || '대한민국',
+          city: parsed.city || parsed.name || '우리 집',
+          cityEn: parsed.cityEn || 'Home',
+          country: '대한민국',
+          countryEn: 'South Korea',
+          lat: parsed.lat,
+          lng: parsed.lng,
+          tz: parsed.tz || 'Asia/Seoul'
+        };
+      }
+    }
+  } catch (e) {
+    console.error('Failed to read custom home base:', e);
+  }
+  return GWACHEON_BASE;
+}
+
+/**
+ * Save user custom home base
+ */
+export function saveHomeBase(homeObj) {
+  try {
+    localStorage.setItem('flyingmom_home_base', JSON.stringify(homeObj));
+    window.dispatchEvent(new CustomEvent('homeBaseChanged', { detail: homeObj }));
+    return true;
+  } catch (e) {
+    console.error('Failed to save home base:', e);
+    return false;
+  }
+}
+
+/**
+ * Reset home base to default
+ */
+export function resetHomeBase() {
+  try {
+    localStorage.removeItem('flyingmom_home_base');
+    window.dispatchEvent(new CustomEvent('homeBaseChanged', { detail: GWACHEON_BASE }));
+    return true;
+  } catch (e) {
+    console.error('Failed to reset home base:', e);
+    return false;
+  }
+}
 
 // ICN & GMP are treated as the same metropolitan base (수도권 거점)
 export const KOREA_BASES = ['ICN', 'GMP'];

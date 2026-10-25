@@ -3,7 +3,7 @@
  * Estimates current status, location, in-flight progress, and geodesic great-circle flight paths.
  */
 
-import { getAirport, isKoreaBase, GWACHEON_BASE } from './airports.js';
+import { getAirport, isKoreaBase, GWACHEON_BASE, getHomeBase } from './airports.js';
 import { parseFlightTime } from './timezone.js';
 import { getAllSavedSchedules, getMonthSchedule } from './storage.js';
 
@@ -120,8 +120,8 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       const elapsed = nowTs - depTs;
       const progress = totalDuration > 0 ? Math.min(1, Math.max(0, elapsed / totalDuration)) : 0;
 
-      const fromCoords = f.depAirport ? [f.depAirport.lat, f.depAirport.lng] : [GWACHEON_BASE.lat, GWACHEON_BASE.lng];
-      const toCoords = f.arrAirport ? [f.arrAirport.lat, f.arrAirport.lng] : [GWACHEON_BASE.lat, GWACHEON_BASE.lng];
+      const fromCoords = f.depAirport ? [f.depAirport.lat, f.depAirport.lng] : [getHomeBase().lat, getHomeBase().lng];
+      const toCoords = f.arrAirport ? [f.arrAirport.lat, f.arrAirport.lng] : [getHomeBase().lat, getHomeBase().lng];
 
       const planePoint = interpolateGreatCircle(fromCoords, toCoords, progress);
       const heading = calculateBearing(fromCoords, toCoords, progress);
@@ -204,7 +204,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
   if (prevFlight && !isKoreaBase(prevFlight.to) && (!nextFlight || nextFlight.depUtc.getTime() > nowTs)) {
     const airport = prevFlight.arrAirport || getAirport(prevFlight.to);
     const city = airport ? airport.city.split('/')[0] : prevFlight.to;
-    const coords = airport ? [airport.lat, airport.lng] : [GWACHEON_BASE.lat, GWACHEON_BASE.lng];
+    const coords = airport ? [airport.lat, airport.lng] : [getHomeBase().lat, getHomeBase().lng];
     const nextDepCity = nextFlight && nextFlight.depAirport ? nextFlight.depAirport.city.split('/')[0] : (nextFlight ? nextFlight.from : '');
     const nextCity = nextFlight && nextFlight.arrAirport ? nextFlight.arrAirport.city.split('/')[0] : (nextFlight ? nextFlight.to : '');
 
@@ -217,8 +217,8 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       title: `엄마는 ${city}에 머무르고 있어요`,
       description: nextFlight ? `${prevFlight.number} 도착 후 체류 중 · 다음 비행: ${nextFlight.number} (${nextDepCity || prevFlight.to} → ${nextCity || nextFlight.to})` : `${prevFlight.number} 도착 후 현지 체류 중`,
       locationName: airport ? `${airport.city} (${airport.code})` : prevFlight.to,
-      airport: airport || GWACHEON_BASE,
-      weatherAirport: airport || GWACHEON_BASE,
+      airport: airport || getHomeBase(),
+      weatherAirport: airport || getHomeBase(),
       weatherNotice: '현지 기준 날씨',
       coords,
       flight: prevFlight,
@@ -266,7 +266,7 @@ export function determineCurrentStatus(nowUtc = new Date()) {
     airport: GWACHEON_BASE,
     weatherAirport: GWACHEON_BASE,
     weatherNotice: null,
-    coords: [GWACHEON_BASE.lat, GWACHEON_BASE.lng],
+    coords: [getHomeBase().lat, getHomeBase().lng],
     flight: null,
     nextFlight,
     progress: 0,

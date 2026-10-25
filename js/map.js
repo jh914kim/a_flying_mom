@@ -10,7 +10,7 @@
  * - Calculation: Airplane location & flight paths are calculated by the app based on registered schedules.
  */
 
-import { GWACHEON_BASE } from './airports.js';
+import { GWACHEON_BASE, getHomeBase } from './airports.js';
 import { STATUS_TYPES } from './location-engine.js';
 import { NATURAL_EARTH_WORLD } from './natural-earth.js';
 import { CUSTOM_MAP_STYLE } from './map-style.js';
@@ -436,12 +436,13 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
   } else if (statusData.status === STATUS_TYPES.HOME) {
     const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
+    const home = getHomeBase();
     currentMarker = L.marker(coords, {
       icon: createHomeIcon(L, theme.primaryColor, theme.id),
       zIndexOffset: 1000
     });
-    currentMarker.bindTooltip('우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
-    currentMarker.bindPopup(`<b>${statusData.title}</b><br>경기도 과천시 과천대로 8길 65`);
+    currentMarker.bindTooltip(home.name || '우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
+    currentMarker.bindPopup(`<b>${statusData.title}</b><br>${home.address || (home.city + ' (집)')}`);
   } else {
     currentMarker = L.marker(coords, {
       icon: createPinIcon(L, theme.primaryColor),

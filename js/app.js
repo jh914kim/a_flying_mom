@@ -144,6 +144,43 @@ function setupCalendarNav() {
 }
 
 /**
+ * Smoothly scrolls the window so the target card board is centered on the screen.
+ * Accounts for fixed top header and bottom navigation bar.
+ */
+function scrollToCardCenter(element) {
+  if (!element) return;
+  const header = document.querySelector('.app-header');
+  const bottomNav = document.querySelector('.bottom-nav');
+  const headerHeight = header ? header.offsetHeight : 0;
+  const bottomNavHeight = bottomNav ? bottomNav.offsetHeight : 60;
+
+  const rect = element.getBoundingClientRect();
+  const elementHeight = rect.height;
+  const viewportHeight = window.innerHeight;
+
+  const visibleHeight = viewportHeight - headerHeight - bottomNavHeight;
+
+  let targetScrollY;
+  if (elementHeight >= visibleHeight) {
+    // If the card is taller than visible area, align its top right below the header
+    targetScrollY = window.scrollY + rect.top - headerHeight - 12;
+  } else {
+    // Perfectly center the card in the visible space between header and bottom nav
+    const visibleCenter = headerHeight + (visibleHeight / 2);
+    const elementCenter = rect.top + (elementHeight / 2);
+    targetScrollY = window.scrollY + (elementCenter - visibleCenter);
+  }
+
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - viewportHeight);
+  targetScrollY = Math.max(0, Math.min(targetScrollY, maxScroll));
+
+  window.scrollTo({
+    top: targetScrollY,
+    behavior: 'smooth'
+  });
+}
+
+/**
  * Setup mobile 4-item bottom bar (홈, 위치, 달력, 관리)
  */
 function setupBottomNav() {
@@ -155,7 +192,7 @@ function setupBottomNav() {
   btnNavHome?.addEventListener('click', () => {
     const statusSection = document.getElementById('status-section');
     if (statusSection) {
-      statusSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToCardCenter(statusSection);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -165,7 +202,7 @@ function setupBottomNav() {
   btnNavLocation?.addEventListener('click', () => {
     const mapSection = document.getElementById('map-section');
     if (mapSection) {
-      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToCardCenter(mapSection);
     }
     setActiveNav(btnNavLocation);
   });
@@ -173,7 +210,7 @@ function setupBottomNav() {
   btnNavCalendar?.addEventListener('click', () => {
     const calTarget = document.getElementById('calendar-card') || document.getElementById('calendar-section');
     if (calTarget) {
-      calTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToCardCenter(calTarget);
     }
     setActiveNav(btnNavCalendar);
   });
@@ -190,16 +227,21 @@ function setupBottomNav() {
       return;
     }
 
-    const scrollPos = window.scrollY + 180;
+    const header = document.querySelector('.app-header');
+    const bottomNav = document.querySelector('.bottom-nav');
+    const headerHeight = header ? header.offsetHeight : 0;
+    const bottomNavHeight = bottomNav ? bottomNav.offsetHeight : 60;
+    const visibleMid = headerHeight + (window.innerHeight - headerHeight - bottomNavHeight) / 2;
+
     const mapEl = document.getElementById('map-section');
     const calEl = document.getElementById('calendar-card') || document.getElementById('calendar-section');
 
-    const mapTop = mapEl ? mapEl.offsetTop : 999999;
-    const calTop = calEl ? calEl.offsetTop : 999999;
+    const mapRect = mapEl ? mapEl.getBoundingClientRect() : null;
+    const calRect = calEl ? calEl.getBoundingClientRect() : null;
 
-    if (scrollPos >= calTop) {
+    if (calRect && calRect.top <= visibleMid) {
       setActiveNav(btnNavCalendar);
-    } else if (scrollPos >= mapTop) {
+    } else if (mapRect && mapRect.top <= visibleMid) {
       setActiveNav(btnNavLocation);
     } else {
       setActiveNav(btnNavHome);
@@ -219,6 +261,10 @@ function setupBottomNav() {
 
   window.addEventListener('managerModalClosed', () => {
     updateScrollActiveNav();
+  });
+
+  window.addEventListener('homeBaseChanged', async () => {
+    await refreshAllViews();
   });
 }
 
