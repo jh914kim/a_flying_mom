@@ -144,26 +144,81 @@ function setupCalendarNav() {
 }
 
 /**
- * Setup mobile 3-item bottom bar
+ * Setup mobile 4-item bottom bar (홈, 위치, 달력, 관리)
  */
 function setupBottomNav() {
-  const btnNavStatus = document.getElementById('nav-btn-status');
+  const btnNavHome = document.getElementById('nav-btn-home') || document.getElementById('nav-btn-overview');
+  const btnNavLocation = document.getElementById('nav-btn-location');
   const btnNavCalendar = document.getElementById('nav-btn-calendar');
   const btnNavManage = document.getElementById('nav-btn-manage');
 
-  btnNavStatus?.addEventListener('click', () => {
-    document.getElementById('status-section')?.scrollIntoView({ behavior: 'smooth' });
-    setActiveNav(btnNavStatus);
+  btnNavHome?.addEventListener('click', () => {
+    const statusSection = document.getElementById('status-section');
+    if (statusSection) {
+      statusSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    setActiveNav(btnNavHome);
+  });
+
+  btnNavLocation?.addEventListener('click', () => {
+    const mapSection = document.getElementById('map-section');
+    if (mapSection) {
+      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setActiveNav(btnNavLocation);
   });
 
   btnNavCalendar?.addEventListener('click', () => {
-    document.getElementById('calendar-section')?.scrollIntoView({ behavior: 'smooth' });
+    const calTarget = document.getElementById('calendar-card') || document.getElementById('calendar-section');
+    if (calTarget) {
+      calTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     setActiveNav(btnNavCalendar);
   });
 
   btnNavManage?.addEventListener('click', () => {
     openManagerModal();
     setActiveNav(btnNavManage);
+  });
+
+  // Helper to sync active nav with scroll position
+  function updateScrollActiveNav() {
+    const modal = document.getElementById('manager-modal');
+    if (modal && modal.classList.contains('is-active')) {
+      return;
+    }
+
+    const scrollPos = window.scrollY + 180;
+    const mapEl = document.getElementById('map-section');
+    const calEl = document.getElementById('calendar-card') || document.getElementById('calendar-section');
+
+    const mapTop = mapEl ? mapEl.offsetTop : 999999;
+    const calTop = calEl ? calEl.offsetTop : 999999;
+
+    if (scrollPos >= calTop) {
+      setActiveNav(btnNavCalendar);
+    } else if (scrollPos >= mapTop) {
+      setActiveNav(btnNavLocation);
+    } else {
+      setActiveNav(btnNavHome);
+    }
+  }
+
+  let scrollTicking = false;
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      window.requestAnimationFrame(() => {
+        updateScrollActiveNav();
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  }, { passive: true });
+
+  window.addEventListener('managerModalClosed', () => {
+    updateScrollActiveNav();
   });
 }
 

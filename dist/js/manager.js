@@ -72,6 +72,7 @@ export function closeManagerModal() {
   modal.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('modal-open');
   isModalOpen = false;
+  window.dispatchEvent(new CustomEvent('managerModalClosed'));
 }
 
 /**

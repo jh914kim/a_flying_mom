@@ -413,10 +413,26 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   // 1. Current Location Marker (Themed 26px pin or airplane)
   let currentMarker;
   if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
+    const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
+
     currentMarker = L.marker(coords, {
       icon: createAirplaneIcon(L, statusData.heading || 0, theme.airplaneColor, theme.airplaneStroke || '#ffffff', theme.id),
       zIndexOffset: 1000
     });
+
+    // Permanent badge tooltip displaying progress % on the airplane
+    currentMarker.bindTooltip(`
+      <div class="map-airplane-pct-badge">
+        <span class="map-airplane-pct">${pct}%</span>
+      </div>
+    `, {
+      permanent: true,
+      direction: 'top',
+      offset: isMascot ? [0, -22] : [0, -18],
+      className: 'custom-map-plane-tooltip'
+    });
+
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
   } else if (statusData.status === STATUS_TYPES.HOME) {
     const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
@@ -452,11 +468,10 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
         icon: createPinIcon(L, theme.destPinColor)
       });
 
-      // Permanent badge tooltip displaying city and % right next to the pin
+      // Permanent badge tooltip displaying destination city right next to the pin
       destMarker.bindTooltip(`
         <div class="map-city-pct-badge">
           <span class="map-city-name">${destCity}</span>
-          <span class="map-city-pct">${pct}%</span>
         </div>
       `, {
         permanent: true,
@@ -465,7 +480,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
         className: 'custom-map-pct-tooltip'
       });
 
-      destMarker.bindPopup(`<b>도착 공항</b><br>${destAp.city} (${destAp.code}) · 진척도 ${pct}%`).addTo(mapInstance);
+      destMarker.bindPopup(`<b>도착 공항</b><br>${destAp.city} (${destAp.code})`).addTo(mapInstance);
       currentMarkers.push(destMarker);
     }
     // Departure airport marker

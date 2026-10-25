@@ -1356,6 +1356,7 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
 
 .map-city-pct-badge .map-city-name {
   color: #202124;
+  font-weight: 700;
 }
 
 .map-city-pct-badge .map-city-pct {
@@ -1364,6 +1365,57 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
   background-color: rgba(26, 115, 232, 0.1);
   padding: 1px 4px;
   border-radius: 4px;
+}
+
+/* Map Airplane Progress % Tooltip */
+.custom-map-plane-tooltip.leaflet-tooltip {
+  background: #ffffff;
+  border: 1.5px solid var(--color-primary, #1a73e8);
+  border-radius: 12px;
+  padding: 2px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.custom-map-plane-tooltip.leaflet-tooltip::before {
+  border-top-color: var(--color-primary, #1a73e8);
+}
+
+.map-airplane-pct-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.map-airplane-pct {
+  color: var(--color-primary, #1a73e8);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+html[data-theme="hellokitty"] .custom-map-plane-tooltip.leaflet-tooltip {
+  border-color: #ff0055;
+  border-radius: 12px;
+}
+html[data-theme="hellokitty"] .custom-map-plane-tooltip.leaflet-tooltip::before {
+  border-top-color: #ff0055;
+}
+html[data-theme="hellokitty"] .map-airplane-pct {
+  color: #ff0055;
+}
+
+html[data-theme="rilakkuma"] .custom-map-plane-tooltip.leaflet-tooltip {
+  border-color: #7a4422;
+  border-radius: 12px;
+}
+html[data-theme="rilakkuma"] .custom-map-plane-tooltip.leaflet-tooltip::before {
+  border-top-color: #7a4422;
+}
+html[data-theme="rilakkuma"] .map-airplane-pct {
+  color: #7a4422;
 }
 
 .custom-airplane-pin,
