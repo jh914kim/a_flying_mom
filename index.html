@@ -186,8 +186,13 @@
       </div>
     </section>
 
-    <!-- ③ Map Section -->
-    <section class="map-section" aria-label="예상 위치 지도">
+    <!-- ③ NEXT JOURNEY / CURRENT JOURNEY Card -->
+    <section class="journey-section" id="journey-card-container" aria-label="여정 안내">
+      <!-- Injected dynamically via journey.js -->
+    </section>
+
+    <!-- ④ Map Section -->
+    <section class="map-section" id="map-section" aria-label="예상 위치 지도">
       <!-- Overlay Badge Bar -->
       <div class="map-overlay-bar">
         <span class="map-badge-text" id="map-badge-text">예상 위치를 지도에 표시하는 중...</span>
@@ -215,16 +220,11 @@
       <div id="map-canvas"></div>
     </section>
 
-    <!-- ④ NEXT JOURNEY / CURRENT JOURNEY Card -->
-    <section class="journey-section" id="journey-card-container" aria-label="여정 안내">
-      <!-- Injected dynamically via journey.js -->
-    </section>
-
     <!-- Split view for Desktop: ⑤ Flight Calendar + ⑥ Flight List -->
     <div class="desktop-split-view" id="calendar-section">
 
       <!-- ⑤ Flight Calendar -->
-      <section class="calendar-card" aria-label="비행 달력">
+      <section class="calendar-card" id="calendar-card" aria-label="비행 달력">
         <div class="calendar-header">
           <div class="calendar-title-group">
             <h2 class="cal-main-title">비행 달력</h2>
@@ -277,28 +277,35 @@
 
   <!-- Mobile Bottom Navigation (Spec 8) -->
   <nav class="bottom-nav" aria-label="하단 네비게이션">
-    <button type="button" class="bottom-nav-item active" id="nav-btn-status">
+    <button type="button" class="bottom-nav-item active" id="nav-btn-home" aria-label="홈">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>홈</span>
+    </button>
+    <button type="button" class="bottom-nav-item" id="nav-btn-location" aria-label="위치">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
         <circle cx="12" cy="9" r="2.5"/>
       </svg>
-      <span>현재 위치</span>
+      <span>위치</span>
     </button>
-    <button type="button" class="bottom-nav-item" id="nav-btn-calendar">
+    <button type="button" class="bottom-nav-item" id="nav-btn-calendar" aria-label="달력">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
         <line x1="16" y1="2" x2="16" y2="6"/>
         <line x1="8" y1="2" x2="8" y2="6"/>
         <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
-      <span>비행 달력</span>
+      <span>달력</span>
     </button>
-    <button type="button" class="bottom-nav-item" id="nav-btn-manage">
+    <button type="button" class="bottom-nav-item" id="nav-btn-manage" aria-label="관리">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
       </svg>
-      <span>일정 관리</span>
+      <span>관리</span>
     </button>
   </nav>
 
