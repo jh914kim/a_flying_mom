@@ -265,6 +265,21 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
     });
   }
 
+  if (themeId === 'doraemon') {
+    const html = `
+      <div class="dm-home-marker-wrapper" style="width: 52px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/dm-home-doraemon.png" width="48" height="44" alt="우리 집 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-home-pin dm-home-pin',
+      html: html,
+      iconSize: [52, 48],
+      iconAnchor: [26, 24],
+      popupAnchor: [0, -22]
+    });
+  }
+
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
@@ -317,6 +332,21 @@ function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
       iconSize: [50, 46],
       iconAnchor: [25, 23],
       popupAnchor: [0, -20]
+    });
+  }
+
+  if (themeId === 'doraemon') {
+    const html = `
+      <div class="dm-stay-marker-wrapper" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/dm-relax.png" width="48" height="48" alt="체류지 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-stay-pin dm-stay-pin',
+      html: html,
+      iconSize: [50, 50],
+      iconAnchor: [25, 25],
+      popupAnchor: [0, -22]
     });
   }
 
@@ -375,6 +405,7 @@ function createAirportIcon(L, color = '#5f6368') {
 function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor = '#ffffff', themeId = 'default') {
   const isHelloKitty = themeId === 'hellokitty' || (typeof fillColor === 'object' && fillColor.id === 'hellokitty');
   const isRilakkuma = themeId === 'rilakkuma' || (typeof fillColor === 'object' && fillColor.id === 'rilakkuma');
+  const isDoraemon = themeId === 'doraemon' || (typeof fillColor === 'object' && fillColor.id === 'doraemon');
   const actualFill = typeof fillColor === 'object' ? (fillColor.airplaneColor || '#1A73E8') : fillColor;
   const actualStroke = typeof fillColor === 'object' ? (fillColor.airplaneStroke || strokeColor) : strokeColor;
 
@@ -428,6 +459,29 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
     });
   }
 
+  if (isDoraemon) {
+    const normalized = ((heading % 360) + 360) % 360;
+    const isWestbound = normalized >= 180 && normalized < 360;
+    const imgSrc = isWestbound ? 'assets/img/dm-airplane-west.png' : 'assets/img/dm-airplane-east.png';
+
+    const pitch = isWestbound
+      ? Math.max(-25, Math.min(25, (270 - normalized) * 0.4))
+      : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
+
+    const html = `
+      <div class="dm-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 52px; height: 44px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="${imgSrc}" width="50" height="42" alt="도라에몽 비행기" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+
+    return L.divIcon({
+      className: 'custom-airplane-pin dm-airplane-pin',
+      html: html,
+      iconSize: [52, 44],
+      iconAnchor: [26, 22]
+    });
+  }
+
   const svg = `
     <div style="transform: rotate(${heading}deg); transform-origin: center center; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
       <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -472,7 +526,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   // 1. Current Location Marker (Themed 26px pin or airplane)
   let currentMarker;
   if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
 
     currentMarker = L.marker(coords, {
@@ -494,7 +548,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
 
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
   } else if (statusData.status === STATUS_TYPES.HOME) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
     const home = getHomeBase();
     currentMarker = L.marker(coords, {
       icon: createHomeIcon(L, theme.primaryColor, theme.id),
@@ -503,7 +557,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     currentMarker.bindTooltip(home.name || '우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${home.address || (home.city + ' (집)')}`);
   } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
     currentMarker = L.marker(coords, {
       icon: createStayIcon(L, theme.primaryColor, theme.id),
       zIndexOffset: 1000

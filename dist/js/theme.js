@@ -79,6 +79,18 @@ export function getRilakkumaIconHtml(size = 30) {
   return `<img src="assets/img/rilakkuma-head.png" class="brand-rilakkuma-img" width="${size}" height="${height}" alt="리락쿠마" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(122,68,34,0.25));">`;
 }
 
+export function getDoraemonSvg(size = 30) {
+  return `
+    <svg viewBox="0 0 64 64" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <image href="assets/img/doraemon-head.png" width="64" height="64"/>
+    </svg>
+  `;
+}
+
+export function getDoraemonIconHtml(size = 30) {
+  return `<img src="assets/img/doraemon-head.png" class="brand-doraemon-img" width="${size}" height="${size}" alt="도라에몽" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(0,155,227,0.3));">`;
+}
+
 export const THEMES = {
   default: {
     id: 'default',
@@ -161,6 +173,21 @@ export const THEMES = {
     toggleIconHtml: getRilakkumaIconHtml(24),
     faviconPng: 'assets/img/rilakkuma-favicon.png',
     faviconSvg: getRilakkumaSvg(64).trim()
+  },
+  doraemon: {
+    id: 'doraemon',
+    name: '도라에몽 (Doraemon)',
+    shortName: '도라에몽',
+    primaryColor: '#009be3',
+    destPinColor: '#e43615',
+    depPinColor: '#4f728c',
+    flightPathColor: '#009be3',
+    airplaneColor: '#009be3',
+    airplaneStroke: '#ffffff',
+    brandIconHtml: getDoraemonIconHtml(32),
+    toggleIconHtml: getDoraemonIconHtml(24),
+    faviconPng: 'assets/img/doraemon-favicon.png',
+    faviconSvg: getDoraemonSvg(64).trim()
   }
 };
 

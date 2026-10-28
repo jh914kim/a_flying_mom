@@ -163,6 +163,35 @@ html[data-theme="rilakkuma"] {
   --shadow-md: 0 6px 18px rgba(122, 68, 34, 0.12);
 }
 
+/* Theme 6: Doraemon (도라에몽 - Fujiko F. Fujio Sky Blue, Red Collar & Yellow Bell) */
+html[data-theme="doraemon"] {
+  --color-bg: #f4faff;
+  --color-surface: #ffffff;
+  --color-primary: #009be3;
+  --color-primary-hover: #0081bf;
+  --color-primary-light: #e3f4fd;
+  --color-secondary-hover: #cbeafc;
+  --color-accent: #e43615;
+  --color-brand-title: #054b7c;
+  --color-header-bg: rgba(255, 255, 255, 0.95);
+  --color-header-border: #cbe5f7;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e6f5fd 100%);
+  --color-status-border: #c4e4f9;
+  --color-cal-flight-bg: #dff2fd;
+  --color-cal-stay-bg: #f2f9fe;
+  --color-cal-stay-badge: #009be3;
+  --color-text-main: #0c2b45;
+  --color-text-sub: #275276;
+  --color-text-muted: #5e84a2;
+  --color-border: #cae5f8;
+  --color-border-light: #e4f2fb;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(0, 155, 227, 0.08), 0 1px 3px rgba(0, 155, 227, 0.05);
+  --shadow-md: 0 6px 18px rgba(0, 155, 227, 0.12);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -205,6 +234,18 @@ html[data-theme="rilakkuma"] body {
     radial-gradient(circle at 90% 20%, rgba(245, 166, 35, 0.25) 0%, transparent 30%),
     radial-gradient(circle at 50% 85%, rgba(255, 240, 200, 0.4) 0%, transparent 40%),
     radial-gradient(#ebd8bf 0.8px, transparent 0.8px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
+}
+
+/* Doraemon: Fresh Sky Blue Background with Soft Cloud/Bubble Nuance */
+html[data-theme="doraemon"] body {
+  background-color: #f4faff;
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(186, 230, 253, 0.45) 0%, transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(224, 242, 254, 0.5) 0%, transparent 30%),
+    radial-gradient(circle at 50% 85%, rgba(199, 233, 254, 0.35) 0%, transparent 40%),
+    radial-gradient(#c7e6fa 0.8px, transparent 0.8px);
   background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
   background-attachment: fixed;
 }
@@ -261,6 +302,13 @@ html[data-theme="rilakkuma"] .app-header::before {
   background: linear-gradient(90deg, #7a4422 0%, #f5a623 25%, #ffe082 50%, #f5a623 75%, #7a4422 100%);
   background-size: 200% 100%;
   animation: hk-shimmer 5s linear infinite;
+}
+
+/* Doraemon Header signature Sky Blue, Collar Red, Bell Yellow & Shimmer top bar */
+html[data-theme="doraemon"] .app-header::before {
+  background: linear-gradient(90deg, #009be3 0%, #40c4ff 20%, #ffd800 40%, #e43615 60%, #40c4ff 80%, #009be3 100%);
+  background-size: 200% 100%;
+  animation: hk-shimmer 4.5s linear infinite;
 }
 
 .header-content {
@@ -513,9 +561,32 @@ html[data-theme="hellokitty"] .brand-logo-icon {
   transform: scale(1.05);
 }
 
+.theme-circle-doraemon {
+  background-color: #ffffff;
+  border-color: #bfe3fa;
+  box-shadow: 0 1px 4px rgba(0, 155, 227, 0.15);
+  overflow: visible;
+}
+
+.theme-circle-doraemon .theme-doraemon-img {
+  width: 22px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 155, 227, 0.2));
+  transform: scale(1.05);
+}
+
 .theme-dot-btn[data-theme-option="rilakkuma"].is-selected .theme-circle {
   border-color: #f5a623;
   box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+}
+
+.theme-dot-btn[data-theme-option="doraemon"].is-selected .theme-circle {
+  border-color: #009be3;
+  box-shadow: 0 0 0 2px rgba(0, 155, 227, 0.4);
 }
 
 .brand-kitty-img {
@@ -526,6 +597,13 @@ html[data-theme="hellokitty"] .brand-logo-icon {
 }
 
 .brand-rilakkuma-img {
+  width: 30px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-doraemon-img {
   width: 30px;
   height: auto;
   object-fit: contain;
@@ -710,12 +788,13 @@ html[data-theme="hellokitty"] .brand-logo-icon {
     gap: 4px;
   }
   .theme-popover {
-    padding: 3px 5px;
-    gap: 4px;
+    padding: 3px 6px;
+    gap: 3px;
+    right: 8px !important;
   }
   .theme-circle {
-    width: 22px;
-    height: 22px;
+    width: 21px;
+    height: 21px;
   }
 }
 
@@ -1056,6 +1135,149 @@ html[data-theme="rilakkuma"] .calendar-list-card::before {
   z-index: 5;
   animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
 }
+
+/* Doraemon: Full Card & UI Styling */
+html[data-theme="doraemon"] .calendar-card,
+html[data-theme="doraemon"] .journey-active-card,
+html[data-theme="doraemon"] .map-card {
+  box-shadow: 0 4px 16px rgba(0, 155, 227, 0.08);
+}
+
+html[data-theme="doraemon"] .bottom-nav {
+  background: rgba(255, 255, 255, 0.94);
+  border-top: 1px solid #cae5f8;
+  box-shadow: 0 -4px 16px rgba(0, 155, 227, 0.08);
+}
+
+html[data-theme="doraemon"] .nav-item.is-active {
+  color: #009be3;
+}
+
+html[data-theme="doraemon"] .status-card {
+  border: 1.5px solid #cae5f8;
+  box-shadow: 0 6px 20px rgba(0, 155, 227, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 60%, #e6f5fd 100%);
+}
+
+html[data-theme="doraemon"] .status-badge-pill {
+  font-weight: 700;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0, 155, 227, 0.15);
+}
+
+html[data-theme="doraemon"] .status-badge-pill.badge-home {
+  background: linear-gradient(135deg, #e3f4fd 0%, #cbeafc 100%);
+  color: #054b7c;
+  border: 1px solid #b7def8;
+}
+
+html[data-theme="doraemon"] .status-badge-pill.badge-flight {
+  background: linear-gradient(135deg, #009be3 0%, #0081bf 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html[data-theme="doraemon"] .status-badge-pill.badge-stay {
+  background: linear-gradient(135deg, #e43615 0%, #ff5238 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html[data-theme="doraemon"] .btn-refresh-screen {
+  background: #e3f4fd;
+  color: #009be3;
+  border: 1px solid #cae5f8;
+}
+
+html[data-theme="doraemon"] .btn-refresh-screen:hover {
+  background: #cae5f8;
+  color: #0081bf;
+}
+
+html[data-theme="doraemon"] .cal-day-cell.is-selected {
+  background-color: #009be3 !important;
+  color: #ffffff !important;
+  border-color: #009be3 !important;
+}
+
+html[data-theme="doraemon"] .cal-day-cell.is-selected .cal-day-num,
+html[data-theme="doraemon"] .cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  color: #009be3;
+}
+
+html[data-theme="doraemon"] .cal-day-cell.is-selected .cal-day-num {
+  color: #ffffff !important;
+}
+
+/* Doraemon: Flight Calendar Top-Right Conductor Mascot */
+html[data-theme="doraemon"] .calendar-card {
+  position: relative;
+}
+
+html[data-theme="doraemon"] .calendar-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 38px;
+  height: 44px;
+  background: url("../assets/img/dm-calendar.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 155, 227, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
+}
+
+/* Doraemon: Journey Card Anywhere Door (어디로든 문) Mascot */
+html[data-theme="doraemon"] .journey-active-card,
+html[data-theme="doraemon"] .journey-empty-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f6fbff 100%);
+  border: 1.5px solid #cae5f8;
+}
+
+html[data-theme="doraemon"] .journey-active-card::before,
+html[data-theme="doraemon"] .journey-empty-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 38px;
+  height: 44px;
+  background: url("../assets/img/dm-journey.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 155, 227, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="doraemon"] .journey-badge-pill {
+  background: linear-gradient(135deg, #009be3 0%, #00b4ff 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 155, 227, 0.25);
+  font-weight: 700;
+}
+
+/* Doraemon: Flight List Schedule Card Dorayaki Mascot */
+html[data-theme="doraemon"] .calendar-list-card {
+  position: relative;
+}
+
+html[data-theme="doraemon"] .calendar-list-card::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  width: 40px;
+  height: 42px;
+  background: url("../assets/img/dm-schedule.png") no-repeat center / contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 155, 227, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
+}
+
 
 /* Status Badge Pill & Refresh Action Container */
 .status-badge-wrapper {
@@ -1418,6 +1640,20 @@ html[data-theme="rilakkuma"] .map-airplane-pct {
   color: #7a4422;
 }
 
+html[data-theme="doraemon"] .custom-map-plane-tooltip.leaflet-tooltip {
+  background-color: #009be3 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 155, 227, 0.35) !important;
+}
+
+html[data-theme="doraemon"] .custom-map-plane-tooltip.leaflet-tooltip::before {
+  border-top-color: #009be3 !important;
+}
+
+html[data-theme="doraemon"] .map-airplane-pct {
+  color: #009be3;
+}
+
 .custom-airplane-pin,
 .custom-map-pin,
 .hk-airplane-pin,
@@ -1426,7 +1662,10 @@ html[data-theme="rilakkuma"] .map-airplane-pct {
 .custom-airport-pin,
 .custom-stay-pin,
 .hk-stay-pin,
-.rk-stay-pin {
+.rk-stay-pin,
+.dm-airplane-pin,
+.dm-home-pin,
+.dm-stay-pin {
   background: transparent !important;
   border: none !important;
 }
@@ -1434,18 +1673,23 @@ html[data-theme="rilakkuma"] .map-airplane-pct {
 .hk-home-marker-wrapper,
 .rk-home-marker-wrapper,
 .hk-stay-marker-wrapper,
-.rk-stay-marker-wrapper {
+.rk-stay-marker-wrapper,
+.dm-home-marker-wrapper,
+.dm-stay-marker-wrapper {
   transition: transform 0.2s ease;
 }
 
 .hk-home-marker-wrapper:hover,
 .rk-home-marker-wrapper:hover,
 .hk-stay-marker-wrapper:hover,
-.rk-stay-marker-wrapper:hover {
+.rk-stay-marker-wrapper:hover,
+.dm-home-marker-wrapper:hover,
+.dm-stay-marker-wrapper:hover {
   transform: scale(1.1);
 }
 
-.hk-airplane-marker-wrapper {
+.hk-airplane-marker-wrapper,
+.dm-airplane-marker-wrapper {
   transition: transform 0.3s ease;
 }
 
