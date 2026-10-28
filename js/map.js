@@ -215,75 +215,79 @@ function clearMapMarkers() {
  */
 function createPinIcon(L, color = '#1A73E8') {
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34" fill="none">
-      <path d="M13 0C5.82 0 0 5.82 0 13C0 22.75 13 34 13 34C13 34 26 22.75 26 13C26 5.82 20.18 0 13 0Z" fill="${color}"/>
-      <circle cx="13" cy="13" r="5" fill="#FFFFFF"/>
-    </svg>
+    <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 30 38" fill="none">
+        <path d="M13 0C5.82 0 0 5.82 0 13C0 22.75 13 34 13 34C13 34 26 22.75 26 13C26 5.82 20.18 0 13 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle cx="13" cy="13" r="5" fill="#FFFFFF"/>
+      </svg>
+    </div>
   `;
   return L.divIcon({
     className: 'custom-map-pin',
     html: svg,
-    iconSize: [26, 34],
-    iconAnchor: [13, 34],
-    popupAnchor: [0, -32]
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -36]
   });
 }
 
 /**
  * Creates Home Icon:
  * - Hello Kitty theme: Relaxing Hello Kitty lying down
- * - Other themes: 28x36px Home Pin Icon with House SVG
+ * - Rilakkuma theme: Relaxing Rilakkuma lying down
+ * - Doraemon theme: Doraemon with Dokodemo Door
+ * - Other themes: 30x38px Home Pin Icon with House SVG & 2.2px white outline
  */
 function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
   if (themeId === 'hellokitty') {
     const html = `
-      <div class="hk-home-marker-wrapper" style="width: 52px; height: 38px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="hk-home-marker-wrapper" style="width: 54px; height: 40px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/hk-home-kitty.png" width="50" height="36" alt="우리 집 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-home-pin hk-home-pin',
       html: html,
-      iconSize: [52, 38],
-      iconAnchor: [26, 19],
-      popupAnchor: [0, -18]
+      iconSize: [54, 40],
+      iconAnchor: [27, 20],
+      popupAnchor: [0, -19]
     });
   }
 
   if (themeId === 'rilakkuma') {
     const html = `
-      <div class="rk-home-marker-wrapper" style="width: 54px; height: 40px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="rk-home-marker-wrapper" style="width: 56px; height: 42px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/rk-home-rilakkuma.png" width="52" height="38" alt="우리 집 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-home-pin rk-home-pin',
       html: html,
-      iconSize: [54, 40],
-      iconAnchor: [27, 20],
-      popupAnchor: [0, -18]
+      iconSize: [56, 42],
+      iconAnchor: [28, 21],
+      popupAnchor: [0, -19]
     });
   }
 
   if (themeId === 'doraemon') {
     const html = `
-      <div class="dm-home-marker-wrapper" style="width: 44px; height: 54px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="dm-home-marker-wrapper" style="width: 46px; height: 56px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/dm-home-doraemon.png" width="40" height="50" alt="우리 집 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-home-pin dm-home-pin',
       html: html,
-      iconSize: [44, 54],
-      iconAnchor: [22, 27],
-      popupAnchor: [0, -25]
+      iconSize: [46, 56],
+      iconAnchor: [23, 28],
+      popupAnchor: [0, -26]
     });
   }
 
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
-        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 32 40" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
         <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
         <path d="M14 6.8L7.5 12.8H9.5V20H12.5V16H15.5V20H18.5V12.8H20.5L14 6.8Z" fill="${color}"/>
       </svg>
@@ -292,9 +296,9 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
   return L.divIcon({
     className: 'custom-home-pin',
     html: svg,
-    iconSize: [28, 36],
-    iconAnchor: [14, 36],
-    popupAnchor: [0, -34]
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -36]
   });
 }
 
@@ -302,58 +306,59 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
  * Creates Stay / Destination Hotel Icon:
  * - Hello Kitty theme: Hello Kitty Traveler character
  * - Rilakkuma theme: Rilakkuma relaxing on vacation character
- * - Other themes: 28x36px Hotel Pin Icon with Bed SVG
+ * - Doraemon theme: Doraemon relaxing on vacation character
+ * - Other themes: 30x38px Hotel Pin Icon with Bed SVG & 2.2px white outline
  */
 function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
   if (themeId === 'hellokitty') {
     const html = `
-      <div class="hk-stay-marker-wrapper" style="width: 48px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="hk-stay-marker-wrapper" style="width: 50px; height: 52px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/hk-traveler.png" width="44" height="48" alt="체류지 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-stay-pin hk-stay-pin',
       html: html,
-      iconSize: [48, 50],
-      iconAnchor: [24, 25],
-      popupAnchor: [0, -22]
+      iconSize: [50, 52],
+      iconAnchor: [25, 26],
+      popupAnchor: [0, -23]
     });
   }
 
   if (themeId === 'rilakkuma') {
     const html = `
-      <div class="rk-stay-marker-wrapper" style="width: 50px; height: 46px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="rk-stay-marker-wrapper" style="width: 52px; height: 48px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/rk-relax.png" width="48" height="42" alt="체류지 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-stay-pin rk-stay-pin',
       html: html,
-      iconSize: [50, 46],
-      iconAnchor: [25, 23],
-      popupAnchor: [0, -20]
+      iconSize: [52, 48],
+      iconAnchor: [26, 24],
+      popupAnchor: [0, -21]
     });
   }
 
   if (themeId === 'doraemon') {
     const html = `
-      <div class="dm-stay-marker-wrapper" style="width: 52px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="dm-stay-marker-wrapper" style="width: 54px; height: 52px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/dm-relax.png" width="50" height="48" alt="체류지 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-stay-pin dm-stay-pin',
       html: html,
-      iconSize: [52, 50],
-      iconAnchor: [26, 25],
-      popupAnchor: [0, -23]
+      iconSize: [54, 52],
+      iconAnchor: [27, 26],
+      popupAnchor: [0, -24]
     });
   }
 
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
-        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 32 40" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
         <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
         <!-- Hotel Bed Symbol -->
         <path d="M7 10V18H8.5V16.5H19.5V18H21V12.8C21 11.5 19.9 10.5 18.5 10.5H13.5V13H8.5V10H7Z" fill="${color}"/>
@@ -365,9 +370,9 @@ function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
   return L.divIcon({
     className: 'custom-stay-pin',
     html: svg,
-    iconSize: [28, 36],
-    iconAnchor: [14, 36],
-    popupAnchor: [0, -34]
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -36]
   });
 }
 
@@ -376,58 +381,58 @@ function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
  * - Hello Kitty theme: Hello Kitty reading binder at desk
  * - Rilakkuma theme: Rilakkuma checking schedule with question mark
  * - Doraemon theme: Nobita intently writing notes at desk
- * - Other themes: 28x36px Briefing Clipboard / Checklist Pin Icon
+ * - Other themes: 30x38px Briefing Clipboard / Checklist Pin Icon with 2.2px white outline
  */
 function createBriefingIcon(L, color = '#1A73E8', themeId = 'default') {
   if (themeId === 'hellokitty') {
     const html = `
-      <div class="hk-briefing-marker-wrapper" style="width: 48px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="hk-briefing-marker-wrapper" style="width: 50px; height: 52px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/hk-briefing.png" width="46" height="48" alt="브리핑 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-briefing-pin hk-briefing-pin',
       html: html,
-      iconSize: [48, 50],
-      iconAnchor: [24, 25],
-      popupAnchor: [0, -22]
+      iconSize: [50, 52],
+      iconAnchor: [25, 26],
+      popupAnchor: [0, -23]
     });
   }
 
   if (themeId === 'rilakkuma') {
     const html = `
-      <div class="rk-briefing-marker-wrapper" style="width: 48px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="rk-briefing-marker-wrapper" style="width: 50px; height: 52px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/rk-briefing.png" width="46" height="48" alt="브리핑 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-briefing-pin rk-briefing-pin',
       html: html,
-      iconSize: [48, 50],
-      iconAnchor: [24, 25],
-      popupAnchor: [0, -22]
+      iconSize: [50, 52],
+      iconAnchor: [25, 26],
+      popupAnchor: [0, -23]
     });
   }
 
   if (themeId === 'doraemon') {
     const html = `
-      <div class="dm-briefing-marker-wrapper" style="width: 50px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="dm-briefing-marker-wrapper" style="width: 52px; height: 50px; display: flex; align-items: center; justify-content: center;">
         <img src="assets/img/dm-briefing.png" width="48" height="46" alt="브리핑 진구" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-briefing-pin dm-briefing-pin',
       html: html,
-      iconSize: [50, 48],
-      iconAnchor: [25, 24],
-      popupAnchor: [0, -22]
+      iconSize: [52, 50],
+      iconAnchor: [26, 25],
+      popupAnchor: [0, -23]
     });
   }
 
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
-        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 32 40" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
         <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
         <!-- Briefing Clipboard Symbol -->
         <rect x="9" y="8.5" width="10" height="12" rx="1.5" stroke="${color}" stroke-width="1.3" fill="none"/>
@@ -441,22 +446,117 @@ function createBriefingIcon(L, color = '#1A73E8', themeId = 'default') {
   return L.divIcon({
     className: 'custom-briefing-pin',
     html: svg,
-    iconSize: [28, 36],
-    iconAnchor: [14, 36],
-    popupAnchor: [0, -34]
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -36]
   });
 }
 
+/**
+ * Creates Commute Car Icon (Sample #4 Dynamic Speed Pin for airlines, custom characters for mascot themes):
+ * - Hello Kitty: Hello Kitty in red convertible car
+ * - Rilakkuma: Korilakkuma & Kiiroitori on scooter (씽씽이)
+ * - Doraemon: Doraemon & Nobita in convertible car
+ * - Default / Asiana / KoreanAir: Sample #4 Dynamic Speed Pin with 2.2px white outline
+ */
+function createCarIcon(L, color = '#1A73E8', themeId = 'default', isWestbound = true) {
+  if (themeId === 'hellokitty') {
+    // hk-car.png faces LEFT (Westbound / 집 -> 공항), hk-car-rev.png faces RIGHT (Eastbound / 공항 -> 집)
+    const imgSrc = isWestbound ? 'assets/img/hk-car.png' : 'assets/img/hk-car-rev.png';
+    const html = `
+      <div class="hk-car-marker-wrapper" style="width: 54px; height: 48px; display: flex; align-items: center; justify-content: center;">
+        <img src="${imgSrc}" width="50" height="44" alt="출퇴근 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-car-pin hk-car-pin',
+      html: html,
+      iconSize: [54, 48],
+      iconAnchor: [27, 24],
+      popupAnchor: [0, -23]
+    });
+  }
 
+  if (themeId === 'rilakkuma') {
+    // rk-car-west.png faces LEFT (Westbound / 집 -> 공항), rk-car.png faces RIGHT (Eastbound / 공항 -> 집)
+    const imgSrc = isWestbound ? 'assets/img/rk-car-west.png' : 'assets/img/rk-car.png';
+    const html = `
+      <div class="rk-car-marker-wrapper" style="width: 50px; height: 54px; display: flex; align-items: center; justify-content: center;">
+        <img src="${imgSrc}" width="46" height="50" alt="출퇴근 씽씽이 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-car-pin rk-car-pin',
+      html: html,
+      iconSize: [50, 54],
+      iconAnchor: [25, 27],
+      popupAnchor: [0, -25]
+    });
+  }
+
+  if (themeId === 'doraemon') {
+    // dm-car-west.png faces LEFT (Westbound / 집 -> 공항), dm-car.png faces RIGHT (Eastbound / 공항 -> 집)
+    const imgSrc = isWestbound ? 'assets/img/dm-car.png' : 'assets/img/dm-car-west.png';
+    const html = `
+      <div class="dm-car-marker-wrapper" style="width: 54px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <img src="${imgSrc}" width="50" height="40" alt="출퇴근 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-car-pin dm-car-pin',
+      html: html,
+      iconSize: [54, 44],
+      iconAnchor: [27, 22],
+      popupAnchor: [0, -21]
+    });
+  }
+
+  // Sample #4 Dynamic Speed Drive Pin (Selected by user)
+  // Facing Left (Westbound / 집 -> 공항): horizontally flipped transform
+  // Facing Right (Eastbound / 공항 -> 집): original transform
+  const carTransform = isWestbound
+    ? 'translate(23.5, 7.5) scale(-0.74, 0.74)'
+    : 'translate(4.5, 7.5) scale(0.74)';
+
+  const svg = `
+    <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 32 40" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
+        <!-- Dynamic Speed Car (Sample 4 with Directionality) -->
+        <g transform="${carTransform}">
+          <!-- Motion trails -->
+          <line x1="-1.5" y1="10" x2="1.5" y2="10" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="-3" y1="13" x2="0.5" y2="13" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- Aerodynamic car body -->
+          <path d="M2.5 13.5L4.5 9.5C5 8.5 6.2 7.8 7.5 7.6L13 5C14.5 4.3 16.5 4.5 18 5.5L21.5 7.8C22.7 8.3 23.5 9.3 24 10.5L24.5 13.5H2.5Z" fill="${color}"/>
+          <path d="M8 8L12.5 6V9.5H7L8 8Z" fill="#FFFFFF"/>
+          <path d="M13.8 6L17.5 8L17 9.5H13.8V6Z" fill="#FFFFFF"/>
+          <circle cx="7" cy="14.5" r="2.5" fill="${color}"/>
+          <circle cx="7" cy="14.5" r="1.1" fill="#FFFFFF"/>
+          <circle cx="19" cy="14.5" r="2.5" fill="${color}"/>
+          <circle cx="19" cy="14.5" r="1.1" fill="#FFFFFF"/>
+        </g>
+      </svg>
+    </div>
+  `;
+  return L.divIcon({
+    className: 'custom-car-pin',
+    html: svg,
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -36]
+  });
+}
 
 /**
- * Creates 28x36px Airport Pin Icon (Option 1: Runway & Jet Takeoff Departure)
+ * Creates 30x38px Airport Pin Icon with 2.2px white outline
  */
 function createAirportIcon(L, color = '#5f6368') {
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25)); display: flex; align-items: center; justify-content: center;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
-        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 32 40" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
         <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
         <!-- Runway Line Below -->
         <line x1="7.5" y1="19.5" x2="20.5" y2="19.5" stroke="${color}" stroke-width="1.6" stroke-linecap="round"/>
@@ -468,16 +568,18 @@ function createAirportIcon(L, color = '#5f6368') {
   return L.divIcon({
     className: 'custom-airport-pin',
     html: svg,
-    iconSize: [28, 36],
-    iconAnchor: [14, 36],
-    popupAnchor: [0, -34]
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -36]
   });
 }
 
 /**
  * Creates rotated airplane icon:
- * - Default / Asiana / KoreanAir: Modern Jetliner (Option 1: Aerodynamic Style)
+ * - Default / Asiana / KoreanAir: Modern Jetliner with 2.2px stroke outline
  * - Hello Kitty theme: Hello Kitty riding an airplane with East / West heading flip & realistic pitch
+ * - Rilakkuma theme: Rilakkuma riding an airplane with East / West heading flip & pitch
+ * - Doraemon theme: Doraemon riding an airplane with East / West heading flip & pitch
  */
 function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor = '#ffffff', themeId = 'default') {
   const isHelloKitty = themeId === 'hellokitty' || (typeof fillColor === 'object' && fillColor.id === 'hellokitty');
@@ -487,20 +589,16 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
   const actualStroke = typeof fillColor === 'object' ? (fillColor.airplaneStroke || strokeColor) : strokeColor;
 
   if (isHelloKitty) {
-    // Heading in degrees: 0..360 (0=North, 90=East, 180=South, 270=West)
     const normalized = ((heading % 360) + 360) % 360;
-    // Eastbound: 0 <= normalized < 180 (flying towards right)
-    // Westbound: 180 <= normalized < 360 (flying towards left)
     const isWestbound = normalized >= 180 && normalized < 360;
     const imgSrc = isWestbound ? 'assets/img/hk-airplane-west.png' : 'assets/img/hk-airplane-east.png';
 
-    // Calculate natural climb/descent pitch angle (clamped within ±25 deg)
     const pitch = isWestbound
       ? Math.max(-25, Math.min(25, (270 - normalized) * 0.4))
       : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
 
     const html = `
-      <div class="hk-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 48px; height: 46px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="hk-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 52px; height: 48px; display: flex; align-items: center; justify-content: center;">
         <img src="${imgSrc}" width="46" height="44" alt="헬로키티 비행기" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
@@ -508,8 +606,8 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
     return L.divIcon({
       className: 'custom-airplane-pin hk-airplane-pin',
       html: html,
-      iconSize: [48, 46],
-      iconAnchor: [24, 23]
+      iconSize: [52, 48],
+      iconAnchor: [26, 24]
     });
   }
 
@@ -523,7 +621,7 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
       : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
 
     const html = `
-      <div class="rk-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 50px; height: 42px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="rk-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 52px; height: 44px; display: flex; align-items: center; justify-content: center;">
         <img src="${imgSrc}" width="48" height="40" alt="리락쿠마 비행기" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
@@ -531,8 +629,8 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
     return L.divIcon({
       className: 'custom-airplane-pin rk-airplane-pin',
       html: html,
-      iconSize: [50, 42],
-      iconAnchor: [25, 21]
+      iconSize: [52, 44],
+      iconAnchor: [26, 22]
     });
   }
 
@@ -546,7 +644,7 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
       : Math.max(-25, Math.min(25, (normalized - 90) * 0.4));
 
     const html = `
-      <div class="dm-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 52px; height: 44px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+      <div class="dm-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 54px; height: 46px; display: flex; align-items: center; justify-content: center;">
         <img src="${imgSrc}" width="50" height="42" alt="도라에몽 비행기" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
@@ -554,27 +652,27 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
     return L.divIcon({
       className: 'custom-airplane-pin dm-airplane-pin',
       html: html,
-      iconSize: [52, 44],
-      iconAnchor: [26, 22]
+      iconSize: [54, 46],
+      iconAnchor: [27, 23]
     });
   }
 
   const svg = `
-    <div style="transform: rotate(${heading}deg); transform-origin: center center; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
-      <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div style="transform: rotate(${heading}deg); transform-origin: center center; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));">
+      <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Modern Jetliner Wings & Fuselage -->
-        <path d="M24 2 C22.8 2 21.5 5 21.5 10 L21.5 18 L3 27.5 C2 28 2 29.5 3.2 29.5 L21.5 25.5 L21.5 38 L14 42.5 C13.5 42.8 13.5 43.8 14.2 44 L24 42 L33.8 44 C34.5 43.8 34.5 42.8 34 42.5 L26.5 38 L26.5 25.5 L44.8 29.5 C46 29.5 46 28 45 27.5 L26.5 18 L26.5 10 C26.5 5 25.2 2 24 2 Z" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M24 2 C22.8 2 21.5 5 21.5 10 L21.5 18 L3 27.5 C2 28 2 29.5 3.2 29.5 L21.5 25.5 L21.5 38 L14 42.5 C13.5 42.8 13.5 43.8 14.2 44 L24 42 L33.8 44 C34.5 43.8 34.5 42.8 34 42.5 L26.5 38 L26.5 25.5 L44.8 29.5 C46 29.5 46 28 45 27.5 L26.5 18 L26.5 10 C26.5 5 25.2 2 24 2 Z" fill="${actualFill}" stroke="${actualStroke}" stroke-width="2.2" stroke-linejoin="round"/>
         <!-- Dual Jet Engine Nacelles -->
-        <rect x="14.5" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1"/>
-        <rect x="30.7" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1"/>
+        <rect x="14.5" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1.2"/>
+        <rect x="30.7" y="23.5" width="2.8" height="6.2" rx="1.4" fill="${actualFill}" stroke="${actualStroke}" stroke-width="1.2"/>
       </svg>
     </div>
   `;
   return L.divIcon({
     className: 'custom-airplane-pin',
     html: svg,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18]
+    iconSize: [38, 38],
+    iconAnchor: [19, 19]
   });
 }
 
@@ -645,6 +743,60 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       offset: isMascot ? [0, -22] : [0, -34]
     });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.locationName || '해외 체류지'}`);
+  } else if (statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE || statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    const isReturn = statusData.status === STATUS_TYPES.COMMUTE_RETURN;
+
+    // Directionality:
+    // When going from Home to Airport (출근): moves East to West -> faces LEFT (isWestbound = true).
+    // When returning from Airport to Home (퇴근): moves West to East -> faces RIGHT (isWestbound = false).
+    let isWestbound = true;
+    if (statusData.homeCoords && statusData.targetCoords) {
+      if (isReturn) {
+        isWestbound = statusData.homeCoords[1] < statusData.targetCoords[1];
+      } else {
+        isWestbound = statusData.targetCoords[1] < statusData.homeCoords[1];
+      }
+    } else {
+      isWestbound = !isReturn;
+    }
+
+    currentMarker = L.marker(coords, {
+      icon: createCarIcon(L, theme.primaryColor, theme.id, isWestbound),
+      zIndexOffset: 1000
+    });
+    currentMarker.bindTooltip(statusData.title, {
+      direction: 'top',
+      offset: isMascot ? [0, -22] : [0, -34]
+    });
+    currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
+
+    // Endpoint markers (Home and Airport)
+    if (statusData.homeCoords && statusData.targetCoords) {
+      const homeCoords = statusData.homeCoords;
+      const targetCoords = statusData.targetCoords;
+
+      const homeEndMarker = L.marker(homeCoords, {
+        icon: createHomeIcon(L, theme.primaryColor, theme.id)
+      }).bindTooltip('우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
+      homeEndMarker.addTo(mapInstance);
+      currentMarkers.push(homeEndMarker);
+
+      const targetEndMarker = L.marker(targetCoords, {
+        icon: createAirportIcon(L, theme.depPinColor)
+      }).bindTooltip(statusData.destCityName || '공항', { direction: 'top', offset: [0, -34] });
+      targetEndMarker.addTo(mapInstance);
+      currentMarkers.push(targetEndMarker);
+
+      // Route line
+      const routeLine = L.polyline([homeCoords, targetCoords], {
+        color: theme.flightPathColor || '#1A73E8',
+        weight: 3.5,
+        opacity: 0.9,
+        dashArray: '5, 8'
+      }).addTo(mapInstance);
+      currentPolylineLayers.push(routeLine);
+    }
   } else if (statusData.status === STATUS_TYPES.BRIEFING) {
     const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
     currentMarker = L.marker(coords, {
@@ -758,6 +910,8 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       mapInstance.setView(coords, 5);
     } else if (statusData.status === STATUS_TYPES.HOME || statusData.status === STATUS_TYPES.OVERSEAS_STAY || statusData.status === STATUS_TYPES.BRIEFING) {
       mapInstance.setView(coords, 7);
+    } else if (statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE || statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
+      mapInstance.setView(coords, 10);
     } else {
       mapInstance.setView([25, 130], 2);
     }
@@ -787,6 +941,10 @@ function updateMapOverlayBar(statusData) {
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
     const remainingPart = statusData.remainingTimeText ? ` · ${statusData.remainingTimeText}` : '';
     textEl.textContent = `도착지 · ${destName} ${pct}%${remainingPart}`;
+  } else if (statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE) {
+    textEl.textContent = `출근 중 · ${statusData.destCityName} 이동 중 (브리핑까지 약 ${statusData.remainingFormatted})`;
+  } else if (statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
+    textEl.textContent = `퇴근 중 · 우리 집 이동 중 (집 도착까지 약 ${statusData.remainingFormatted})`;
   } else if (statusData.status === STATUS_TYPES.BRIEFING) {
     const nextAp = statusData.nextFlight && statusData.nextFlight.arrAirport;
     const nextCity = nextAp ? nextAp.city.split('/')[0] : (statusData.nextFlight ? statusData.nextFlight.to : '');

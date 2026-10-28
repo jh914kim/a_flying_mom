@@ -101,6 +101,67 @@ export function resetHomeBase() {
   }
 }
 
+
+/**
+ * Haversine straight-line distance in km between two lat/lng coordinates
+ */
+export function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+/**
+ * Calculates estimated driving commute duration in minutes from home to airport
+ * using actual highway detour factor (1.35x), urban/highway speeds, toll/terminal buffer.
+ * If user set manual override, it honors user setting.
+ */
+export function calculateCommuteMinutes(home, airport) {
+  if (!home || !airport) return 60;
+
+  const airportCode = (airport.code || '').toUpperCase();
+
+  // Check manual overrides if any
+  try {
+    const rawOverrides = localStorage.getItem('flyingmom_commute_overrides');
+    if (rawOverrides) {
+      const overrides = JSON.parse(rawOverrides);
+      if (overrides && typeof overrides[airportCode] === 'number') {
+        return Math.max(10, Math.round(overrides[airportCode]));
+      }
+    }
+  } catch (_) {}
+
+  const distKm = calculateDistanceKm(home.lat, home.lng, airport.lat, airport.lng);
+
+  // Incheon Airport (T1 / T2)
+  if (airportCode === 'ICN') {
+    const roadKm = distKm * 1.35;
+    const drivingMinutes = Math.round((roadKm / 80) * 60) + 10;
+    // Default Gwacheon ~ 48km straight, 65km road -> ~59-60 mins
+    return Math.max(20, Math.min(150, drivingMinutes));
+  }
+
+  // Gimpo Airport
+  if (airportCode === 'GMP') {
+    const roadKm = distKm * 1.38;
+    const drivingMinutes = Math.round((roadKm / 58) * 60) + 8;
+    // Default Gwacheon ~ 23.5km straight, 32km road -> ~41-42 mins
+    return Math.max(15, Math.min(120, drivingMinutes));
+  }
+
+  // Other Korean airports (PUS, CJU, etc)
+  const roadKm = distKm * 1.35;
+  const drivingMinutes = Math.round((roadKm / 65) * 60) + 10;
+  return Math.max(20, Math.min(180, drivingMinutes));
+}
+
 // ICN & GMP are treated as the same metropolitan base (수도권 거점)
 export const KOREA_BASES = ['ICN', 'GMP'];
 

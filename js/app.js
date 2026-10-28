@@ -422,7 +422,12 @@ async function updateStatusCard(statusData, now) {
       }
     } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY && statusData.cityHighlight) {
       titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${statusData.cityHighlight}</span>에 머무르고 있어요`;
-    } else if (statusData.status === STATUS_TYPES.BRIEFING) {
+    } else if (statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE) {
+      const depCity = statusData.cityHighlight || '공항';
+      titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${depCity}</span>으로 출근 중이에요`;
+    } else if (statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
+      titleEl.innerHTML = `엄마는 <span class="status-city-highlight">우리 집</span>으로 퇴근 중이에요`;
+    } else if (statusData.status === STATUS_TYPES.BRIEFING || statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE || statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
       const depCity = statusData.cityHighlight || '공항';
       titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${depCity}</span>에서 브리핑 중이에요`;
     } else if (statusData.status === STATUS_TYPES.HOME) {
@@ -466,7 +471,7 @@ async function updateStatusCard(statusData, now) {
   const targetTz = statusData.airport && statusData.airport.tz ? statusData.airport.tz : 'Asia/Seoul';
   const targetTimes = formatTzDateTime(now, targetTz);
 
-  if (statusData.status === STATUS_TYPES.BRIEFING) {
+  if (statusData.status === STATUS_TYPES.BRIEFING || statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE || statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
     const depCity = statusData.destCityName || '출발지';
     if (destTimeLabel) destTimeLabel.textContent = `${depCity} · 한국 시각`;
     if (destTimeEl) destTimeEl.textContent = koreaTimes.timeStr;
@@ -499,7 +504,11 @@ async function updateStatusCard(statusData, now) {
   if (weatherLabel) {
     if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
       weatherLabel.textContent = `${statusData.destCityName || '도착지'} · 도착지 현재 날씨`;
-    } else if (statusData.status === STATUS_TYPES.BRIEFING) {
+    } else if (statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE) {
+      weatherLabel.textContent = `${statusData.destCityName || '공항'} · 공항 현재 날씨`;
+    } else if (statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
+      weatherLabel.textContent = '우리 집 · 현재 날씨';
+    } else if (statusData.status === STATUS_TYPES.BRIEFING || statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE || statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
       weatherLabel.textContent = `${statusData.destCityName || '출발 공항'} · 공항 현재 날씨`;
     } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
       weatherLabel.textContent = `${statusData.destCityName || '현지'} · 현지 현재 날씨`;

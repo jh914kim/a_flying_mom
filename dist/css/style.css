@@ -891,7 +891,12 @@ html[data-theme="hellokitty"] .status-badge-pill.badge-stay {
   border: 1px solid #ffccd9;
 }
 
-html[data-theme="hellokitty"] .status-badge-pill.badge-briefing {
+html[data-theme="hellokitty"] .status-badge-pill.badge-commute {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-badge-pill.badge-briefing {
   background-color: #ffeef4;
   color: #c2185b;
   border: 1px solid #f8bbd0;
@@ -1357,6 +1362,11 @@ html[data-theme="doraemon"] .calendar-list-card::before {
   background-color: currentColor;
 }
 
+.status-badge-pill.badge-commute {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
 .status-badge-pill.badge-briefing {
   background-color: #fff4e5;
   color: #b06000;
@@ -1665,43 +1675,138 @@ html[data-theme="doraemon"] .map-airplane-pct {
   color: #009be3;
 }
 
+/* -------------------------------------------------------------
+   Map Markers: Theme-Matched Outlines & High-Visibility Filters
+   ------------------------------------------------------------- */
+
+/* Reset Leaflet DivIcon default styling for all custom pins & markers */
+.leaflet-div-icon,
 .custom-airplane-pin,
 .custom-map-pin,
-.hk-airplane-pin,
 .custom-home-pin,
-.hk-home-pin,
 .custom-airport-pin,
 .custom-stay-pin,
+.custom-briefing-pin,
+.custom-car-pin,
+.hk-airplane-pin,
+.hk-home-pin,
 .hk-stay-pin,
+.hk-briefing-pin,
+.hk-car-pin,
+.rk-airplane-pin,
+.rk-home-pin,
 .rk-stay-pin,
+.rk-briefing-pin,
+.rk-car-pin,
 .dm-airplane-pin,
 .dm-home-pin,
-.dm-stay-pin {
+.dm-stay-pin,
+.dm-briefing-pin,
+.dm-car-pin {
   background: transparent !important;
   border: none !important;
 }
 
+/* 1. Hello Kitty Theme: 캐릭터 테두리를 슬림하고 또렷하게 감싸는 핑크 윤곽선 (#ff0055) */
+.hk-home-marker-wrapper img,
+.hk-stay-marker-wrapper img,
+.hk-briefing-marker-wrapper img,
+.hk-car-marker-wrapper img,
+.hk-airplane-marker-wrapper img {
+  filter: 
+    drop-shadow(1.2px 0 0 #ff0055)
+    drop-shadow(-1.2px 0 0 #ff0055)
+    drop-shadow(0 1.2px 0 #ff0055)
+    drop-shadow(0 -1.2px 0 #ff0055)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+/* 2. Rilakkuma Theme: 캐릭터 테두리를 슬림하고 또렷하게 감싸는 브라운 윤곽선 (#7a4422) */
+.rk-home-marker-wrapper img,
+.rk-stay-marker-wrapper img,
+.rk-briefing-marker-wrapper img,
+.rk-car-marker-wrapper img,
+.rk-airplane-marker-wrapper img {
+  filter: 
+    drop-shadow(1.2px 0 0 #7a4422)
+    drop-shadow(-1.2px 0 0 #7a4422)
+    drop-shadow(0 1.2px 0 #7a4422)
+    drop-shadow(0 -1.2px 0 #7a4422)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+/* 3. Doraemon Theme: 캐릭터 테두리를 슬림하고 또렷하게 감싸는 도라에몽 블루 윤곽선 (#009be3) */
+.dm-home-marker-wrapper img,
+.dm-stay-marker-wrapper img,
+.dm-briefing-marker-wrapper img,
+.dm-car-marker-wrapper img,
+.dm-airplane-marker-wrapper img {
+  filter: 
+    drop-shadow(1.2px 0 0 #009be3)
+    drop-shadow(-1.2px 0 0 #009be3)
+    drop-shadow(0 1.2px 0 #009be3)
+    drop-shadow(0 -1.2px 0 #009be3)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+/* 4. Marker Hover Transitions & Elevations across all themes */
 .hk-home-marker-wrapper,
 .rk-home-marker-wrapper,
+.dm-home-marker-wrapper,
 .hk-stay-marker-wrapper,
 .rk-stay-marker-wrapper,
-.dm-home-marker-wrapper,
-.dm-stay-marker-wrapper {
-  transition: transform 0.2s ease;
+.dm-stay-marker-wrapper,
+.hk-briefing-marker-wrapper,
+.rk-briefing-marker-wrapper,
+.dm-briefing-marker-wrapper,
+.hk-car-marker-wrapper,
+.rk-car-marker-wrapper,
+.dm-car-marker-wrapper,
+.hk-airplane-marker-wrapper,
+.rk-airplane-marker-wrapper,
+.dm-airplane-marker-wrapper,
+.custom-map-pin,
+.custom-home-pin,
+.custom-stay-pin,
+.custom-briefing-pin,
+.custom-car-pin,
+.custom-airport-pin,
+.custom-airplane-pin {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
 }
 
 .hk-home-marker-wrapper:hover,
 .rk-home-marker-wrapper:hover,
+.dm-home-marker-wrapper:hover,
 .hk-stay-marker-wrapper:hover,
 .rk-stay-marker-wrapper:hover,
-.dm-home-marker-wrapper:hover,
-.dm-stay-marker-wrapper:hover {
-  transform: scale(1.1);
+.dm-stay-marker-wrapper:hover,
+.hk-briefing-marker-wrapper:hover,
+.rk-briefing-marker-wrapper:hover,
+.dm-briefing-marker-wrapper:hover,
+.hk-car-marker-wrapper:hover,
+.rk-car-marker-wrapper:hover,
+.dm-car-marker-wrapper:hover,
+.custom-map-pin:hover,
+.custom-home-pin:hover,
+.custom-stay-pin:hover,
+.custom-briefing-pin:hover,
+.custom-car-pin:hover,
+.custom-airport-pin:hover {
+  transform: scale(1.15) translateY(-3px);
+  z-index: 10000 !important;
 }
 
-.hk-airplane-marker-wrapper,
-.dm-airplane-marker-wrapper {
-  transition: transform 0.3s ease;
+.hk-airplane-marker-wrapper:hover,
+.rk-airplane-marker-wrapper:hover,
+.dm-airplane-marker-wrapper:hover,
+.custom-airplane-pin:hover {
+  transform: scale(1.15);
+  z-index: 10000 !important;
 }
 
 /* Map Section */
@@ -3685,13 +3790,42 @@ html[data-theme="doraemon"] .map-airplane-pct {
   transform: scale(1.15) translateY(-3px);
   z-index: 10000 !important;
 }
-html[data-theme="asiana"] .status-badge-pill.badge-briefing {
+html[data-theme="asiana"] .status-badge-pill.badge-commute {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-badge-pill.badge-briefing {
   background-color: #fdf2f2;
   color: #991b1b;
   border: 1px solid #fecaca;
 }
-html[data-theme="koreanair"] .status-badge-pill.badge-briefing {
+html[data-theme="koreanair"] .status-badge-pill.badge-commute {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-badge-pill.badge-briefing {
   background-color: #eff6ff;
   color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+/* Commute Car Pin Styles */
+.custom-car-pin {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.custom-car-pin:hover {
+  transform: scale(1.15) translateY(-3px);
+  z-index: 10000 !important;
+}
+html[data-theme="asiana"] .status-badge-pill.badge-commute {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+html[data-theme="koreanair"] .status-badge-pill.badge-commute {
+  background-color: #eff6ff;
+  color: #1d4ed8;
   border: 1px solid #bfdbfe;
 }

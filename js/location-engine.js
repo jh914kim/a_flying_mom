@@ -3,7 +3,7 @@
  * Estimates current status, location, in-flight progress, and geodesic great-circle flight paths.
  */
 
-import { getAirport, isKoreaBase, GWACHEON_BASE, getHomeBase } from './airports.js';
+import { getAirport, isKoreaBase, GWACHEON_BASE, getHomeBase, calculateCommuteMinutes } from './airports.js';
 import { parseFlightTime } from './timezone.js';
 import { getAllSavedSchedules, getMonthSchedule } from './storage.js';
 
@@ -12,7 +12,9 @@ export const STATUS_TYPES = {
   HOME: 'HOME',
   IN_FLIGHT: 'IN_FLIGHT',
   OVERSEAS_STAY: 'OVERSEAS_STAY',
-  BRIEFING: 'BRIEFING'
+  BRIEFING: 'BRIEFING',
+  COMMUTE_DEPARTURE: 'COMMUTE_DEPARTURE',
+  COMMUTE_RETURN: 'COMMUTE_RETURN'
 };
 
 /**
@@ -209,6 +211,11 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       const isDomestic = isKoreaBase(nextFlight.to) || (nextFlight.arrAirport && nextFlight.arrAirport.country === '대한민국');
       const briefingLeadMs = isDomestic ? (70 * 60 * 1000) : (105 * 60 * 1000);
       const depTs = nextFlight.depUtc.getTime();
+        const depAirport = nextFlight.depAirport || getAirport(nextFlight.from) || GWACHEON_BASE;
+        const arrAirport = nextFlight.arrAirport || getAirport(nextFlight.to);
+        const depCity = depAirport ? depAirport.city.split('/')[0] : nextFlight.from;
+        const arrCity = arrAirport ? arrAirport.city.split('/')[0] : nextFlight.to;
+        const coords = depAirport ? [depAirport.lat, depAirport.lng] : [getHomeBase().lat, getHomeBase().lng];
 
       if (nowTs >= depTs - briefingLeadMs && nowTs < depTs) {
         const remainingMs = Math.max(0, depTs - nowTs);
@@ -226,11 +233,6 @@ export function determineCurrentStatus(nowUtc = new Date()) {
           remainingFormatted = '1분 미만';
         }
 
-        const depAirport = nextFlight.depAirport || getAirport(nextFlight.from) || GWACHEON_BASE;
-        const arrAirport = nextFlight.arrAirport || getAirport(nextFlight.to);
-        const depCity = depAirport ? depAirport.city.split('/')[0] : nextFlight.from;
-        const arrCity = arrAirport ? arrAirport.city.split('/')[0] : nextFlight.to;
-        const coords = depAirport ? [depAirport.lat, depAirport.lng] : [getHomeBase().lat, getHomeBase().lng];
 
         return {
           status: STATUS_TYPES.BRIEFING,
@@ -256,8 +258,122 @@ export function determineCurrentStatus(nowUtc = new Date()) {
             : null
         };
       }
+
+      // Check Commute Departure status (출근 중 - 집에서 공항으로 이동)
+      const home = getHomeBase();
+      const commuteMinutes = calculateCommuteMinutes(home, depAirport);
+      const commuteMs = commuteMinutes * 60 * 1000;
+      const commuteStartTs = depTs - briefingLeadMs - commuteMs;
+
+      if (nowTs >= commuteStartTs && nowTs < depTs - briefingLeadMs) {
+        const remainingMs = Math.max(0, depTs - briefingLeadMs - nowTs);
+        const remainingTotalMin = Math.round(remainingMs / (1000 * 60));
+        const remainingH = Math.floor(remainingTotalMin / 60);
+        const remainingM = remainingTotalMin % 60;
+        let remainingFormatted = '';
+        if (remainingH > 0 && remainingM > 0) {
+          remainingFormatted = `${remainingH}시간 ${remainingM}분`;
+        } else if (remainingH > 0) {
+          remainingFormatted = `${remainingH}시간`;
+        } else if (remainingM > 0) {
+          remainingFormatted = `${remainingM}분`;
+        } else {
+          remainingFormatted = '1분 미만';
+        }
+
+        const elapsed = nowTs - commuteStartTs;
+        const progress = commuteMs > 0 ? Math.min(1, Math.max(0, elapsed / commuteMs)) : 0;
+        const currLat = home.lat + (depAirport.lat - home.lat) * progress;
+        const currLng = home.lng + (depAirport.lng - home.lng) * progress;
+        const airportNameOnly = depCity.endsWith('공항') ? depCity : `${depCity}공항`;
+
+        return {
+          status: STATUS_TYPES.COMMUTE_DEPARTURE,
+          badgeText: '출근 중',
+          badgeType: 'commute',
+          cityHighlight: airportNameOnly,
+          destCityName: airportNameOnly,
+          title: `엄마는 ${airportNameOnly}으로 출근 중이에요`,
+          description: `공항으로 이동 중이에요 (브리핑까지 약 ${remainingFormatted})`,
+          locationName: `${airportNameOnly} 이동 중`,
+          airport: depAirport,
+          weatherAirport: depAirport,
+          weatherNotice: '출발 공항 기준 날씨',
+          coords: [currLat, currLng],
+          homeCoords: [home.lat, home.lng],
+          targetCoords: [depAirport.lat, depAirport.lng],
+          flight: nextFlight,
+          nextFlight,
+          progress,
+          remainingMs,
+          remainingFormatted,
+          commuteMinutes,
+          isDomestic,
+          flightPath: [[home.lat, home.lng], [depAirport.lat, depAirport.lng]]
+        };
+      }
+
     }
   }
+  // 3-2. Check return commute if previous flight arrived in Korea (퇴근 중 - 공항에서 집으로 이동)
+  if (prevFlight && (!nextFlight || nextFlight.depUtc.getTime() > nowTs)) {
+    const isArrivingKorea = isKoreaBase(prevFlight.to) || (prevFlight.arrAirport && prevFlight.arrAirport.country === '대한민국');
+    if (isArrivingKorea) {
+      const home = getHomeBase();
+      const arrAirport = prevFlight.arrAirport || getAirport(prevFlight.to) || GWACHEON_BASE;
+      const commuteMinutes = calculateCommuteMinutes(home, arrAirport);
+      const commuteMs = commuteMinutes * 60 * 1000;
+      const arrTs = prevFlight.arrUtc.getTime();
+      const commuteEndTs = arrTs + commuteMs;
+
+      if (nowTs >= arrTs && nowTs < commuteEndTs) {
+        const remainingMs = Math.max(0, commuteEndTs - nowTs);
+        const remainingTotalMin = Math.round(remainingMs / (1000 * 60));
+        const remainingH = Math.floor(remainingTotalMin / 60);
+        const remainingM = remainingTotalMin % 60;
+        let remainingFormatted = '';
+        if (remainingH > 0 && remainingM > 0) {
+          remainingFormatted = `${remainingH}시간 ${remainingM}분`;
+        } else if (remainingH > 0) {
+          remainingFormatted = `${remainingH}시간`;
+        } else if (remainingM > 0) {
+          remainingFormatted = `${remainingM}분`;
+        } else {
+          remainingFormatted = '1분 미만';
+        }
+
+        const elapsed = nowTs - arrTs;
+        const progress = commuteMs > 0 ? Math.min(1, Math.max(0, elapsed / commuteMs)) : 0;
+        const currLat = arrAirport.lat + (home.lat - arrAirport.lat) * progress;
+        const currLng = arrAirport.lng + (home.lng - arrAirport.lng) * progress;
+
+        return {
+          status: STATUS_TYPES.COMMUTE_RETURN,
+          badgeText: '퇴근 중',
+          badgeType: 'commute',
+          cityHighlight: '우리 집',
+          destCityName: '우리 집',
+          title: '엄마는 집으로 퇴근 중이에요',
+          description: `집으로 이동 중이에요 (집 도착까지 약 ${remainingFormatted})`,
+          locationName: '우리 집 이동 중',
+          airport: GWACHEON_BASE,
+          weatherAirport: GWACHEON_BASE,
+          weatherNotice: '우리 집 기준 날씨',
+          coords: [currLat, currLng],
+          homeCoords: [home.lat, home.lng],
+          targetCoords: [arrAirport.lat, arrAirport.lng],
+          flight: prevFlight,
+          nextFlight,
+          progress,
+          remainingMs,
+          remainingFormatted,
+          commuteMinutes,
+          flightPath: [[arrAirport.lat, arrAirport.lng], [home.lat, home.lng]]
+        };
+      }
+    }
+  }
+
 
   // If currently in an overseas stay resulting from a previous flight
   if (prevFlight && !isKoreaBase(prevFlight.to) && (!nextFlight || nextFlight.depUtc.getTime() > nowTs)) {

@@ -3,8 +3,16 @@
  * Manages user-defined home location, address geocoding via Kakao Postcode, GPS lookup, and Leaflet interactive map picker.
  */
 
-import { getHomeBase, saveHomeBase, resetHomeBase, GWACHEON_BASE } from './airports.js';
+import { getHomeBase, saveHomeBase, resetHomeBase, GWACHEON_BASE, calculateCommuteMinutes } from './airports.js';
 import { getCurrentThemeConfig } from './theme.js';
+
+function updateHomeCommutePreview(lat, lng) {
+  const previewEl = document.getElementById('home-commute-preview');
+  if (!previewEl || isNaN(lat) || isNaN(lng)) return;
+  const icnMin = calculateCommuteMinutes({ lat, lng }, { code: 'ICN', lat: 37.4602, lng: 126.4407 });
+  const gmpMin = calculateCommuteMinutes({ lat, lng }, { code: 'GMP', lat: 37.5583, lng: 126.7906 });
+  previewEl.textContent = `인천공항(T2) 약 ${icnMin}분 · 김포공항 약 ${gmpMin}분`;
+}
 
 let pickerMap = null;
 let pickerMarker = null;
@@ -98,6 +106,8 @@ export function openHomeModal() {
 
   if (displayName) displayName.textContent = currentHome.name || '우리 집';
   if (displayAddress) displayAddress.textContent = currentHome.address || '대한민국';
+
+  updateHomeCommutePreview(currentHome.lat, currentHome.lng);
 
   const isCustom = localStorage.getItem('flyingmom_home_base') !== null;
   if (currentBadge) {
@@ -206,6 +216,7 @@ function updatePickerMarker(lat, lng, syncInputs = true) {
     if (latInput) latInput.value = Number(lat).toFixed(6);
     if (lngInput) lngInput.value = Number(lng).toFixed(6);
   }
+  updateHomeCommutePreview(lat, lng);
 }
 
 /**
