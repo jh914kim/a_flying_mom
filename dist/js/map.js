@@ -371,6 +371,83 @@ function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
   });
 }
 
+/**
+ * Creates Briefing Icon:
+ * - Hello Kitty theme: Hello Kitty reading binder at desk
+ * - Rilakkuma theme: Rilakkuma checking schedule with question mark
+ * - Doraemon theme: Nobita intently writing notes at desk
+ * - Other themes: 28x36px Briefing Clipboard / Checklist Pin Icon
+ */
+function createBriefingIcon(L, color = '#1A73E8', themeId = 'default') {
+  if (themeId === 'hellokitty') {
+    const html = `
+      <div class="hk-briefing-marker-wrapper" style="width: 48px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/hk-briefing.png" width="46" height="48" alt="브리핑 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-briefing-pin hk-briefing-pin',
+      html: html,
+      iconSize: [48, 50],
+      iconAnchor: [24, 25],
+      popupAnchor: [0, -22]
+    });
+  }
+
+  if (themeId === 'rilakkuma') {
+    const html = `
+      <div class="rk-briefing-marker-wrapper" style="width: 48px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/rk-briefing.png" width="46" height="48" alt="브리핑 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-briefing-pin rk-briefing-pin',
+      html: html,
+      iconSize: [48, 50],
+      iconAnchor: [24, 25],
+      popupAnchor: [0, -22]
+    });
+  }
+
+  if (themeId === 'doraemon') {
+    const html = `
+      <div class="dm-briefing-marker-wrapper" style="width: 50px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/dm-briefing.png" width="48" height="46" alt="브리핑 진구" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-briefing-pin dm-briefing-pin',
+      html: html,
+      iconSize: [50, 48],
+      iconAnchor: [25, 24],
+      popupAnchor: [0, -22]
+    });
+  }
+
+  const svg = `
+    <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+        <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
+        <!-- Briefing Clipboard Symbol -->
+        <rect x="9" y="8.5" width="10" height="12" rx="1.5" stroke="${color}" stroke-width="1.3" fill="none"/>
+        <rect x="11.5" y="7.5" width="5" height="2" rx="0.8" fill="${color}"/>
+        <line x1="11.5" y1="12" x2="16.5" y2="12" stroke="${color}" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="14.5" x2="16.5" y2="14.5" stroke="${color}" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="11.5" y1="17" x2="14.5" y2="17" stroke="${color}" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+  `;
+  return L.divIcon({
+    className: 'custom-briefing-pin',
+    html: svg,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
+    popupAnchor: [0, -34]
+  });
+}
+
+
 
 /**
  * Creates 28x36px Airport Pin Icon (Option 1: Runway & Jet Takeoff Departure)
@@ -506,6 +583,7 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
  */
 export function updateMapWithStatus(statusData, preserveCamera = false) {
   lastStatusData = statusData;
+  updateMapOverlayBar(statusData);
   if (!mapInstance || !window.L) return;
 
   const L = window.L;
@@ -567,6 +645,17 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       offset: isMascot ? [0, -22] : [0, -34]
     });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.locationName || '해외 체류지'}`);
+  } else if (statusData.status === STATUS_TYPES.BRIEFING) {
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    currentMarker = L.marker(coords, {
+      icon: createBriefingIcon(L, theme.primaryColor, theme.id),
+      zIndexOffset: 1000
+    });
+    currentMarker.bindTooltip(statusData.locationName ? `브리핑 중 · ${statusData.locationName}` : '비행 브리핑 중', {
+      direction: 'top',
+      offset: isMascot ? [0, -22] : [0, -34]
+    });
+    currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
   } else {
     currentMarker = L.marker(coords, {
       icon: createPinIcon(L, theme.primaryColor),
@@ -580,7 +669,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   // 2. Flight Paths & Destination Markers
   let activeSegments = null;
 
-  if (statusData.status === STATUS_TYPES.IN_FLIGHT && statusData.flightPath) {
+  if ((statusData.status === STATUS_TYPES.IN_FLIGHT || statusData.status === STATUS_TYPES.BRIEFING) && statusData.flightPath) {
     activeSegments = statusData.flightPath;
     
     // Arrival destination airport marker
@@ -609,7 +698,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       currentMarkers.push(destMarker);
     }
     // Departure airport marker
-    if (statusData.flight && statusData.flight.depAirport) {
+    if (statusData.status === STATUS_TYPES.IN_FLIGHT && statusData.flight && statusData.flight.depAirport) {
       const depAp = statusData.flight.depAirport;
       const depMarker = L.marker([depAp.lat, depAp.lng], {
         icon: createAirportIcon(L, theme.depPinColor)
@@ -667,7 +756,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   if (!preserveCamera) {
     if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
       mapInstance.setView(coords, 5);
-    } else if (statusData.status === STATUS_TYPES.HOME || statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
+    } else if (statusData.status === STATUS_TYPES.HOME || statusData.status === STATUS_TYPES.OVERSEAS_STAY || statusData.status === STATUS_TYPES.BRIEFING) {
       mapInstance.setView(coords, 7);
     } else {
       mapInstance.setView([25, 130], 2);
@@ -698,6 +787,10 @@ function updateMapOverlayBar(statusData) {
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
     const remainingPart = statusData.remainingTimeText ? ` · ${statusData.remainingTimeText}` : '';
     textEl.textContent = `도착지 · ${destName} ${pct}%${remainingPart}`;
+  } else if (statusData.status === STATUS_TYPES.BRIEFING) {
+    const nextAp = statusData.nextFlight && statusData.nextFlight.arrAirport;
+    const nextCity = nextAp ? nextAp.city.split('/')[0] : (statusData.nextFlight ? statusData.nextFlight.to : '');
+    textEl.textContent = `${statusData.locationName} · 브리핑 중 (다음 목적지: ${nextCity} · 출발 ${statusData.remainingFormatted} 전)`;
   } else if (statusData.nextFlight) {
     const nextAp = statusData.nextFlight.arrAirport;
     const nextCity = nextAp ? nextAp.city.split('/')[0] : statusData.nextFlight.to;

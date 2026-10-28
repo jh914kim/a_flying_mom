@@ -891,6 +891,12 @@ html[data-theme="hellokitty"] .status-badge-pill.badge-stay {
   border: 1px solid #ffccd9;
 }
 
+html[data-theme="hellokitty"] .status-badge-pill.badge-briefing {
+  background-color: #ffeef4;
+  color: #c2185b;
+  border: 1px solid #f8bbd0;
+}
+
 /* Hello Kitty: Refresh button */
 html[data-theme="hellokitty"] .btn-refresh-screen {
   border-color: #ffccd9;
@@ -1349,6 +1355,11 @@ html[data-theme="doraemon"] .calendar-list-card::before {
   height: 6px;
   border-radius: 50%;
   background-color: currentColor;
+}
+
+.status-badge-pill.badge-briefing {
+  background-color: #fff4e5;
+  color: #b06000;
 }
 
 .status-badge-pill.badge-stay {
@@ -3664,4 +3675,23 @@ html[data-theme="doraemon"] .map-airplane-pct {
 .picker-home-marker {
   background: transparent !important;
   border: none !important;
+}
+
+/* Briefing Marker & Pin Styles */
+.custom-briefing-pin {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.custom-briefing-pin:hover {
+  transform: scale(1.15) translateY(-3px);
+  z-index: 10000 !important;
+}
+html[data-theme="asiana"] .status-badge-pill.badge-briefing {
+  background-color: #fdf2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+html[data-theme="koreanair"] .status-badge-pill.badge-briefing {
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
 }

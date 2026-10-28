@@ -102,21 +102,38 @@ function setupLazyMap() {
   const mapContainer = document.getElementById('map-canvas');
   if (!mapContainer) return;
 
+  const triggerInit = () => {
+    if (mapInitialized) return;
+    mapInitialized = true;
+    initMap('map-canvas').then(() => {
+      const now = new Date();
+      const status = determineCurrentStatus(now);
+      updateMapWithStatus(status);
+    });
+  };
+
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
-        if (entry.isIntersecting && !mapInitialized) {
-          mapInitialized = true;
-          initMap('map-canvas');
+        if (entry.isIntersecting) {
           observer.disconnect();
+          triggerInit();
+          break;
         }
       }
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '300px' });
 
     observer.observe(mapContainer);
+
+    // Safety fallback: if viewport observer takes time or doesn't fire, initialize after 500ms
+    setTimeout(() => {
+      if (!mapInitialized) {
+        observer.disconnect();
+        triggerInit();
+      }
+    }, 500);
   } else {
-    mapInitialized = true;
-    initMap('map-canvas');
+    triggerInit();
   }
 }
 
@@ -308,10 +325,8 @@ export async function refreshAllViews() {
   // 1. Update CURRENT / NEXT JOURNEY card immediately (synchronous, 0ms)
   updateJourneyCard(now);
 
-  // 2. Update Map with current status
-  if (mapInitialized) {
-    updateMapWithStatus(statusData);
-  }
+  // 2. Update Map with current status (always updates overlay text and caches status)
+  updateMapWithStatus(statusData);
 
   // 3. Update Calendar View
   renderCalendar();
@@ -407,6 +422,9 @@ async function updateStatusCard(statusData, now) {
       }
     } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY && statusData.cityHighlight) {
       titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${statusData.cityHighlight}</span>에 머무르고 있어요`;
+    } else if (statusData.status === STATUS_TYPES.BRIEFING) {
+      const depCity = statusData.cityHighlight || '공항';
+      titleEl.innerHTML = `엄마는 <span class="status-city-highlight">${depCity}</span>에서 브리핑 중이에요`;
     } else if (statusData.status === STATUS_TYPES.HOME) {
       titleEl.innerHTML = `엄마는 <span class="status-city-highlight">우리 집</span>에 있어요`;
     } else {
@@ -448,7 +466,13 @@ async function updateStatusCard(statusData, now) {
   const targetTz = statusData.airport && statusData.airport.tz ? statusData.airport.tz : 'Asia/Seoul';
   const targetTimes = formatTzDateTime(now, targetTz);
 
-  if (statusData.status === STATUS_TYPES.IN_FLIGHT || statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
+  if (statusData.status === STATUS_TYPES.BRIEFING) {
+    const depCity = statusData.destCityName || '출발지';
+    if (destTimeLabel) destTimeLabel.textContent = `${depCity} · 한국 시각`;
+    if (destTimeEl) destTimeEl.textContent = koreaTimes.timeStr;
+    if (destDateEl) destDateEl.textContent = koreaTimes.dateStr;
+    if (homeBlock) homeBlock.style.display = 'none';
+  } else if (statusData.status === STATUS_TYPES.IN_FLIGHT || statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
     const cityName = statusData.destCityName || '현지';
     if (destTimeLabel) destTimeLabel.textContent = `${cityName} 현지 시각`;
     if (destTimeEl) destTimeEl.textContent = targetTimes.timeStr;
@@ -475,6 +499,8 @@ async function updateStatusCard(statusData, now) {
   if (weatherLabel) {
     if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
       weatherLabel.textContent = `${statusData.destCityName || '도착지'} · 도착지 현재 날씨`;
+    } else if (statusData.status === STATUS_TYPES.BRIEFING) {
+      weatherLabel.textContent = `${statusData.destCityName || '출발 공항'} · 공항 현재 날씨`;
     } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
       weatherLabel.textContent = `${statusData.destCityName || '현지'} · 현지 현재 날씨`;
     } else if (statusData.status === STATUS_TYPES.HOME) {

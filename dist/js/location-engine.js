@@ -11,7 +11,8 @@ export const STATUS_TYPES = {
   UNKNOWN: 'UNKNOWN',
   HOME: 'HOME',
   IN_FLIGHT: 'IN_FLIGHT',
-  OVERSEAS_STAY: 'OVERSEAS_STAY'
+  OVERSEAS_STAY: 'OVERSEAS_STAY',
+  BRIEFING: 'BRIEFING'
 };
 
 /**
@@ -197,6 +198,64 @@ export function determineCurrentStatus(nowUtc = new Date()) {
       prevFlight = f;
     } else if (f.depUtc.getTime() > nowTs && !nextFlight) {
       nextFlight = f;
+    }
+  }
+
+  // 3-1. Check if upcoming flight departs from Korea and is currently in briefing lead time
+  // Domestic: 1 hour 10 mins (70m), International: 1 hour 45 mins (105m) before departure
+  if (nextFlight) {
+    const isDepartingKorea = isKoreaBase(nextFlight.from) || (nextFlight.depAirport && nextFlight.depAirport.country === '대한민국');
+    if (isDepartingKorea) {
+      const isDomestic = isKoreaBase(nextFlight.to) || (nextFlight.arrAirport && nextFlight.arrAirport.country === '대한민국');
+      const briefingLeadMs = isDomestic ? (70 * 60 * 1000) : (105 * 60 * 1000);
+      const depTs = nextFlight.depUtc.getTime();
+
+      if (nowTs >= depTs - briefingLeadMs && nowTs < depTs) {
+        const remainingMs = Math.max(0, depTs - nowTs);
+        const remainingTotalMin = Math.round(remainingMs / (1000 * 60));
+        const remainingH = Math.floor(remainingTotalMin / 60);
+        const remainingM = remainingTotalMin % 60;
+        let remainingFormatted = '';
+        if (remainingH > 0 && remainingM > 0) {
+          remainingFormatted = `${remainingH}시간 ${remainingM}분`;
+        } else if (remainingH > 0) {
+          remainingFormatted = `${remainingH}시간`;
+        } else if (remainingM > 0) {
+          remainingFormatted = `${remainingM}분`;
+        } else {
+          remainingFormatted = '1분 미만';
+        }
+
+        const depAirport = nextFlight.depAirport || getAirport(nextFlight.from) || GWACHEON_BASE;
+        const arrAirport = nextFlight.arrAirport || getAirport(nextFlight.to);
+        const depCity = depAirport ? depAirport.city.split('/')[0] : nextFlight.from;
+        const arrCity = arrAirport ? arrAirport.city.split('/')[0] : nextFlight.to;
+        const coords = depAirport ? [depAirport.lat, depAirport.lng] : [getHomeBase().lat, getHomeBase().lng];
+
+        return {
+          status: STATUS_TYPES.BRIEFING,
+          badgeText: '브리핑 중',
+          badgeType: 'briefing',
+          cityHighlight: depCity,
+          destCityName: depCity,
+          title: '엄마는 비행 브리핑 중이에요',
+          description: `${nextFlight.number} 탑승 준비 · ${depCity} → ${arrCity} (출발 ${remainingFormatted} 전)`,
+          locationName: depAirport ? `${depAirport.name} (${depAirport.code})` : `${depCity} 공항`,
+          airport: depAirport,
+          weatherAirport: depAirport,
+          weatherNotice: '출발 공항 기준 날씨',
+          coords,
+          flight: nextFlight,
+          nextFlight,
+          progress: 0,
+          remainingMs,
+          remainingFormatted,
+          isDomestic,
+          flightPath: depAirport && arrAirport
+            ? generateGreatCirclePath([depAirport.lat, depAirport.lng], [arrAirport.lat, arrAirport.lng])
+            : null
+        };
+      }
     }
   }
 
