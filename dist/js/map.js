@@ -267,16 +267,16 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
 
   if (themeId === 'doraemon') {
     const html = `
-      <div class="dm-home-marker-wrapper" style="width: 52px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
-        <img src="assets/img/dm-home-doraemon.png" width="48" height="44" alt="우리 집 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      <div class="dm-home-marker-wrapper" style="width: 44px; height: 54px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/dm-home-doraemon.png" width="40" height="50" alt="우리 집 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-home-pin dm-home-pin',
       html: html,
-      iconSize: [52, 48],
-      iconAnchor: [26, 24],
-      popupAnchor: [0, -22]
+      iconSize: [44, 54],
+      iconAnchor: [22, 27],
+      popupAnchor: [0, -25]
     });
   }
 
@@ -337,16 +337,16 @@ function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
 
   if (themeId === 'doraemon') {
     const html = `
-      <div class="dm-stay-marker-wrapper" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
-        <img src="assets/img/dm-relax.png" width="48" height="48" alt="체류지 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      <div class="dm-stay-marker-wrapper" style="width: 52px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/dm-relax.png" width="50" height="48" alt="체류지 도라에몽" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
       </div>
     `;
     return L.divIcon({
       className: 'custom-stay-pin dm-stay-pin',
       html: html,
-      iconSize: [50, 50],
-      iconAnchor: [25, 25],
-      popupAnchor: [0, -22]
+      iconSize: [52, 50],
+      iconAnchor: [26, 25],
+      popupAnchor: [0, -23]
     });
   }
 
