@@ -22,6 +22,9 @@ let mapInitialized = false;
  * Initialize application on DOM ready
  */
 export async function initApp() {
+  // Immediately render Journey Card to prevent card shift on initial load / refresh
+  updateJourneyCard(new Date());
+
   // Migrate existing schedules with 'korea' timeBasis to 'local' ("각 공항 현지 시간")
   try {
     const savedMonths = getSavedMonths();
@@ -302,19 +305,19 @@ export async function refreshAllViews() {
   const now = new Date();
   const statusData = determineCurrentStatus(now);
 
-  // 1. Update Integrated Current Status Card
-  await updateStatusCard(statusData, now);
+  // 1. Update CURRENT / NEXT JOURNEY card immediately (synchronous, 0ms)
+  updateJourneyCard(now);
 
-  // 2. Update Map
+  // 2. Update Map with current status
   if (mapInitialized) {
     updateMapWithStatus(statusData);
   }
 
-  // 3. Update CURRENT / NEXT JOURNEY card
-  updateJourneyCard(now);
-
-  // 4. Update Calendar View
+  // 3. Update Calendar View
   renderCalendar();
+
+  // 4. Update Integrated Current Status Card (async weather fetch)
+  await updateStatusCard(statusData, now);
 }
 
 /**

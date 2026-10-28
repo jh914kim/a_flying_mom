@@ -284,6 +284,65 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
 }
 
 /**
+ * Creates Stay / Destination Hotel Icon:
+ * - Hello Kitty theme: Hello Kitty Traveler character
+ * - Rilakkuma theme: Rilakkuma relaxing on vacation character
+ * - Other themes: 28x36px Hotel Pin Icon with Bed SVG
+ */
+function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
+  if (themeId === 'hellokitty') {
+    const html = `
+      <div class="hk-stay-marker-wrapper" style="width: 48px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/hk-traveler.png" width="44" height="48" alt="체류지 키티" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-stay-pin hk-stay-pin',
+      html: html,
+      iconSize: [48, 50],
+      iconAnchor: [24, 25],
+      popupAnchor: [0, -22]
+    });
+  }
+
+  if (themeId === 'rilakkuma') {
+    const html = `
+      <div class="rk-stay-marker-wrapper" style="width: 50px; height: 46px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));">
+        <img src="assets/img/rk-relax.png" width="48" height="42" alt="체류지 리락쿠마" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-stay-pin rk-stay-pin',
+      html: html,
+      iconSize: [50, 46],
+      iconAnchor: [25, 23],
+      popupAnchor: [0, -20]
+    });
+  }
+
+  const svg = `
+    <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
+        <path d="M14 0C6.27 0 0 6.27 0 14C0 24.5 14 36 14 36C14 36 28 24.5 28 14C28 6.27 21.73 0 14 0Z" fill="${color}"/>
+        <circle cx="14" cy="14" r="9.5" fill="#FFFFFF"/>
+        <!-- Hotel Bed Symbol -->
+        <path d="M7 10V18H8.5V16.5H19.5V18H21V12.8C21 11.5 19.9 10.5 18.5 10.5H13.5V13H8.5V10H7Z" fill="${color}"/>
+        <circle cx="10.8" cy="12" r="1.4" fill="${color}"/>
+        <path d="M13.5 12.5H18.5C19.3 12.5 20 13.1 20 13.8V15H13.5V12.5Z" fill="${color}"/>
+      </svg>
+    </div>
+  `;
+  return L.divIcon({
+    className: 'custom-stay-pin',
+    html: svg,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
+    popupAnchor: [0, -34]
+  });
+}
+
+
+/**
  * Creates 28x36px Airport Pin Icon (Option 1: Runway & Jet Takeoff Departure)
  */
 function createAirportIcon(L, color = '#5f6368') {
@@ -443,6 +502,17 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     });
     currentMarker.bindTooltip(home.name || '우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${home.address || (home.city + ' (집)')}`);
+  } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma';
+    currentMarker = L.marker(coords, {
+      icon: createStayIcon(L, theme.primaryColor, theme.id),
+      zIndexOffset: 1000
+    });
+    currentMarker.bindTooltip(statusData.locationName ? `체류 중 · ${statusData.locationName}` : '해외 체류 중', {
+      direction: 'top',
+      offset: isMascot ? [0, -22] : [0, -34]
+    });
+    currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.locationName || '해외 체류지'}`);
   } else {
     currentMarker = L.marker(coords, {
       icon: createPinIcon(L, theme.primaryColor),
