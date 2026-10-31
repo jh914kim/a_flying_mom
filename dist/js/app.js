@@ -1,3 +1,4 @@
+import { initPwa } from './pwa.js';
 /**
  * flying mom - Main Application Coordinator
  * Bootstraps modules, manages live clock ticker, weather updates,
@@ -41,6 +42,9 @@ export async function initApp() {
 
   // Initialize Theme Switcher (Google Flights / Asiana Airlines / Korean Air)
   initThemeSwitcher();
+
+  // Initialize PWA and Chrome Install Controller
+  initPwa();
 
   // Initialize storage cross-tab synchronization
   initStorageSync(() => {

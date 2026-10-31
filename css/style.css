@@ -3201,6 +3201,7 @@ html[data-theme="doraemon"] .map-airplane-pct {
   position: sticky;
   top: 0;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -3211,10 +3212,15 @@ html[data-theme="doraemon"] .map-airplane-pct {
 .modal-body {
   padding: 16px 20px;
   overflow-y: auto;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.modal-body > * {
+  flex-shrink: 0;
 }
 
 .mgmt-section-box {
@@ -3225,6 +3231,7 @@ html[data-theme="doraemon"] .map-airplane-pct {
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .mgmt-section-title {
@@ -3581,6 +3588,7 @@ html[data-theme="doraemon"] .map-airplane-pct {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .confirm-checkbox-label {
@@ -3828,4 +3836,43 @@ html[data-theme="koreanair"] .status-badge-pill.badge-commute {
   background-color: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #bfdbfe;
+}
+
+/* PWA Chrome Install Button */
+.btn-pwa-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-pwa-install:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(26, 115, 232, 0.25);
+}
+
+.pwa-btn-hidden {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  .btn-pwa-install {
+    padding: 0 7px;
+  }
+  .btn-pwa-install .btn-pwa-text {
+    display: none;
+  }
 }
