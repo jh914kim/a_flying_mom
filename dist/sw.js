@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flyingmom-cache-v1';
+const CACHE_NAME = 'flyingmom-cache-v2';
 
 // Core App Shell assets for offline reliability and fast installation
 const PRECACHE_ASSETS = [
@@ -35,7 +35,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate: clean up outdated caches
+// Activate: clean up outdated caches & claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -50,7 +50,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Stale-While-Revalidate for app assets, Network-First for dynamic APIs
+// Fetch: Robust routing to prevent ERR_FAILED
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') {
@@ -64,7 +64,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Live dynamic external APIs (Open-Meteo, Postcode API): Network first
+  // 1. Navigation requests (PWA startup, index.html navigation)
+  // Network first; on failure, fallback immediately to cached index.html
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          return (await caches.match(req)) ||
+                 (await caches.match('./index.html')) ||
+                 (await caches.match('./')) ||
+                 (await caches.match('/'));
+        })
+    );
+    return;
+  }
+
+  // 2. Live dynamic external APIs (Open-Meteo, Daum Postcode): Network first
   if (url.hostname.includes('open-meteo.com') || url.hostname.includes('daumcdn.net')) {
     event.respondWith(
       fetch(req).catch(() => caches.match(req))
@@ -72,20 +94,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App Shell & Static assets: Stale While Revalidate
+  // 3. Static assets: Stale-While-Revalidate with guaranteed response
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
-      const fetchPromise = fetch(req).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || networkResponse.type === 'cors')) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(req, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => cachedResponse);
+      const fetchPromise = fetch(req)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || networkResponse.type === 'cors')) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          }
+          return networkResponse;
+        });
 
-      return cachedResponse || fetchPromise;
+      if (cachedResponse) {
+        // Return cached version immediately; refresh cache in background
+        fetchPromise.catch(() => {});
+        return cachedResponse;
+      }
+
+      // If not in cache, wait for network fetch
+      return fetchPromise;
     })
   );
 });

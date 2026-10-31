@@ -1,8 +1,9 @@
 {
+  "id": "flying-mom-pwa",
   "name": "flying mom - 플라잉맘",
   "short_name": "flying mom",
   "description": "승무원 스케줄 기반 예상 위치, 현지 시각·날씨, 여정 및 비행 달력 서비스",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
