@@ -1672,7 +1672,7 @@ html[data-theme="doraemon"] .custom-map-plane-tooltip.leaflet-tooltip::before {
 }
 
 html[data-theme="doraemon"] .map-airplane-pct {
-  color: #009be3;
+  color: #ffffff !important;
 }
 
 /* -------------------------------------------------------------
