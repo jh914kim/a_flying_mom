@@ -192,6 +192,35 @@ html[data-theme="doraemon"] {
   --shadow-md: 0 6px 18px rgba(0, 155, 227, 0.12);
 }
 
+/* Theme 7: Kim Crew (김크루 - Scarf Lime Green Theme) */
+html[data-theme="kimcrew"] {
+  --color-bg: #f6faf0;
+  --color-surface: #ffffff;
+  --color-primary: #749e1f;
+  --color-primary-hover: #5e8216;
+  --color-primary-light: #edf6e1;
+  --color-secondary-hover: #dfefc7;
+  --color-accent: #8cd317;
+  --color-brand-title: #4f6e12;
+  --color-header-bg: rgba(255, 255, 255, 0.96);
+  --color-header-border: #d4e7b8;
+  --color-status-card-bg: linear-gradient(135deg, #ffffff 0%, #f7fbf2 50%, #edf7e0 100%);
+  --color-status-border: #c8dfa8;
+  --color-cal-flight-bg: #e6f3d4;
+  --color-cal-stay-bg: #f7fbf2;
+  --color-cal-stay-badge: #749e1f;
+  --color-text-main: #1c2b07;
+  --color-text-sub: #384e13;
+  --color-text-muted: #6b8245;
+  --color-border: #cfe3b4;
+  --color-border-light: #e8f3d8;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 2px 8px rgba(116, 158, 31, 0.08), 0 1px 3px rgba(116, 158, 31, 0.05);
+  --shadow-md: 0 6px 18px rgba(116, 158, 31, 0.14);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -246,6 +275,18 @@ html[data-theme="doraemon"] body {
     radial-gradient(circle at 90% 20%, rgba(224, 242, 254, 0.5) 0%, transparent 30%),
     radial-gradient(circle at 50% 85%, rgba(199, 233, 254, 0.35) 0%, transparent 40%),
     radial-gradient(#c7e6fa 0.8px, transparent 0.8px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
+}
+
+/* Kim Crew: Soft Scarf Lime Nuance Background */
+html[data-theme="kimcrew"] body {
+  background-color: #f6faf0;
+  background-image:
+    radial-gradient(circle at 12% 10%, rgba(212, 237, 178, 0.45) 0%, transparent 35%),
+    radial-gradient(circle at 88% 25%, rgba(232, 246, 210, 0.5) 0%, transparent 30%),
+    radial-gradient(circle at 50% 80%, rgba(219, 241, 189, 0.35) 0%, transparent 40%),
+    radial-gradient(#d3e7b5 0.8px, transparent 0.8px);
   background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px;
   background-attachment: fixed;
 }
@@ -309,6 +350,13 @@ html[data-theme="doraemon"] .app-header::before {
   background: linear-gradient(90deg, #009be3 0%, #40c4ff 20%, #ffd800 40%, #e43615 60%, #40c4ff 80%, #009be3 100%);
   background-size: 200% 100%;
   animation: hk-shimmer 4.5s linear infinite;
+}
+
+/* Kim Crew Header signature Scarf Lime Green & Gold Wings top bar */
+html[data-theme="kimcrew"] .app-header::before {
+  background: linear-gradient(90deg, #749e1f 0%, #8cd317 30%, #facc15 55%, #8cd317 75%, #749e1f 100%);
+  background-size: 200% 100%;
+  animation: hk-shimmer 4s linear infinite;
 }
 
 .header-content {
@@ -587,6 +635,45 @@ html[data-theme="hellokitty"] .brand-logo-icon {
 .theme-dot-btn[data-theme-option="doraemon"].is-selected .theme-circle {
   border-color: #009be3;
   box-shadow: 0 0 0 2px rgba(0, 155, 227, 0.4);
+}
+
+.theme-circle-kimcrew {
+  background-color: #ffffff;
+  border-color: #cfe0b5;
+  box-shadow: 0 1px 4px rgba(116, 158, 31, 0.2);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-circle-kimcrew .theme-kimcrew-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 1px 2px rgba(116, 158, 31, 0.25));
+  transform: none;
+}
+
+.theme-dot-btn[data-theme-option="kimcrew"].is-selected .theme-circle {
+  border-color: #749e1f;
+  box-shadow: 0 0 0 2px rgba(116, 158, 31, 0.4);
+}
+
+.brand-kimcrew-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+  filter: 
+    drop-shadow(1px 0 0 #749e1f)
+    drop-shadow(-1px 0 0 #749e1f)
+    drop-shadow(0 1px 0 #749e1f)
+    drop-shadow(0 -1px 0 #749e1f)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .brand-kitty-img {
@@ -1289,6 +1376,205 @@ html[data-theme="doraemon"] .calendar-list-card::before {
   animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
 }
 
+/* Kim Crew: Full Card & UI Styling */
+html[data-theme="kimcrew"] .calendar-card,
+html[data-theme="kimcrew"] .journey-active-card,
+html[data-theme="kimcrew"] .map-card {
+  box-shadow: 0 4px 16px rgba(116, 158, 31, 0.1);
+}
+
+html[data-theme="kimcrew"] .bottom-nav {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #cfe3b4;
+  box-shadow: 0 -4px 16px rgba(116, 158, 31, 0.1);
+}
+
+html[data-theme="kimcrew"] .nav-item.is-active {
+  color: #749e1f;
+}
+
+html[data-theme="kimcrew"] .status-card {
+  position: relative;
+  overflow: visible !important;
+  border: 1.5px solid #cfe3b4;
+  box-shadow: 0 6px 20px rgba(116, 158, 31, 0.12);
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbf2 60%, #edf7e0 100%);
+}
+
+/* Kim Crew: Status Card Full Standing Mascot (새로고침 버튼 간섭 방지를 위해 버튼 좌측에 여유 있게 배치 & 노클리핑) */
+html[data-theme="kimcrew"] .status-card::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  right: 68px;
+  width: 46px;
+  height: 60px;
+  background: url("../assets/img/kc-full.png") no-repeat center / contain;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="kimcrew"] .status-badge-pill {
+  font-weight: 700;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(116, 158, 31, 0.2);
+}
+
+html[data-theme="kimcrew"] .status-badge-pill.badge-home {
+  background: linear-gradient(135deg, #edf6e1 0%, #dfefc7 100%);
+  color: #4f6e12;
+  border: 1px solid #cfe3b4;
+}
+
+html[data-theme="kimcrew"] .status-badge-pill.badge-flight {
+  background: linear-gradient(135deg, #749e1f 0%, #8cd317 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html[data-theme="kimcrew"] .status-badge-pill.badge-stay {
+  background: linear-gradient(135deg, #65a30d 0%, #84cc16 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html[data-theme="kimcrew"] .status-badge-pill.badge-briefing {
+  background: linear-gradient(135deg, #4f6e12 0%, #6b8f1d 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html[data-theme="kimcrew"] .status-badge-pill.badge-commute {
+  background: linear-gradient(135deg, #5e8216 0%, #749e1f 100%);
+  color: #ffffff;
+  border: none;
+}
+
+html[data-theme="kimcrew"] .btn-refresh-screen {
+  background: #edf6e1;
+  color: #4f6e12;
+  border: 1px solid #cfe3b4;
+}
+
+html[data-theme="kimcrew"] .btn-refresh-screen:hover {
+  background: #dfefc7;
+  color: #384e13;
+}
+
+html[data-theme="kimcrew"] .cal-day-cell.cal-day--has-flight {
+  background-color: #e6f3d4;
+  border-color: #cfe3b4;
+  color: #384e13;
+}
+
+html[data-theme="kimcrew"] .cal-day-cell.is-selected {
+  background: linear-gradient(135deg, #749e1f 0%, #8cd317 100%) !important;
+  border-color: #5e8216 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="kimcrew"] .cal-day-cell.is-selected .cal-day-num,
+html[data-theme="kimcrew"] .cal-day-cell.is-today:not(.is-selected) .cal-day-num {
+  color: #ffffff;
+}
+
+html[data-theme="kimcrew"] .cal-day-cell.is-selected .cal-day-num {
+  color: #ffffff !important;
+}
+
+/* Kim Crew: Flight Calendar Victory Peace Mascot (글자 가림 방지를 위해 '2026년 X월' 텍스트 바로 옆에 나란히 배치) */
+html[data-theme="kimcrew"] .calendar-title-group {
+  align-items: center;
+}
+
+html[data-theme="kimcrew"] .calendar-title-group::after {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  width: 42px;
+  height: 52px;
+  margin-left: 8px;
+  background: url("../assets/img/kc-victory.png") no-repeat center / contain;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 2px 5px rgba(0, 0, 0, 0.25));
+  animation: hk-sparkle-bob 2.4s ease-in-out infinite alternate;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* Kim Crew: Journey Card Happy Rollbag Mascot (기능 버튼 없는 우상단에 여유롭게 배치) */
+html[data-theme="kimcrew"] .journey-active-card,
+html[data-theme="kimcrew"] .journey-empty-card {
+  position: relative;
+  overflow: visible !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f7fbf2 100%);
+  border: 1.5px solid #cfe3b4;
+}
+
+html[data-theme="kimcrew"] .journey-active-card::before,
+html[data-theme="kimcrew"] .journey-empty-card::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  right: 20px;
+  width: 50px;
+  height: 58px;
+  background: url("../assets/img/kc-celebrate.png") no-repeat center / contain;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-run-bounce 1.8s ease-in-out infinite alternate;
+}
+
+html[data-theme="kimcrew"] .journey-badge-pill {
+  background: linear-gradient(135deg, #749e1f 0%, #8cd317 100%);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(116, 158, 31, 0.3);
+  font-weight: 700;
+}
+
+/* Kim Crew: Flight List Schedule Card Holding Sausages Mascot (달력 마스코트와 좌우 대칭을 이루는 우측 상단 배치) */
+html[data-theme="kimcrew"] .calendar-list-card {
+  position: relative;
+  overflow: visible !important;
+}
+
+html[data-theme="kimcrew"] .calendar-list-card::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  right: 20px;
+  width: 50px;
+  height: 60px;
+  background: url("../assets/img/kc-schedule.png") no-repeat center / contain;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+  z-index: 5;
+  animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
+}
+
 
 /* Status Badge Pill & Refresh Action Container */
 .status-badge-wrapper {
@@ -1675,6 +1961,20 @@ html[data-theme="doraemon"] .map-airplane-pct {
   color: #ffffff !important;
 }
 
+html[data-theme="kimcrew"] .custom-map-plane-tooltip.leaflet-tooltip {
+  background-color: #749e1f !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(116, 158, 31, 0.35) !important;
+}
+
+html[data-theme="kimcrew"] .custom-map-plane-tooltip.leaflet-tooltip::before {
+  border-top-color: #749e1f !important;
+}
+
+html[data-theme="kimcrew"] .map-airplane-pct {
+  color: #ffffff !important;
+}
+
 /* -------------------------------------------------------------
    Map Markers: Theme-Matched Outlines & High-Visibility Filters
    ------------------------------------------------------------- */
@@ -1702,7 +2002,12 @@ html[data-theme="doraemon"] .map-airplane-pct {
 .dm-home-pin,
 .dm-stay-pin,
 .dm-briefing-pin,
-.dm-car-pin {
+.dm-car-pin,
+.kc-airplane-pin,
+.kc-home-pin,
+.kc-stay-pin,
+.kc-briefing-pin,
+.kc-car-pin {
   background: transparent !important;
   border: none !important;
 }
@@ -1752,22 +2057,42 @@ html[data-theme="doraemon"] .map-airplane-pct {
   transition: filter 0.2s ease, transform 0.2s ease;
 }
 
+/* 4. Kim Crew Theme: 캐릭터 테두리를 슬림하고 또렷하게 감싸는 스카프 라임 그린 윤곽선 (#749e1f) */
+.kc-home-marker-wrapper img,
+.kc-stay-marker-wrapper img,
+.kc-briefing-marker-wrapper img,
+.kc-car-marker-wrapper img,
+.kc-airplane-marker-wrapper img {
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
 /* 4. Marker Hover Transitions & Elevations across all themes */
 .hk-home-marker-wrapper,
 .rk-home-marker-wrapper,
 .dm-home-marker-wrapper,
+.kc-home-marker-wrapper,
 .hk-stay-marker-wrapper,
 .rk-stay-marker-wrapper,
 .dm-stay-marker-wrapper,
+.kc-stay-marker-wrapper,
 .hk-briefing-marker-wrapper,
 .rk-briefing-marker-wrapper,
 .dm-briefing-marker-wrapper,
+.kc-briefing-marker-wrapper,
 .hk-car-marker-wrapper,
 .rk-car-marker-wrapper,
 .dm-car-marker-wrapper,
+.kc-car-marker-wrapper,
 .hk-airplane-marker-wrapper,
 .rk-airplane-marker-wrapper,
 .dm-airplane-marker-wrapper,
+.kc-airplane-marker-wrapper,
 .custom-map-pin,
 .custom-home-pin,
 .custom-stay-pin,
@@ -1782,15 +2107,19 @@ html[data-theme="doraemon"] .map-airplane-pct {
 .hk-home-marker-wrapper:hover,
 .rk-home-marker-wrapper:hover,
 .dm-home-marker-wrapper:hover,
+.kc-home-marker-wrapper:hover,
 .hk-stay-marker-wrapper:hover,
 .rk-stay-marker-wrapper:hover,
 .dm-stay-marker-wrapper:hover,
+.kc-stay-marker-wrapper:hover,
 .hk-briefing-marker-wrapper:hover,
 .rk-briefing-marker-wrapper:hover,
 .dm-briefing-marker-wrapper:hover,
+.kc-briefing-marker-wrapper:hover,
 .hk-car-marker-wrapper:hover,
 .rk-car-marker-wrapper:hover,
 .dm-car-marker-wrapper:hover,
+.kc-car-marker-wrapper:hover,
 .custom-map-pin:hover,
 .custom-home-pin:hover,
 .custom-stay-pin:hover,
@@ -1804,6 +2133,7 @@ html[data-theme="doraemon"] .map-airplane-pct {
 .hk-airplane-marker-wrapper:hover,
 .rk-airplane-marker-wrapper:hover,
 .dm-airplane-marker-wrapper:hover,
+.kc-airplane-marker-wrapper:hover,
 .custom-airplane-pin:hover {
   transform: scale(1.15);
   z-index: 10000 !important;

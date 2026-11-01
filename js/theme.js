@@ -91,6 +91,18 @@ export function getDoraemonIconHtml(size = 30) {
   return `<img src="assets/img/doraemon-head.png" class="brand-doraemon-img" width="${size}" height="${size}" alt="도라에몽" style="display:inline-block; vertical-align:middle; object-fit:contain; filter:drop-shadow(0 1px 3px rgba(0,155,227,0.3));">`;
 }
 
+export function getKimCrewSvg(size = 32) {
+  return `
+    <svg viewBox="0 0 230 230" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <image href="assets/img/kimcrew-head.png" width="230" height="230"/>
+    </svg>
+  `;
+}
+
+export function getKimCrewIconHtml(size = 32) {
+  return `<img src="assets/img/kimcrew-head.png" class="brand-kimcrew-img" width="${size}" height="${size}" alt="김크루" style="display:inline-block; vertical-align:middle; object-fit:contain;">`;
+}
+
 export const THEMES = {
   default: {
     id: 'default',
@@ -188,6 +200,21 @@ export const THEMES = {
     toggleIconHtml: getDoraemonIconHtml(24),
     faviconPng: 'assets/img/doraemon-favicon.png',
     faviconSvg: getDoraemonSvg(64).trim()
+  },
+  kimcrew: {
+    id: 'kimcrew',
+    name: '김크루 (Kim Crew)',
+    shortName: '김크루',
+    primaryColor: '#749e1f',
+    destPinColor: '#749e1f',
+    depPinColor: '#5e8216',
+    flightPathColor: '#8cd317',
+    airplaneColor: '#749e1f',
+    airplaneStroke: '#ffffff',
+    brandIconHtml: getKimCrewIconHtml(34),
+    toggleIconHtml: getKimCrewIconHtml(24),
+    faviconPng: 'assets/img/kimcrew-favicon.png',
+    faviconSvg: getKimCrewSvg(64).trim()
   }
 };
 

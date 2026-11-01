@@ -284,6 +284,21 @@ function createHomeIcon(L, color = '#1A73E8', themeId = 'default') {
     });
   }
 
+  if (themeId === 'kimcrew') {
+    const html = `
+      <div class="kc-home-marker-wrapper" style="width: 60px; height: 72px; display: flex; align-items: center; justify-content: center;">
+        <img src="assets/img/kc-home.png" width="56" height="68" alt="우리 집 김크루" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-home-pin kc-home-pin',
+      html: html,
+      iconSize: [60, 72],
+      iconAnchor: [30, 36],
+      popupAnchor: [0, -34]
+    });
+  }
+
   const svg = `
     <div style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3)); display: flex; align-items: center; justify-content: center;">
       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="-2 -2 32 40" fill="none">
@@ -352,6 +367,21 @@ function createStayIcon(L, color = '#1A73E8', themeId = 'default') {
       iconSize: [54, 52],
       iconAnchor: [27, 26],
       popupAnchor: [0, -24]
+    });
+  }
+
+  if (themeId === 'kimcrew') {
+    const html = `
+      <div class="kc-stay-marker-wrapper" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+        <img src="assets/img/kc-stay.png" width="66" height="66" alt="체류지 김크루" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-stay-pin kc-stay-pin',
+      html: html,
+      iconSize: [70, 70],
+      iconAnchor: [35, 35],
+      popupAnchor: [0, -33]
     });
   }
 
@@ -426,6 +456,21 @@ function createBriefingIcon(L, color = '#1A73E8', themeId = 'default') {
       iconSize: [52, 50],
       iconAnchor: [26, 25],
       popupAnchor: [0, -23]
+    });
+  }
+
+  if (themeId === 'kimcrew') {
+    const html = `
+      <div class="kc-briefing-marker-wrapper" style="width: 68px; height: 72px; display: flex; align-items: center; justify-content: center;">
+        <img src="assets/img/kc-briefing.png" width="64" height="68" alt="브리핑 김크루" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-briefing-pin kc-briefing-pin',
+      html: html,
+      iconSize: [68, 72],
+      iconAnchor: [34, 36],
+      popupAnchor: [0, -34]
     });
   }
 
@@ -508,6 +553,23 @@ function createCarIcon(L, color = '#1A73E8', themeId = 'default', isWestbound = 
       iconSize: [54, 44],
       iconAnchor: [27, 22],
       popupAnchor: [0, -21]
+    });
+  }
+
+  if (themeId === 'kimcrew') {
+    // kc-car-west.png faces LEFT (Westbound), kc-car-east.png faces RIGHT (Eastbound)
+    const imgSrc = isWestbound ? 'assets/img/kc-car-west.png' : 'assets/img/kc-car-east.png';
+    const html = `
+      <div class="kc-car-marker-wrapper" style="width: 64px; height: 74px; display: flex; align-items: center; justify-content: center;">
+        <img src="${imgSrc}" width="60" height="70" alt="출퇴근 김크루" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+    return L.divIcon({
+      className: 'custom-car-pin kc-car-pin',
+      html: html,
+      iconSize: [64, 74],
+      iconAnchor: [32, 37],
+      popupAnchor: [0, -35]
     });
   }
 
@@ -657,6 +719,30 @@ function createAirplaneIcon(L, heading = 0, fillColor = '#1A73E8', strokeColor =
     });
   }
 
+  const isKimCrew = themeId === 'kimcrew' || (typeof fillColor === 'object' && fillColor.id === 'kimcrew');
+  if (isKimCrew) {
+    const normalized = ((heading % 360) + 360) % 360;
+    const isWestbound = normalized >= 180 && normalized < 360;
+    const imgSrc = isWestbound ? 'assets/img/kc-airplane-west.png' : 'assets/img/kc-airplane-east.png';
+
+    const pitch = isWestbound
+      ? Math.max(-20, Math.min(20, (270 - normalized) * 0.35))
+      : Math.max(-20, Math.min(20, (normalized - 90) * 0.35));
+
+    const html = `
+      <div class="kc-airplane-marker-wrapper" style="transform: rotate(${pitch}deg); transform-origin: center center; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+        <img src="${imgSrc}" width="68" height="68" alt="비행 중 김크루" style="display: block; object-fit: contain; pointer-events: none; user-select: none;">
+      </div>
+    `;
+
+    return L.divIcon({
+      className: 'custom-airplane-pin kc-airplane-pin',
+      html: html,
+      iconSize: [72, 72],
+      iconAnchor: [36, 36]
+    });
+  }
+
   const svg = `
     <div style="transform: rotate(${heading}deg); transform-origin: center center; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.35));">
       <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -702,7 +788,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   // 1. Current Location Marker (Themed 26px pin or airplane)
   let currentMarker;
   if (statusData.status === STATUS_TYPES.IN_FLIGHT) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon' || theme.id === 'kimcrew';
     const pct = Math.min(100, Math.max(0, Math.round((statusData.progress || 0) * 100)));
 
     currentMarker = L.marker(coords, {
@@ -724,7 +810,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
 
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.description}`);
   } else if (statusData.status === STATUS_TYPES.HOME) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon' || theme.id === 'kimcrew';
     const home = getHomeBase();
     currentMarker = L.marker(coords, {
       icon: createHomeIcon(L, theme.primaryColor, theme.id),
@@ -733,7 +819,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     currentMarker.bindTooltip(home.name || '우리 집', { direction: 'top', offset: isMascot ? [0, -19] : [0, -34] });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${home.address || (home.city + ' (집)')}`);
   } else if (statusData.status === STATUS_TYPES.OVERSEAS_STAY) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon' || theme.id === 'kimcrew';
     currentMarker = L.marker(coords, {
       icon: createStayIcon(L, theme.primaryColor, theme.id),
       zIndexOffset: 1000
@@ -744,7 +830,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
     });
     currentMarker.bindPopup(`<b>${statusData.title}</b><br>${statusData.locationName || '해외 체류지'}`);
   } else if (statusData.status === STATUS_TYPES.COMMUTE_DEPARTURE || statusData.status === STATUS_TYPES.COMMUTE_RETURN) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon' || theme.id === 'kimcrew';
     const isReturn = statusData.status === STATUS_TYPES.COMMUTE_RETURN;
 
     // Directionality:
@@ -798,7 +884,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       currentPolylineLayers.push(routeLine);
     }
   } else if (statusData.status === STATUS_TYPES.BRIEFING) {
-    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon';
+    const isMascot = theme.id === 'hellokitty' || theme.id === 'rilakkuma' || theme.id === 'doraemon' || theme.id === 'kimcrew';
     currentMarker = L.marker(coords, {
       icon: createBriefingIcon(L, theme.primaryColor, theme.id),
       zIndexOffset: 1000
