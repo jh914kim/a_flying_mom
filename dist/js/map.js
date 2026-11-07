@@ -211,6 +211,42 @@ function clearMapMarkers() {
 }
 
 /**
+ * Duplicates a marker on adjacent world tile copies (+360, -360) so that markers
+ * (stay mascots, destination pins, departure pins, planes) remain visible when viewing
+ * across the Pacific or when the map wraps horizontally.
+ */
+function addWorldCopiesForMarker(marker, baseCoords) {
+  if (!marker || !baseCoords || !mapInstance) return;
+  const lat = baseCoords[0];
+  const lng = baseCoords[1];
+  if (lat == null || lng == null) return;
+
+  const normLng = ((lng + 180) % 360 + 360) % 360 - 180;
+  const offsets = [360, -360];
+
+  const tooltip = marker.getTooltip ? marker.getTooltip() : null;
+  const popup = marker.getPopup ? marker.getPopup() : null;
+
+  for (const offset of offsets) {
+    const cloneCoords = [lat, normLng + offset];
+    const cloneMarker = L.marker(cloneCoords, {
+      icon: marker.options.icon,
+      zIndexOffset: marker.options.zIndexOffset || 0
+    });
+
+    if (tooltip) {
+      cloneMarker.bindTooltip(tooltip.getContent(), tooltip.options);
+    }
+    if (popup) {
+      cloneMarker.bindPopup(popup.getContent(), popup.options);
+    }
+
+    cloneMarker.addTo(mapInstance);
+    currentMarkers.push(cloneMarker);
+  }
+}
+
+/**
  * Creates 26px SVG pin icon
  */
 function createPinIcon(L, color = '#1A73E8') {
@@ -903,6 +939,9 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
   }
   currentMarker.addTo(mapInstance);
   currentMarkers.push(currentMarker);
+  if (coords) {
+    addWorldCopiesForMarker(currentMarker, coords);
+  }
 
   // 2. Flight Paths & Destination Markers
   let activeSegments = null;
@@ -934,6 +973,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
 
       destMarker.bindPopup(`<b>도착 공항</b><br>${destAp.city} (${destAp.code})`).addTo(mapInstance);
       currentMarkers.push(destMarker);
+      addWorldCopiesForMarker(destMarker, [destAp.lat, destAp.lng]);
     }
     // Departure airport marker
     if (statusData.status === STATUS_TYPES.IN_FLIGHT && statusData.flight && statusData.flight.depAirport) {
@@ -944,6 +984,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
       depMarker.bindTooltip(`출발 · ${depAp.city.split('/')[0]} (${depAp.code})`, { direction: 'top', offset: [0, -34] });
       depMarker.bindPopup(`<b>출발 공항</b><br>${depAp.city} (${depAp.code})`).addTo(mapInstance);
       currentMarkers.push(depMarker);
+      addWorldCopiesForMarker(depMarker, [depAp.lat, depAp.lng]);
     }
   } else if (statusData.nextFlightPath) {
     activeSegments = statusData.nextFlightPath;
@@ -959,6 +1000,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
         depMarker.bindTooltip(`출발 공항 · ${depAp.city.split('/')[0]} (${depAp.code})`, { direction: 'top', offset: [0, -34] });
         depMarker.bindPopup(`<b>출발 공항</b><br>${depAp.city} (${depAp.code})`).addTo(mapInstance);
         currentMarkers.push(depMarker);
+        addWorldCopiesForMarker(depMarker, [depAp.lat, depAp.lng]);
       }
     }
 
@@ -969,6 +1011,7 @@ export function updateMapWithStatus(statusData, preserveCamera = false) {
         icon: createPinIcon(L, theme.destPinColor)
       }).bindPopup(`<b>다음 목적지</b><br>${nextAp.city} (${nextAp.code})`).addTo(mapInstance);
       currentMarkers.push(nextMarker);
+      addWorldCopiesForMarker(nextMarker, [nextAp.lat, nextAp.lng]);
     }
   }
 

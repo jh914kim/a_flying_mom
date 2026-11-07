@@ -504,6 +504,13 @@ export function interpolateGreatCircle([lat1, lng1], [lat2, lng2], fraction) {
 }
 
 /**
+ * Normalizes longitude into [-180, 180] range.
+ */
+function normalizeLng(lng) {
+  return ((lng + 180) % 360 + 360) % 360 - 180;
+}
+
+/**
  * Computes bearing (heading in degrees 0..360) along the great circle path at progress fraction.
  */
 export function calculateBearing([lat1, lng1], [lat2, lng2], fraction = 0) {
@@ -516,7 +523,10 @@ export function calculateBearing([lat1, lng1], [lat2, lng2], fraction = 0) {
 
   const phi1 = p1.lat * toRad;
   const phi2 = p2.lat * toRad;
-  const dLambda = (p2.lng - p1.lng) * toRad;
+  let dl = p2.lng - p1.lng;
+  if (dl > 180) dl -= 360;
+  else if (dl < -180) dl += 360;
+  const dLambda = dl * toRad;
 
   const y = Math.sin(dLambda) * Math.cos(phi2);
   const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dLambda);
@@ -527,27 +537,44 @@ export function calculateBearing([lat1, lng1], [lat2, lng2], fraction = 0) {
 
 /**
  * Generates array of coordinate segments for Leaflet polyline.
- * Splits cleanly across the antimeridian (180th meridian) so paths across the Pacific don't wrap the globe backwards.
+ * Continuously unwraps longitudes across the antimeridian (180th meridian)
+ * and generates world-wrapped clones (+360, -360) so trans-Pacific routes
+ * connect seamlessly without cutting off in any map view.
  */
 export function generateGreatCirclePath([lat1, lng1], [lat2, lng2], numPoints = 80) {
-  const segments = [[]];
-  let currentSegment = segments[0];
+  const points = [];
+  let prevUnwrapped = null;
+  let crossesAntimeridian = false;
 
-  let prevLng = null;
   for (let i = 0; i <= numPoints; i++) {
     const f = i / numPoints;
     const pt = interpolateGreatCircle([lat1, lng1], [lat2, lng2], f);
 
-    // If antimeridian crossed (large longitude jump > 180 deg)
-    if (prevLng !== null && Math.abs(pt.lng - prevLng) > 180) {
-      // Split into new segment
-      currentSegment = [];
-      segments.push(currentSegment);
+    let unwrapped;
+    if (prevUnwrapped === null) {
+      unwrapped = pt.lng;
+    } else {
+      const prevNorm = normalizeLng(prevUnwrapped);
+      let diff = pt.lng - prevNorm;
+      while (diff > 180) diff -= 360;
+      while (diff < -180) diff += 360;
+      unwrapped = prevUnwrapped + diff;
+      if (Math.abs(unwrapped - pt.lng) > 1e-4) {
+        crossesAntimeridian = true;
+      }
     }
 
-    currentSegment.push([pt.lat, pt.lng]);
-    prevLng = pt.lng;
+    points.push([pt.lat, unwrapped]);
+    prevUnwrapped = unwrapped;
   }
 
-  return segments;
+  // If the flight crosses the antimeridian (e.g. trans-Pacific), provide world copies
+  // so the line connects seamlessly regardless of whether the map is centered on Asia or the Americas.
+  if (crossesAntimeridian) {
+    const segCopyMinus = points.map(([lat, lng]) => [lat, lng - 360]);
+    const segCopyPlus = points.map(([lat, lng]) => [lat, lng + 360]);
+    return [points, segCopyMinus, segCopyPlus];
+  }
+
+  return [points];
 }
