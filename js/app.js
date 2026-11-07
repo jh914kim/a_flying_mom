@@ -15,6 +15,7 @@ import { initStorageSync, getSavedMonths, getMonthSchedule, saveMonthSchedule } 
 import { initManagerListeners, openManagerModal } from './manager.js';
 import { getSampleSchedule } from './ocr.js';
 import { initThemeSwitcher } from './theme.js';
+import { initKimCrewInteractive } from './kimcrew-interactive.js';
 
 let liveClockInterval = null;
 let mapInitialized = false;
@@ -42,6 +43,9 @@ export async function initApp() {
 
   // Initialize Theme Switcher (Google Flights / Asiana Airlines / Korean Air)
   initThemeSwitcher();
+
+  // Initialize Kim Crew interactive physics mascots
+  initKimCrewInteractive();
 
   // Initialize PWA and Chrome Install Controller
   initPwa();

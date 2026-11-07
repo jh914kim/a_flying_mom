@@ -1575,6 +1575,61 @@ html[data-theme="kimcrew"] .calendar-list-card::before {
   animation: hk-sparkle-bob 2.6s ease-in-out infinite alternate;
 }
 
+/* -------------------------------------------------------------
+   Kim Crew: Swimming Mascots in Pool (유영 마스코트 2종)
+   ------------------------------------------------------------- */
+.kc-swimming-mascot {
+  position: fixed;
+  width: 50px;
+  height: 58px;
+  left: 0;
+  top: 0;
+  z-index: 9999;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 4px 10px rgba(0, 0, 0, 0.22));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: auto;
+  will-change: transform;
+}
+
+.kc-swimming-mascot.is-dragging {
+  cursor: grabbing !important;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35)) !important;
+}
+
+.kc-swimming-mascot.is-flying {
+  cursor: grab !important;
+  filter: 
+    drop-shadow(1.5px 0 0 #749e1f)
+    drop-shadow(-1.5px 0 0 #749e1f)
+    drop-shadow(0 1.5px 0 #749e1f)
+    drop-shadow(0 -1.5px 0 #749e1f)
+    drop-shadow(0 8px 16px rgba(116, 158, 31, 0.4)) !important;
+}
+
+.kc-swimming-mascot.is-squash {
+  filter: 
+    drop-shadow(2px 0 0 #8cd317)
+    drop-shadow(-2px 0 0 #8cd317)
+    drop-shadow(0 2px 0 #8cd317)
+    drop-shadow(0 -2px 0 #8cd317)
+    drop-shadow(0 0 14px rgba(140, 211, 23, 0.75)) !important;
+}
 
 /* Status Badge Pill & Refresh Action Container */
 .status-badge-wrapper {
