@@ -60,7 +60,7 @@ const COL_STD    = 4;
 const COL_STA    = 5;
 
 const NON_FLIGHT_PATTERNS = [
-  /DAY\s*OFF/i,
+  /DAY\s*OF[FE]/i,
   /^OFF$/i,
   /STBY/i,
   /STANDBY/i,
@@ -387,6 +387,33 @@ function detectTableHorizontalLines(imageData) {
   const minX = Math.min(...bestCluster.map(l => l.minX));
   const maxX = Math.max(...bestCluster.map(l => l.maxX));
 
+  // Recover trailing bottom border row if anti-aliased against white background below the table (avg <= 248)
+  const lastY = rowYs[rowYs.length - 1];
+  const expectedNextY = Math.round(lastY + medianGap);
+  if (expectedNextY < height - 2) {
+    let bestTrailY = -1;
+    let bestTrailCount = 0;
+    for (let sy = Math.max(lastY + 6, expectedNextY - 3); sy <= Math.min(height - 1, expectedNextY + 3); sy++) {
+      let lightGrayCount = 0;
+      for (let x = xMargin; x < width - xMargin; x++) {
+        const idx = (sy * width + x) * 4;
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+        const avg = (r + g + b) / 3;
+        const diff = Math.max(r, g, b) - Math.min(r, g, b);
+        if (avg >= 145 && avg <= 248 && diff <= 24) {
+          lightGrayCount++;
+        }
+      }
+      if (lightGrayCount > bestTrailCount) {
+        bestTrailCount = lightGrayCount;
+        bestTrailY = sy;
+      }
+    }
+    if (bestTrailY > lastY && bestTrailCount >= scanW * 0.75) {
+      rowYs.push(bestTrailY);
+    }
+  }
+
   return {
     tableTop: rowYs[0],
     tableBottom: rowYs[rowYs.length - 1],
@@ -400,6 +427,8 @@ function detectTableHorizontalLines(imageData) {
 /**
  * Detects vertical lines inside [tableTop, tableBottom] and returns 7 column boundary x-coordinates
  * for the 6 columns: DATE, FLIGHT, SHOWUP, SECTOR, STD, STA.
+ * Also handles screenshots where the outer left border (x ≈ 0) or outer right border (x ≈ width - 1)
+ * is cropped off at the viewport edge.
  */
 function detectTableColumns(imageData, tableRegion) {
   const { data, width } = imageData;
@@ -457,6 +486,22 @@ function detectTableColumns(imageData, tableRegion) {
 
   if (filtered.length >= 7) {
     return filtered.slice(0, 7).map(l => l.x);
+  }
+
+  // When outer left border of DATE or outer right border of STA is cropped off at the screenshot edge
+  if (filtered.length === 6) {
+    const xs = filtered.map(l => l.x);
+    if (xs[0] >= width * 0.08 && xs[5] >= width * 0.88) {
+      return [0, ...xs];
+    }
+    if (xs[0] < width * 0.08 && xs[5] <= width * 0.92) {
+      return [...xs, width - 1];
+    }
+  } else if (filtered.length === 5) {
+    const xs = filtered.map(l => l.x);
+    if (xs[0] >= width * 0.08 && xs[4] <= width * 0.92) {
+      return [0, ...xs, width - 1];
+    }
   }
 
   return null;
@@ -533,7 +578,7 @@ let sharedOutCtx = null;
  * with RGB(128,128,128), and builds a Float32 NCHW tensor [1, 3, 48, 320] normalized via pixel/127.5 - 1.
  */
 function buildCellInputTensor(srcImageData, x1, y1, x2, y2, options = {}) {
-  const { marginPx = 1, mode = 'rgb', bboxInfo = null, threshold = 200 } = options;
+  const { marginPx = 1, mode = 'rgb', bboxInfo = null, threshold = 200, colIdx = null } = options;
   const info = bboxInfo || inspectCellBBox(srcImageData, x1, y1, x2, y2, threshold);
   if (info.isEmpty) {
     return { tensor: null, isEmpty: true, hasBluePixels: false };
@@ -542,11 +587,15 @@ function buildCellInputTensor(srcImageData, x1, y1, x2, y2, options = {}) {
   const { data, width } = srcImageData;
   const { cx1, cy1, cw, ch, minX, maxX, minY, maxY, hasBluePixels } = info;
 
-  // Guide 4/6: Add ~1px margin (or 0/1/2px on retry) in original coordinates
+  // Guide 4/6: Add ~1px margin (or 0/1/2px on retry) in original coordinates.
+  // For low-resolution SECTOR cells (raw text height <= 9px), preserve >= 3px vertical margin
+  // so top/bottom serifs on 'I' (e.g. ICN/FUK) do not touch the 48px canvas border and resemble 'H'.
+  const rawH = maxY - minY + 1;
+  const marginY = (colIdx === COL_SECTOR && rawH <= 9) ? Math.max(marginPx, 3) : marginPx;
   const bx1 = Math.max(0, minX - marginPx);
-  const by1 = Math.max(0, minY - marginPx);
+  const by1 = Math.max(0, minY - marginY);
   const bx2 = Math.min(cw - 1, maxX + marginPx);
-  const by2 = Math.min(ch - 1, maxY + marginPx);
+  const by2 = Math.min(ch - 1, maxY + marginY);
 
   const bw = bx2 - bx1 + 1;
   const bh = by2 - by1 + 1;
@@ -784,7 +833,11 @@ function isCellFormatClean(text, colIdx) {
   if (colIdx === COL_STD || colIdx === COL_STA) {
     if (/^(STD|STA)$/i.test(trimmed)) return true;
     const digits = trimmed.replace(/\D/g, '');
-    return digits.length === 6;
+    if (digits.length !== 6) return false;
+    const dd = parseInt(digits.slice(0, 2), 10);
+    const hh = parseInt(digits.slice(2, 4), 10);
+    const mm = parseInt(digits.slice(4, 6), 10);
+    return dd >= 1 && dd <= 31 && hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59;
   }
   return true;
 }
@@ -831,7 +884,7 @@ async function recognizeTableCell(session, dict, imageData, x1, y1, x2, y2, colI
   // Primary candidate: RGB input, margin 1px
   let primary = precomputedPrimary;
   if (!primary) {
-    const basePrep = buildCellInputTensor(imageData, x1, y1, x2, y2, { marginPx: 1, mode: 'rgb', bboxInfo });
+    const basePrep = buildCellInputTensor(imageData, x1, y1, x2, y2, { marginPx: 1, mode: 'rgb', bboxInfo, colIdx });
     primary = await runSingleInference(session, dict, basePrep.tensor, diagnosticsSink);
   }
   const candidates = [{ label: 'rgb_m1', ...primary }];
@@ -869,7 +922,7 @@ async function recognizeTableCell(session, dict, imageData, x1, y1, x2, y2, colI
       // Try margin 2px with wider anti-aliased bbox (threshold 215) first — resolves FUK/ICN and ICN/YNJ in 1 pass
       const wideBBox = inspectCellBBox(imageData, x1, y1, x2, y2, 215);
       if (!wideBBox.isEmpty) {
-        const widePrep = buildCellInputTensor(imageData, x1, y1, x2, y2, { marginPx: 2, mode: 'rgb', bboxInfo: wideBBox, threshold: 215 });
+        const widePrep = buildCellInputTensor(imageData, x1, y1, x2, y2, { marginPx: 2, mode: 'rgb', bboxInfo: wideBBox, threshold: 215, colIdx });
         if (!widePrep.isEmpty) {
           const wideRes = await runSingleInference(session, dict, widePrep.tensor, diagnosticsSink);
           if (wideRes.text) candidates.push({ label: 'rgb_m2_t215', ...wideRes });
@@ -878,7 +931,7 @@ async function recognizeTableCell(session, dict, imageData, x1, y1, x2, y2, colI
     }
 
     if (!candidates.some(c => isCellFormatClean(c.text, colIdx))) {
-      const prepM2 = buildCellInputTensor(imageData, x1, y1, x2, y2, { marginPx: 2, mode: 'rgb', bboxInfo });
+      const prepM2 = buildCellInputTensor(imageData, x1, y1, x2, y2, { marginPx: 2, mode: 'rgb', bboxInfo, colIdx });
       if (!prepM2.isEmpty) {
         const resM2 = await runSingleInference(session, dict, prepM2.tensor, diagnosticsSink);
         if (resM2.text) candidates.push({ label: 'rgb_m2', ...resM2 });
@@ -890,7 +943,7 @@ async function recognizeTableCell(session, dict, imageData, x1, y1, x2, y2, colI
         { label: 'rgb_m0', marginPx: 0, mode: 'rgb' },
         { label: 'gray_m1', marginPx: 1, mode: 'gray' }
       ]) {
-        const prep = buildCellInputTensor(imageData, x1, y1, x2, y2, { ...cfg, bboxInfo });
+        const prep = buildCellInputTensor(imageData, x1, y1, x2, y2, { ...cfg, bboxInfo, colIdx });
         if (!prep.isEmpty) {
           const res = await runSingleInference(session, dict, prep.tensor, diagnosticsSink);
           if (res.text) candidates.push({ label: cfg.label, ...res });
@@ -1008,9 +1061,9 @@ async function detectYearMonthFromHeaderAndDates(session, dict, imageData, table
       textBands.push([Math.max(scanTop, rowStart - 2), scanBottom]);
     }
 
-    if (textBands.length > 0) {
-      const [by1, by2] = textBands[0];
-      const prep = buildCellInputTensor(imageData, 0, by1, Math.round(width * 0.25), by2, { marginPx: 1, mode: 'rgb' });
+    for (const [by1, by2] of textBands) {
+      if (detectedYear && detectedMonth) break;
+      const prep = buildCellInputTensor(imageData, 0, by1, Math.round(width * 0.30), by2, { marginPx: 1, mode: 'rgb' });
       if (!prep.isEmpty) {
         const res = await runSingleInference(session, dict, prep.tensor, diagnosticsSink);
         const yMatch = res.text.match(/(20\d{2})/);
@@ -1135,9 +1188,19 @@ function resolveTableCalendarDays(gridCells, yearNum, monthNum) {
     const rowSpan = idxB - idxA;
     const daySpan = dayB - dayA;
 
+    // Check if flight at idxA is an overnight flight arriving on staDay > dayA (e.g. departs 09 23:55, arrives 10 06:55)
+    const staParsedA = parseStdStaColumnText(gridCells[idxA][COL_STA]?.text || '', yearNum, monthNum);
+    const effectiveEndDayA = (staParsedA.valid && staParsedA.day && staParsedA.day > dayA && staParsedA.day < dayB)
+      ? staParsedA.day
+      : dayA;
+
     if (rowSpan === daySpan && rowSpan > 1) {
       for (let step = 1; step < rowSpan; step++) {
         rowDays[idxA + step] = dayA + step;
+      }
+    } else if (effectiveEndDayA > dayA && rowSpan === (dayB - effectiveEndDayA) && rowSpan > 1) {
+      for (let step = 1; step < rowSpan; step++) {
+        rowDays[idxA + step] = effectiveEndDayA + step;
       }
     } else if (rowSpan > 1 && daySpan > 0) {
       // Check intermediate rows for valid bounded DATE cell days
@@ -1468,9 +1531,8 @@ export async function recognizeSchedulePhoto(file, targetYearMonth, onProgress) 
     const { r, y1, y2, bboxes } = meta;
     const colsToQueue = [];
 
-    // Read DATE column on rows 0..4 (to detect month) and rows with right-side data (flights)
-    // Non-flight rows are solved mathematically by resolveTableCalendarDays, saving 25+ unnecessary OCR runs
-    if (!bboxes[COL_DATE].isEmpty && (r <= 4 || meta.hasRightSideData)) {
+    // Read DATE column on all non-empty rows in the batched inference pass so STBY/off rows have exact date anchors
+    if (!bboxes[COL_DATE].isEmpty) {
       colsToQueue.push(COL_DATE);
     }
 
@@ -1488,7 +1550,8 @@ export async function recognizeSchedulePhoto(file, targetYearMonth, onProgress) 
       const prep = buildCellInputTensor(imageData, colBounds[c], y1, colBounds[c + 1], y2, {
         marginPx: 1,
         mode: 'rgb',
-        bboxInfo: bboxes[c]
+        bboxInfo: bboxes[c],
+        colIdx: c
       });
       if (!prep.isEmpty && prep.tensor) {
         queue.push({ r, c, tensor: prep.tensor });
