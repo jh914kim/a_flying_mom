@@ -13,8 +13,8 @@ import {
   validateMonthSchedule
 } from './storage.js';
 import { searchAirports, getAirport, KOREA_BASES } from './airports.js';
-import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js';
-import { refreshAllViews } from './app.js';
+import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js?v=4';
+import { refreshAllViews } from './app.js?v=4';
 
 let currentEditingMonth = ''; // 'YYYY-MM'
 let flightRows = []; // [{ number, from, to, departure, arrival, isUncertain }]
@@ -681,13 +681,16 @@ export function initManagerListeners() {
   function bindPhotoOcrInput(inputEl, recognizerFn, label) {
     if (!inputEl) return;
     inputEl.onchange = async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
 
       if (ocrProgressContainer) {
         ocrProgressContainer.style.display = 'block';
         if (ocrProgressBar) ocrProgressBar.style.width = '5%';
-        if (ocrProgressText) ocrProgressText.textContent = '사진을 준비하고 있습니다...';
+        if (ocrProgressText) ocrProgressText.textContent = `[${label}] 사진을 불러오는 중...`;
+        try {
+          ocrProgressContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (_) {}
       }
       await new Promise(r => setTimeout(r, 20));
 

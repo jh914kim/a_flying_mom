@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flyingmom-cache-v3';
+const CACHE_NAME = 'flyingmom-cache-v4';
 
 // Core App Shell assets for offline reliability and fast installation
 const PRECACHE_ASSETS = [
@@ -87,7 +87,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Live dynamic external APIs (Open-Meteo, Daum Postcode): Network first
+  // 2. Same-origin app code (.html, .js, .css, manifest.json): Network first with offline cache fallback
+  // Ensures deployed HTML and JS modules are never out of sync on mobile PWA loads
+  const isSameOriginCode =
+    url.origin === self.location.origin &&
+    (url.pathname.endsWith('.js') ||
+     url.pathname.endsWith('.css') ||
+     url.pathname.endsWith('.html') ||
+     url.pathname.endsWith('manifest.json'));
+
+  if (isSameOriginCode) {
+    event.respondWith(
+      fetch(req)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          return (await caches.match(req)) || (await caches.match(req, { ignoreSearch: true }));
+        })
+    );
+    return;
+  }
+
+  // 3. Live dynamic external APIs (Open-Meteo, Daum Postcode): Network first
   if (url.hostname.includes('open-meteo.com') || url.hostname.includes('daumcdn.net')) {
     event.respondWith(
       fetch(req).catch(() => caches.match(req))
@@ -95,7 +121,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Static assets: Stale-While-Revalidate with guaranteed response
+  // 4. Heavy static assets (icons, models, fonts): Stale-While-Revalidate with guaranteed response
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
       const fetchPromise = fetch(req)

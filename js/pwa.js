@@ -11,6 +11,7 @@ export function initPwa() {
       navigator.serviceWorker.register('./sw.js')
         .then((registration) => {
           console.log('[PWA] ServiceWorker registered with scope:', registration.scope);
+          registration.update().catch(() => {});
         })
         .catch((error) => {
           console.warn('[PWA] ServiceWorker registration failed:', error);

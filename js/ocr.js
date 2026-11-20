@@ -2376,6 +2376,45 @@ function kalFixArrivalOrder(f) {
  * @param {Function} onProgress (ratio, text)
  * @returns {Promise<{ flights: Array, detectedYearMonth: string, diagnostics: Object }>}
  */
+function loadKalImageFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const nw = img.naturalWidth || img.width;
+      const nh = img.naturalHeight || img.height;
+      if (!nw || !nh) {
+        reject(new Error('이미지 크기를 확인할 수 없습니다.'));
+        return;
+      }
+      // Keep within mobile browser canvas limits while preserving ~780-840px width optimal for KAL cards
+      let scale = 1;
+      if (nw > 900) scale = Math.min(scale, 800 / nw);
+      if (nh * scale > 12000) scale = Math.min(scale, 12000 / nh);
+      const cw = Math.max(1, Math.round(nw * scale));
+      const ch = Math.max(1, Math.round(nh * scale));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = cw;
+      canvas.height = ch;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, nw, nh, 0, 0, cw, ch);
+      const imageData = ctx.getImageData(0, 0, cw, ch);
+      resolve({ img, canvas, ctx, imageData });
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('이미지 파일을 읽을 수 없습니다.'));
+    };
+    img.src = url;
+  });
+}
+
 export async function recognizeKoreanAirNewPhoto(file, targetYearMonth, onProgress) {
   if (!file) throw new Error('이미지 파일이 선택되지 않았습니다.');
 
@@ -2385,14 +2424,16 @@ export async function recognizeKoreanAirNewPhoto(file, targetYearMonth, onProgre
     await new Promise(r => setTimeout(r, 0));
   };
 
-  await notify(0.05, '대한항공 인식 모델 준비 중...');
-  const { session, dict } = await loadOCR();
-
-  await notify(0.12, '전체 캡처 이미지에서 일정 카드 영역 분리 중...');
-  const { canvas, imageData } = await loadImageFromFile(file);
+  await notify(0.06, '스크롤 캡처 이미지 읽는 중...');
+  const { canvas, imageData } = await loadKalImageFromFile(file);
   const { width, height } = imageData;
   diagnostics.imageWidth = width;
   diagnostics.imageHeight = height;
+
+  await notify(0.10, '대한항공 인식 모델 준비 중...');
+  const { session, dict } = await loadOCR();
+
+  await notify(0.14, '전체 캡처 이미지에서 일정 카드 영역 분리 중...');
 
   const cards = detectKalCards(imageData);
   diagnostics.cardsDetected = cards.length;
