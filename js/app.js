@@ -1,4 +1,4 @@
-import { initPwa } from './pwa.js?v=5';
+import { initPwa } from './pwa.js?v=6';
 /**
  * flying mom - Main Application Coordinator
  * Bootstraps modules, manages live clock ticker, weather updates,
@@ -12,10 +12,10 @@ import { formatLocationTime, formatTzDateTime, formatMetaTime } from './timezone
 import { initMap, updateMapWithStatus, resetToWorldView, focusCurrentLocation } from './map.js';
 import { initCalendar, prevCalendarMonth, nextCalendarMonth, renderCalendar } from './calendar.js';
 import { initStorageSync, getSavedMonths, getMonthSchedule, saveMonthSchedule } from './storage.js';
-import { initManagerListeners, openManagerModal } from './manager.js?v=5';
-import { getSampleSchedule } from './ocr.js?v=5';
+import { initManagerListeners, openManagerModal } from './manager.js?v=6';
+import { getSampleSchedule } from './ocr.js?v=6';
 import { initThemeSwitcher } from './theme.js';
-import { initKimCrewInteractive } from './kimcrew-interactive.js';
+import { initKimCrewInteractive } from './kimcrew-interactive.js?v=6';
 
 let liveClockInterval = null;
 let mapInitialized = false;

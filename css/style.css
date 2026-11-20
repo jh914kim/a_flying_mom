@@ -4262,3 +4262,57 @@ html[data-theme="koreanair"] .status-badge-pill.badge-commute {
     display: none;
   }
 }
+
+/* Kim Crew Swimming Mascot ON/OFF Toggle Button */
+.btn-kimcrew-swim-toggle {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 9px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+}
+
+html[data-theme="kimcrew"] .btn-kimcrew-swim-toggle {
+  display: inline-flex;
+}
+
+.btn-kimcrew-swim-toggle .kc-swim-toggle-img {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  transition: filter 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.btn-kimcrew-swim-toggle.is-active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.btn-kimcrew-swim-toggle.is-off {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.btn-kimcrew-swim-toggle.is-off .kc-swim-toggle-img {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+@media (max-width: 400px) {
+  .btn-kimcrew-swim-toggle {
+    padding: 0 7px;
+    font-size: 0.7rem;
+  }
+}

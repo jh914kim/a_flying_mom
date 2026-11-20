@@ -13,8 +13,43 @@
 
 import { getCurrentThemeConfig, onThemeChange } from './theme.js';
 
+const KIMCREW_SWIM_STORAGE_KEY = 'flyingmom_kimcrew_swim';
 let swimmers = [];
 let swimmingRafId = null;
+
+export function isKimCrewSwimEnabled() {
+  try {
+    return localStorage.getItem(KIMCREW_SWIM_STORAGE_KEY) !== 'off';
+  } catch (_) {
+    return true;
+  }
+}
+
+export function setKimCrewSwimEnabled(enabled) {
+  try {
+    localStorage.setItem(KIMCREW_SWIM_STORAGE_KEY, enabled ? 'on' : 'off');
+  } catch (_) {}
+  updateKimCrewSwimToggleUI();
+  if (enabled && getCurrentThemeConfig().id === 'kimcrew') {
+    mountKimCrewMascots();
+  } else {
+    dismountKimCrewMascots();
+  }
+}
+
+function updateKimCrewSwimToggleUI() {
+  const btn = document.getElementById('btn-kimcrew-swim-toggle');
+  const txt = document.getElementById('kc-swim-toggle-text');
+  if (!btn) return;
+  const enabled = isKimCrewSwimEnabled();
+  btn.classList.toggle('is-active', enabled);
+  btn.classList.toggle('is-off', !enabled);
+  btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+  btn.setAttribute('title', enabled ? '김크루 유영 끄기' : '김크루 유영 켜기');
+  if (txt) {
+    txt.textContent = enabled ? '유영 ON' : '유영 OFF';
+  }
+}
 
 class SwimmingKimCrew {
   constructor(id, startX, startY, startHeading) {
@@ -461,7 +496,7 @@ function loop() {
  */
 export function mountKimCrewMascots() {
   const currentTheme = getCurrentThemeConfig();
-  if (currentTheme.id !== 'kimcrew') {
+  if (currentTheme.id !== 'kimcrew' || !isKimCrewSwimEnabled()) {
     dismountKimCrewMascots();
     return;
   }
@@ -502,8 +537,26 @@ export function dismountKimCrewMascots() {
  * Initialize theme listener
  */
 export function initKimCrewInteractive() {
+  const bindToggleBtn = () => {
+    const btn = document.getElementById('btn-kimcrew-swim-toggle');
+    if (btn && !btn.dataset.kcBound) {
+      btn.dataset.kcBound = 'true';
+      btn.addEventListener('click', () => {
+        setKimCrewSwimEnabled(!isKimCrewSwimEnabled());
+      });
+    }
+    updateKimCrewSwimToggleUI();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindToggleBtn);
+  } else {
+    bindToggleBtn();
+  }
+
   onThemeChange((theme) => {
-    if (theme.id === 'kimcrew') {
+    updateKimCrewSwimToggleUI();
+    if (theme.id === 'kimcrew' && isKimCrewSwimEnabled()) {
       setTimeout(() => mountKimCrewMascots(), 50);
     } else {
       dismountKimCrewMascots();
@@ -511,7 +564,7 @@ export function initKimCrewInteractive() {
   });
 
   const current = getCurrentThemeConfig();
-  if (current.id === 'kimcrew') {
+  if (current.id === 'kimcrew' && isKimCrewSwimEnabled()) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => mountKimCrewMascots());
     } else {
