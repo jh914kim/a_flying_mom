@@ -13,8 +13,8 @@ import {
   validateMonthSchedule
 } from './storage.js';
 import { searchAirports, getAirport, KOREA_BASES } from './airports.js';
-import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js?v=4';
-import { refreshAllViews } from './app.js?v=4';
+import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js?v=5';
+import { refreshAllViews } from './app.js?v=5';
 
 let currentEditingMonth = ''; // 'YYYY-MM'
 let flightRows = []; // [{ number, from, to, departure, arrival, isUncertain }]
@@ -735,5 +735,5 @@ export function initManagerListeners() {
   }
 
   bindPhotoOcrInput(photoInput, recognizeSchedulePhoto, '사진 인식');
-  bindPhotoOcrInput(kalPhotoInput, recognizeKoreanAirNewPhoto, '대한항공 인식');
+  bindPhotoOcrInput(kalPhotoInput, recognizeKoreanAirNewPhoto, 'PDF SKD 인식');
 }

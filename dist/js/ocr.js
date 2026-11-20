@@ -2265,34 +2265,53 @@ async function kalRecognizeLines(session, dict, items) {
 
 // ── Parsing ──────────────────────────────────────────────────────────────────
 
-/** Line 1: "KE 114Z" | "T_DO" | "LO" | "ADO" | "ATDO" | "STBY" | "T_STBY" ... */
+/** Line 1: "KE 114Z" | "T_DO" | "T_NDUTY" | "LO" | "ADO" | "ATDO" | "STBY" | "T_STBY" ... */
 function parseKalCode(text) {
   const norm = (text || '').toUpperCase().replace(/[^A-Z0-9_]/g, '');
   if (!norm) return { kind: 'EMPTY' };
   if (/STBY|STANDBY|STBI/.test(norm)) return { kind: 'STBY' };
+  if (/NDUTY|ADO|ATDO|T_?DO|^DO$|^LO$/.test(norm)) return { kind: 'OTHER', code: norm };
   const m = norm.match(/^([A-Z0-9]{2})([0-9OIL]{2,4})([A-Z]?)$/);
   if (m && /^(?:[A-Z]{2}|[A-Z][0-9]|[0-9][A-Z])$/.test(m[1])) {
     const digits = m[2].replace(/O/g, '0').replace(/[IL]/g, '1');
     return { kind: 'FLIGHT', number: `${m[1]}${digits}${m[3]}` };
   }
-  // ADO / ATDO / T_DO / DO / LO ... => no schedule or layover
   return { kind: 'OTHER', code: norm };
 }
 
 /**
  * Line 2: "ICN -KIX / 16:40 - 18:30" | "ICN -SYD / 20:00 -" | "ICN -SYD / - 08:20" |
- *         "LAX -ICN / -" | "ICN / 00:00 - 23:59" | "SYD / -"  (tolerates dropped spaces / OCR slips)
+ *         "LAX -ICN / -" | "GMP- 15:50- HND 17:50" | "ICN 09:00 - 19:00"
  */
 function parseKalSector(text) {
-  const t = (text || '').toUpperCase().replace(/\s+/g, '');
-  const m = t.match(/^([A-Z]{3})(?:-?([A-Z]{3}))?/);
+  const raw = (text || '').toUpperCase().trim();
   const result = { from: '', to: '', dep: null, arr: null, timeOk: true };
-  if (!m) return { ...result, timeOk: false };
-  result.from = m[1];
-  result.to = m[2] || '';
+  if (!raw) return { ...result, timeOk: false };
 
-  let rest = t.slice(m[0].length).replace(/^\//, '');
+  let rest = '';
+  const m1 = raw.match(/([A-Z]{3})\s*-\s*([A-Z]{3})([\s\S]*)/);
+  if (m1) {
+    result.from = m1[1];
+    result.to = m1[2];
+    rest = m1[3];
+  } else {
+    // 2-line wrapped cell ("GMP- 15:50- HND 17:50")
+    const m2 = raw.match(/([A-Z]{3})\s*-?\s*([^A-Z]+)\s*([A-Z]{3})\s*([\s\S]*)/);
+    if (m2) {
+      result.from = m2[1];
+      result.to = m2[3];
+      rest = `${m2[2]} ${m2[4]}`;
+    } else {
+      const m3 = raw.match(/([A-Z]{3})([\s\S]*)/);
+      if (!m3) return { ...result, timeOk: false };
+      result.from = m3[1];
+      result.to = '';
+      rest = m3[2];
+    }
+  }
+
   rest = rest
+    .replace(/^\s*\//, '')
     .replace(/[O]/g, '0')
     .replace(/[IL|]/g, '1')
     .replace(/S/g, '5')
@@ -2300,7 +2319,6 @@ function parseKalSector(text) {
     .replace(/[.;]/g, ':')
     .replace(/[^0-9:\-]/g, '');
 
-  const pat = rest.match(/^(\d{1,2}:\d{2})?-?(\d{1,2}:\d{2})?$/);
   const norm = (s) => {
     if (!s) return null;
     const [h, mi] = s.split(':');
@@ -2310,22 +2328,18 @@ function parseKalSector(text) {
     return `${String(hh).padStart(2, '0')}:${mi}`;
   };
 
-  if (pat) {
-    result.dep = norm(pat[1]);
-    result.arr = norm(pat[2]);
-  } else {
-    const times = [...rest.matchAll(/\d{1,2}:\d{2}/g)];
-    if (times.length >= 2) {
-      result.dep = norm(times[0][0]);
-      result.arr = norm(times[1][0]);
-    } else if (times.length === 1) {
-      const before = rest.slice(0, times[0].index);
-      if (before.includes('-')) result.arr = norm(times[0][0]);
-      else result.dep = norm(times[0][0]);
-    } else if (rest.replace(/-/g, '')) {
-      result.timeOk = false;
-    }
+  const times = [...rest.matchAll(/\d{1,2}:\d{2}/g)];
+  if (times.length >= 2) {
+    result.dep = norm(times[0][0]);
+    result.arr = norm(times[1][0]);
+  } else if (times.length === 1) {
+    const before = rest.slice(0, times[0].index);
+    if (before.includes('-')) result.arr = norm(times[0][0]);
+    else result.dep = norm(times[0][0]);
+  } else if (rest.replace(/-/g, '')) {
+    result.timeOk = false;
   }
+
   if (result.dep === 'BAD') { result.dep = null; result.timeOk = false; }
   if (result.arr === 'BAD') { result.arr = null; result.timeOk = false; }
   return result;
@@ -2376,7 +2390,122 @@ function kalFixArrivalOrder(f) {
  * @param {Function} onProgress (ratio, text)
  * @returns {Promise<{ flights: Array, detectedYearMonth: string, diagnostics: Object }>}
  */
+function kalUnfilterPngRows(raw, w, h, bpp) {
+  const stride = w * bpp;
+  const expected = (stride + 1) * h;
+  if (raw.length === stride * h) {
+    return raw;
+  }
+  if (raw.length < expected) return null;
+  const out = new Uint8Array(w * h * bpp);
+  for (let y = 0; y < h; y++) {
+    const rowIn = y * (stride + 1);
+    const f = raw[rowIn];
+    const srcOff = rowIn + 1;
+    const dstOff = y * stride;
+    const prevOff = (y - 1) * stride;
+    for (let x = 0; x < stride; x++) {
+      const byte = raw[srcOff + x];
+      const a = x >= bpp ? out[dstOff + x - bpp] : 0;
+      const b = y > 0 ? out[prevOff + x] : 0;
+      const c = (y > 0 && x >= bpp) ? out[prevOff + x - bpp] : 0;
+      let val = byte;
+      if (f === 1) val = (byte + a) & 255;
+      else if (f === 2) val = (byte + b) & 255;
+      else if (f === 3) val = (byte + ((a + b) >> 1)) & 255;
+      else if (f === 4) {
+        const p = a + b - c;
+        const pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        const pr = (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
+        val = (byte + pr) & 255;
+      }
+      out[dstOff + x] = val;
+    }
+  }
+  return out;
+}
+
+async function kalInflateZlib(compressedBytes) {
+  for (const fmt of ['deflate', 'deflate-raw']) {
+    try {
+      const slice = fmt === 'deflate-raw' ? compressedBytes.subarray(2, compressedBytes.length - 4) : compressedBytes;
+      const ds = new DecompressionStream(fmt);
+      const writer = ds.writable.getWriter();
+      writer.write(slice);
+      writer.close();
+      const ab = await new Response(ds.readable).arrayBuffer();
+      return new Uint8Array(ab);
+    } catch (_) {}
+  }
+  throw new Error('PDF 스트림 압축을 해제할 수 없습니다.');
+}
+
+async function extractKalPdfImage(file) {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const latin1 = new TextDecoder('latin1').decode(buf);
+  const parts = latin1.split('endobj');
+  let rgbPixels = null, alphaPixels = null, width = 0, height = 0;
+
+  let offset = 0;
+  for (const part of parts) {
+    const partLen = part.length;
+    if (part.includes('/Subtype') && part.includes('/Image') && part.includes('stream')) {
+      const sIdx = part.indexOf('stream');
+      const hdr = part.slice(0, sIdx);
+      const wMatch = hdr.match(/\/Width\s+(\d+)/);
+      const hMatch = hdr.match(/\/Height\s+(\d+)/);
+      const lMatch = hdr.match(/\/Length\s+(\d+)/);
+      const csMatch = hdr.match(/\/ColorSpace\s*\/(\w+)/);
+      if (wMatch && hMatch && lMatch && csMatch) {
+        const w = parseInt(wMatch[1], 10);
+        const h = parseInt(hMatch[1], 10);
+        const len = parseInt(lMatch[1], 10);
+        const cs = csMatch[1];
+        let byteStart = offset + sIdx + 6;
+        if (buf[byteStart] === 13 && buf[byteStart + 1] === 10) byteStart += 2;
+        else if (buf[byteStart] === 10 || buf[byteStart] === 13) byteStart += 1;
+        const compressed = buf.subarray(byteStart, byteStart + len);
+        const raw = await kalInflateZlib(compressed);
+        if (cs.includes('RGB')) {
+          width = w;
+          height = h;
+          rgbPixels = kalUnfilterPngRows(raw, w, h, 3);
+        } else if (cs.includes('Gray')) {
+          alphaPixels = kalUnfilterPngRows(raw, w, h, 1);
+        }
+      }
+    }
+    offset += partLen + 6; // 'endobj'.length
+  }
+
+  if (!rgbPixels || !width || !height) {
+    throw new Error('PDF 파일에서 스케줄 달력 이미지를 찾을 수 없습니다.');
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const imageData = ctx.createImageData(width, height);
+  const dst = imageData.data;
+  const total = width * height;
+  for (let i = 0; i < total; i++) {
+    const s3 = i * 3;
+    const d4 = i * 4;
+    const a = alphaPixels ? alphaPixels[i] : 255;
+    dst[d4]     = ((rgbPixels[s3]     * a + 255 * (255 - a)) / 255) | 0;
+    dst[d4 + 1] = ((rgbPixels[s3 + 1] * a + 255 * (255 - a)) / 255) | 0;
+    dst[d4 + 2] = ((rgbPixels[s3 + 2] * a + 255 * (255 - a)) / 255) | 0;
+    dst[d4 + 3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
+  return { canvas, ctx, imageData };
+}
+
 function loadKalImageFromFile(file) {
+  if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '')) {
+    return extractKalPdfImage(file);
+  }
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -2388,9 +2517,11 @@ function loadKalImageFromFile(file) {
         reject(new Error('이미지 크기를 확인할 수 없습니다.'));
         return;
       }
-      // Keep within mobile browser canvas limits while preserving ~780-840px width optimal for KAL cards
+      // Preserve full resolution for calendar grid images (~1200x1400); cap only tall scroll captures
       let scale = 1;
-      if (nw > 900) scale = Math.min(scale, 800 / nw);
+      const isLongScroll = nh > nw * 2.5;
+      if (isLongScroll && nw > 900) scale = Math.min(scale, 800 / nw);
+      else if (!isLongScroll && nw > 1600) scale = Math.min(scale, 1400 / nw);
       if (nh * scale > 12000) scale = Math.min(scale, 12000 / nh);
       const cw = Math.max(1, Math.round(nw * scale));
       const ch = Math.max(1, Math.round(nh * scale));
@@ -2415,8 +2546,463 @@ function loadKalImageFromFile(file) {
   });
 }
 
+function kalIsGridBorderPx(data, idx) {
+  const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+  const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+  const avg = (r + g + b) / 3;
+  return (maxC - minC <= 18) && avg >= 175 && avg <= 242;
+}
+
+/**
+ * Detects the 7-column x 5/6-row monthly calendar grid in Korean Air PDF SKD (or screenshot).
+ */
+function detectKalPdfCalendarGrid(imageData) {
+  const { data, width, height } = imageData;
+  if (height > width * 2.4) return null; // Long vertical mobile scroll capture
+
+  const ym1 = Math.round(height * 0.22);
+  const ym2 = Math.round(height * 0.78);
+  const spanY = Math.max(1, ym2 - ym1);
+  const vClusters = [];
+  for (let x = 0; x < width; x++) {
+    let cnt = 0;
+    for (let y = ym1; y < ym2; y++) {
+      if (kalIsGridBorderPx(data, (y * width + x) * 4)) cnt++;
+    }
+    if (cnt / spanY > 0.48) {
+      if (!vClusters.length || x - vClusters[vClusters.length - 1][vClusters[vClusters.length - 1].length - 1] > 12) {
+        vClusters.push([x]);
+      } else {
+        vClusters[vClusters.length - 1].push(x);
+      }
+    }
+  }
+  const vCand = vClusters.map(g => Math.round(g.reduce((a, b) => a + b, 0) / g.length));
+  let calV = null;
+  for (let i = 0; i <= vCand.length - 8; i++) {
+    const sub = vCand.slice(i, i + 8);
+    const diffs = [];
+    for (let k = 0; k < 7; k++) diffs.push(sub[k + 1] - sub[k]);
+    const meanW = diffs.reduce((a, b) => a + b, 0) / 7;
+    const maxDev = Math.max(...diffs.map(d => Math.abs(d - meanW)));
+    if (meanW >= width * 0.09 && maxDev <= Math.max(8, meanW * 0.06)) {
+      calV = sub;
+      break;
+    }
+  }
+  if (!calV) return null;
+  const colW = (calV[7] - calV[0]) / 7;
+
+  // Vertical activity of the 6 interior column lines calV[1..6]
+  const vActive = new Uint8Array(height);
+  for (let y = 0; y < height; y++) {
+    let hits = 0;
+    for (let c = 1; c <= 6; c++) {
+      const vx = calV[c];
+      for (let dx = -2; dx <= 2; dx++) {
+        const xx = vx + dx;
+        if (xx >= 0 && xx < width && kalIsGridBorderPx(data, (y * width + xx) * 4)) {
+          hits++;
+          break;
+        }
+      }
+    }
+    if (hits >= 4) vActive[y] = 1;
+  }
+
+  const nearXs = [];
+  for (let c = 1; c <= 6; c++) {
+    nearXs.push(calV[c] - 4, calV[c] - 3, calV[c] + 3, calV[c] + 4);
+  }
+  const hClusters = [];
+  for (let y = 0; y < height; y++) {
+    let nearHits = 0;
+    for (const nx of nearXs) {
+      if (nx >= 0 && nx < width && kalIsGridBorderPx(data, (y * width + nx) * 4)) nearHits++;
+    }
+    if (nearHits / nearXs.length < 0.55) continue;
+    let fullHits = 0;
+    const fullSpan = Math.max(1, calV[7] - calV[0]);
+    for (let x = calV[0]; x < calV[7]; x += 2) {
+      if (kalIsGridBorderPx(data, (y * width + x) * 4)) fullHits += 2;
+    }
+    if (fullHits / fullSpan < 0.65) continue;
+    if (!hClusters.length || y - hClusters[hClusters.length - 1][hClusters[hClusters.length - 1].length - 1] > 15) {
+      hClusters.push([y]);
+    } else {
+      hClusters[hClusters.length - 1].push(y);
+    }
+  }
+  const rawH = hClusters.map(g => Math.round(g.reduce((a, b) => a + b, 0) / g.length));
+  const filteredH = [];
+  for (const y of rawH) {
+    if (!filteredH.length || y - filteredH[filteredH.length - 1] >= colW * 0.60) {
+      filteredH.push(y);
+    }
+  }
+  const validIntervals = [];
+  for (let r = 0; r < filteredH.length - 1; r++) {
+    const y1 = filteredH[r] + 5;
+    const y2 = filteredH[r + 1] - 5;
+    let activeCnt = 0;
+    for (let y = y1; y < y2; y++) if (vActive[y]) activeCnt++;
+    if (y2 > y1 && activeCnt / (y2 - y1) > 0.70) validIntervals.push(r);
+  }
+  if (validIntervals.length < 4) return null;
+  const calH = [filteredH[validIntervals[0]], ...validIntervals.map(r => filteredH[r + 1])];
+  return { calV, calH, colW };
+}
+
+/**
+ * Recognizes the 7-column Korean Air PDF SKD calendar grid format.
+ */
+async function recognizeKalPdfCalendarGrid(file, canvas, imageData, grid, targetYearMonth, notify, session, dict, diagnostics) {
+  const { data, width, height } = imageData;
+  const { calV, calH, colW } = grid;
+
+  // 1. Detect Year-Month from filename or top-left header above calH[0] (excluding full-width horizontal lines)
+  let yearNum = 0, monthNum = 0;
+  let detectedYearMonth = targetYearMonth;
+  const fnMatch = (file.name || '').match(/(20\d{2})[.\-_](\d{1,2})/);
+  if (fnMatch) {
+    const yv = parseInt(fnMatch[1], 10);
+    const mv = parseInt(fnMatch[2], 10);
+    if (mv >= 1 && mv <= 12) {
+      yearNum = yv;
+      monthNum = mv;
+      detectedYearMonth = `${yv}-${String(mv).padStart(2, '0')}`;
+    }
+  }
+
+  const ymY1 = Math.max(0, calH[0] - Math.round(colW * 0.62));
+  const ymY2 = Math.max(0, calH[0] - Math.round(colW * 0.20));
+  const ymX1 = calV[0];
+  const ymX2 = calV[2];
+  const ymW = Math.max(1, ymX2 - ymX1);
+  let minY = Infinity, maxY = -1, minX = Infinity, maxX = -1;
+  for (let y = ymY1; y < ymY2; y++) {
+    let darkCnt = 0;
+    for (let x = ymX1; x < ymX2; x++) {
+      const i = (y * width + x) * 4;
+      if (Math.min(data[i], data[i + 1], data[i + 2]) < 175) darkCnt++;
+    }
+    // Exclude full-width horizontal divider line (>50% of 2-column width)
+    if (darkCnt > 2 && darkCnt < ymW * 0.45) {
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      for (let x = ymX1; x < ymX2; x++) {
+        const i = (y * width + x) * 4;
+        if (Math.min(data[i], data[i + 1], data[i + 2]) < 175) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+        }
+      }
+    }
+  }
+  if (maxY >= minY && maxX >= minX) {
+    const t = kalBuildLineTensor(canvas, {
+      x1: Math.max(0, minX - 3),
+      y1: Math.max(0, minY - 3),
+      x2: Math.min(width, maxX + 4),
+      y2: Math.min(height, maxY + 4)
+    });
+    if (t) {
+      const [ymTxt] = await kalRecognizeLines(session, dict, [t]);
+      const m = (ymTxt || '').replace(/[Il|]/g, '1').replace(/[Oo]/g, '0').match(/(20\d{2})\s*[.\-\/]\s*(\d{1,2})/);
+      if (m) {
+        const yv = parseInt(m[1], 10);
+        const mv = parseInt(m[2], 10);
+        if (mv >= 1 && mv <= 12) {
+          yearNum = yv;
+          monthNum = mv;
+          detectedYearMonth = `${yv}-${String(mv).padStart(2, '0')}`;
+        }
+      }
+    }
+  }
+  if (!yearNum) {
+    const [fy, fm] = (targetYearMonth || '').split('-').map(Number);
+    yearNum = fy || new Date().getFullYear();
+    monthNum = fm || (new Date().getMonth() + 1);
+  }
+
+  const firstDow = new Date(yearNum, monthNum - 1, 1).getDay(); // 0=SUN..6=SAT
+  const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+
+  // 2. Scan all in-month day cells for duty header bars and bottom info boxes
+  const barCanvas = document.createElement('canvas');
+  const barCtx = barCanvas.getContext('2d', { willReadFrequently: true });
+  const duties = [];
+  const stage1Items = [];
+
+  const nRows = calH.length - 1;
+  for (let r = 0; r < nRows; r++) {
+    const ry1 = calH[r], ry2 = calH[r + 1];
+    for (let c = 0; c < 7; c++) {
+      const dayNum = r * 7 + c - firstDow + 1;
+      if (dayNum < 1 || dayNum > daysInMonth) continue;
+
+      const cx1 = calV[c], cx2 = calV[c + 1];
+      const cw = cx2 - cx1;
+      const sx1 = cx1 + Math.round(cw * 0.15);
+      const sx2 = cx2 - Math.round(cw * 0.15);
+      const sw = Math.max(1, sx2 - sx1);
+
+      const bars = [];
+      let st = -1;
+      for (let y = ry1 + 4; y <= ry2 - 4; y++) {
+        let barPx = 0;
+        if (y < ry2 - 4) {
+          for (let x = sx1; x < sx2; x++) {
+            const i = (y * width + x) * 4;
+            const pr = data[i], pg = data[i + 1], pb = data[i + 2];
+            const chroma = Math.max(pr, pg, pb) - Math.min(pr, pg, pb);
+            const mean = (pr + pg + pb) / 3;
+            if (chroma > 30 || mean < 234) barPx++;
+          }
+        }
+        const on = (y < ry2 - 4) && (barPx / sw > 0.75);
+        if (on && st === -1) st = y;
+        else if (!on && st !== -1) {
+          if (y - st >= 12 && y - st <= 38) bars.push({ by1: st, by2: y });
+          st = -1;
+        }
+      }
+
+      for (let bi = 0; bi < bars.length; bi++) {
+        const { by1, by2 } = bars[bi];
+        const bx1 = cx1 + 6, bx2 = cx2 - 6;
+        const bw = bx2 - bx1, bh = by2 - by1;
+        if (bw <= 8 || bh <= 6) continue;
+
+        // Sample bar background color near left edge of bar (before centered text)
+        const sMidY = (by1 + by2) >> 1;
+        let bgR = 0, bgG = 0, bgB = 0, bgCnt = 0;
+        for (let sx = bx1 + 2; sx < Math.min(bx2, bx1 + 16); sx++) {
+          const si = (sMidY * width + sx) * 4;
+          bgR += data[si]; bgG += data[si + 1]; bgB += data[si + 2]; bgCnt++;
+        }
+        bgR = Math.round(bgR / Math.max(1, bgCnt));
+        bgG = Math.round(bgG / Math.max(1, bgCnt));
+        bgB = Math.round(bgB / Math.max(1, bgCnt));
+
+        // Fast color skip: Olive-green (ADO/ATDO) has G - B > 60; Sky-blue (LO) has R > 65 and B - R > 45
+        if (bgG - bgB > 60) continue;
+        if (bgR > 65 && bgB - bgR > 45) continue;
+
+        // Render bar as dark text on white background based on distance from (bgR, bgG, bgB)
+        barCanvas.width = bw;
+        barCanvas.height = bh;
+        const barID = barCtx.createImageData(bw, bh);
+        const bDst = barID.data;
+        let minX = Infinity, maxX = -1, minY = Infinity, maxY = -1;
+        for (let yy = 0; yy < bh; yy++) {
+          for (let xx = 0; xx < bw; xx++) {
+            const si = ((by1 + yy) * width + (bx1 + xx)) * 4;
+            const diff = Math.abs(data[si] - bgR) + Math.abs(data[si + 1] - bgG) + Math.abs(data[si + 2] - bgB);
+            if (diff > 80) {
+              if (xx < minX) minX = xx;
+              if (xx > maxX) maxX = xx;
+              if (yy < minY) minY = yy;
+              if (yy > maxY) maxY = yy;
+            }
+            const v = Math.max(0, Math.min(255, Math.round(255 - diff * 1.2)));
+            const di = (yy * bw + xx) * 4;
+            bDst[di] = v; bDst[di + 1] = v; bDst[di + 2] = v; bDst[di + 3] = 255;
+          }
+        }
+        if (maxX < minX) continue;
+        barCtx.putImageData(barID, 0, 0);
+        const t1 = kalBuildLineTensor(barCanvas, {
+          x1: Math.max(0, minX - 3),
+          y1: Math.max(0, minY - 2),
+          x2: Math.min(bw, maxX + 4),
+          y2: Math.min(bh, maxY + 3)
+        });
+        if (!t1) continue;
+
+        const iy1 = by2 + 2;
+        const iy2 = (bi + 1 < bars.length) ? (bars[bi + 1].by1 - 2) : (ry2 - 4);
+        const dutyIdx = duties.length;
+        duties.push({
+          dayNum,
+          codeText: '',
+          infoBoxes: [],
+          ix1: cx1 + 7,
+          ix2: cx2 - 7,
+          iy1,
+          iy2
+        });
+        stage1Items.push({ ...t1, dutyIdx });
+      }
+    }
+  }
+
+  diagnostics.cardsDetected = duties.length;
+  if (duties.length === 0) {
+    await notify(1.0, '인식된 일정이 없습니다.');
+    return { flights: [], detectedYearMonth, diagnostics };
+  }
+
+  // 3. Stage 1 OCR: Header bar codes (KE..., T_STBY, STBY, T_DO, T_NDUTY)
+  await notify(0.25, `달력 일정 ${duties.length}개 편명 분석 중...`);
+  stage1Items.sort((a, b) => a.w - b.w);
+  const res1 = await kalRecognizeLines(session, dict, stage1Items);
+  stage1Items.forEach((it, k) => {
+    duties[it.dutyIdx].codeText = res1[k];
+  });
+
+  // 4. Stage 2 OCR: Info box lines ONLY for FLIGHT and STBY duties
+  const stage2Items = [];
+  duties.forEach((d, dutyIdx) => {
+    const code = parseKalCode(d.codeText);
+    d.parsedCode = code;
+    if (code.kind !== 'FLIGHT' && code.kind !== 'STBY') return;
+
+    const iw = Math.max(1, d.ix2 - d.ix1);
+    const ibands = [];
+    let ist = -1;
+    for (let y = d.iy1; y <= d.iy2; y++) {
+      let inkCnt = 0;
+      if (y < d.iy2) {
+        for (let x = d.ix1; x < d.ix2; x++) {
+          const i = (y * width + x) * 4;
+          if (Math.min(data[i], data[i + 1], data[i + 2]) < 195) inkCnt++;
+        }
+      }
+      const frac = inkCnt / iw;
+      const on = (y < d.iy2) && frac > 0.01 && frac < 0.70;
+      if (on && ist === -1) ist = y;
+      else if (!on && ist !== -1) {
+        if (y - ist >= 5) ibands.push({ y1: ist, y2: y });
+        ist = -1;
+      }
+    }
+
+    ibands.forEach((b, lineOrder) => {
+      let lMinX = Infinity, lMaxX = -1;
+      for (let y = b.y1; y < b.y2; y++) {
+        for (let x = d.ix1; x < d.ix2; x++) {
+          const i = (y * width + x) * 4;
+          if (Math.min(data[i], data[i + 1], data[i + 2]) < 195) {
+            if (x < lMinX) lMinX = x;
+            if (x > lMaxX) lMaxX = x;
+          }
+        }
+      }
+      if (lMaxX >= lMinX) {
+        const t2 = kalBuildLineTensor(canvas, {
+          x1: Math.max(0, lMinX - 3),
+          y1: Math.max(0, b.y1 - 2),
+          x2: Math.min(width, lMaxX + 4),
+          y2: Math.min(height, b.y2 + 2)
+        });
+        if (t2) stage2Items.push({ ...t2, dutyIdx, lineOrder });
+      }
+    });
+    d.infoLines = [];
+  });
+
+  await notify(0.55, `비행 구간·시간 ${stage2Items.length}건 분석 중...`);
+  stage2Items.sort((a, b) => a.w - b.w);
+  const STEP2 = 12;
+  for (let s = 0; s < stage2Items.length; s += STEP2) {
+    const part = stage2Items.slice(s, s + STEP2);
+    const res2 = await kalRecognizeLines(session, dict, part);
+    part.forEach((it, k) => {
+      duties[it.dutyIdx].infoLines.push({ order: it.lineOrder, text: res2[k] });
+    });
+    const ratio = 0.55 + Math.min(1, (s + STEP2) / Math.max(1, stage2Items.length)) * 0.38;
+    await notify(ratio, `비행 구간·시간 분석 중 (${Math.min(100, Math.round(((s + STEP2) / Math.max(1, stage2Items.length)) * 100))}%)...`);
+  }
+
+  // 5. Build and merge flights chronologically
+  const flights = [];
+  let open = null;
+  const pushOpen = () => {
+    if (open) {
+      open.isUncertain.arrival = true;
+      flights.push(open);
+      open = null;
+    }
+  };
+
+  for (const d of duties) {
+    if (d.parsedCode.kind !== 'FLIGHT' && d.parsedCode.kind !== 'STBY') continue;
+    const line2Text = (d.infoLines || []).sort((a, b) => a.order - b.order).map(x => x.text).join(' ');
+    const sector = parseKalSector(line2Text);
+    const iso = kalIsoDate(yearNum, monthNum, d.dayNum);
+
+    if (d.parsedCode.kind === 'STBY') {
+      flights.push({
+        number: 'STBY',
+        from: (sector.from && getAirport(sector.from)) ? sector.from : 'ICN',
+        to: (sector.from && getAirport(sector.from)) ? sector.from : 'ICN',
+        departure: `${iso}T${sector.dep || '00:00'}`,
+        arrival: `${iso}T${sector.arr || '23:59'}`,
+        isUncertain: { number: false, from: false, to: false, departure: !sector.dep, arrival: !sector.arr }
+      });
+      continue;
+    }
+
+    const fromValid = Boolean(sector.from && getAirport(sector.from));
+    const toValid = Boolean(sector.to && getAirport(sector.to));
+    const f = {
+      number: d.parsedCode.number,
+      from: sector.from,
+      to: sector.to,
+      departure: '',
+      arrival: '',
+      isUncertain: {
+        number: false,
+        from: !fromValid,
+        to: !toValid,
+        departure: false,
+        arrival: false
+      }
+    };
+    const sameLeg = (o) => o && o.number === f.number && (o.from === f.from || o.to === f.to);
+
+    if (sector.dep && sector.arr) {
+      pushOpen();
+      f.departure = `${iso}T${sector.dep}`;
+      f.arrival = `${iso}T${sector.arr}`;
+      kalFixArrivalOrder(f);
+      flights.push(f);
+    } else if (sector.dep) {
+      pushOpen();
+      f.departure = `${iso}T${sector.dep}`;
+      f.isUncertain.arrival = true;
+      open = f;
+    } else if (sector.arr) {
+      if (sameLeg(open)) {
+        open.arrival = `${iso}T${sector.arr}`;
+        open.isUncertain.arrival = false;
+        kalFixArrivalOrder(open);
+        flights.push(open);
+        open = null;
+      } else {
+        pushOpen();
+        f.arrival = `${iso}T${sector.arr}`;
+        f.isUncertain.departure = true;
+        flights.push(f);
+      }
+    } else if (!sameLeg(open)) {
+      pushOpen();
+      f.isUncertain.departure = true;
+      f.isUncertain.arrival = true;
+      open = f;
+    }
+  }
+  pushOpen();
+
+  diagnostics.extractedFlights = flights;
+  await notify(1.0, `PDF SKD 인식 완료 (${flights.length}편 추출)`);
+  return { flights, detectedYearMonth, diagnostics };
+}
+
 export async function recognizeKoreanAirNewPhoto(file, targetYearMonth, onProgress) {
-  if (!file) throw new Error('이미지 파일이 선택되지 않았습니다.');
+  if (!file) throw new Error('파일이 선택되지 않았습니다.');
 
   const diagnostics = { imageWidth: 0, imageHeight: 0, cardsDetected: 0, cards: [], extractedFlights: [] };
   const notify = async (ratio, text) => {
@@ -2424,16 +3010,20 @@ export async function recognizeKoreanAirNewPhoto(file, targetYearMonth, onProgre
     await new Promise(r => setTimeout(r, 0));
   };
 
-  await notify(0.06, '스크롤 캡처 이미지 읽는 중...');
+  await notify(0.06, 'PDF / 스케줄 이미지 읽는 중...');
   const { canvas, imageData } = await loadKalImageFromFile(file);
   const { width, height } = imageData;
   diagnostics.imageWidth = width;
   diagnostics.imageHeight = height;
 
-  await notify(0.10, '대한항공 인식 모델 준비 중...');
+  await notify(0.10, 'PDF SKD 인식 모델 준비 중...');
   const { session, dict } = await loadOCR();
 
-  await notify(0.14, '전체 캡처 이미지에서 일정 카드 영역 분리 중...');
+  await notify(0.14, '스케줄 달력 영역 검출 중...');
+  const pdfGrid = detectKalPdfCalendarGrid(imageData);
+  if (pdfGrid) {
+    return await recognizeKalPdfCalendarGrid(file, canvas, imageData, pdfGrid, targetYearMonth, notify, session, dict, diagnostics);
+  }
 
   const cards = detectKalCards(imageData);
   diagnostics.cardsDetected = cards.length;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flyingmom-cache-v4';
+const CACHE_NAME = 'flyingmom-cache-v5';
 
 // Core App Shell assets for offline reliability and fast installation
 const PRECACHE_ASSETS = [
