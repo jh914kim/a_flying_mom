@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flyingmom-cache-v2';
+const CACHE_NAME = 'flyingmom-cache-v3';
 
 // Core App Shell assets for offline reliability and fast installation
 const PRECACHE_ASSETS = [
@@ -10,6 +10,7 @@ const PRECACHE_ASSETS = [
   './js/map.js',
   './js/theme.js',
   './js/manager.js',
+  './js/ocr.js',
   './js/calendar.js',
   './js/airports.js',
   './js/home-manager.js',

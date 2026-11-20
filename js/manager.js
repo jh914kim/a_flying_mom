@@ -13,7 +13,7 @@ import {
   validateMonthSchedule
 } from './storage.js';
 import { searchAirports, getAirport, KOREA_BASES } from './airports.js';
-import { recognizeSchedulePhoto, parseScheduleText, getSampleSchedule } from './ocr.js';
+import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js';
 import { refreshAllViews } from './app.js';
 
 let currentEditingMonth = ''; // 'YYYY-MM'
@@ -671,14 +671,16 @@ export function initManagerListeners() {
     };
   }
 
-  // Photo OCR upload
+  // Photo OCR upload (Standard Table & Korean Air New Format)
   const photoInput = document.getElementById('mgmt-photo-input');
+  const kalPhotoInput = document.getElementById('mgmt-kal-photo-input');
   const ocrProgressContainer = document.getElementById('ocr-progress-container');
   const ocrProgressBar = document.getElementById('ocr-progress-bar');
   const ocrProgressText = document.getElementById('ocr-progress-text');
 
-  if (photoInput) {
-    photoInput.onchange = async (e) => {
+  function bindPhotoOcrInput(inputEl, recognizerFn, label) {
+    if (!inputEl) return;
+    inputEl.onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -687,11 +689,10 @@ export function initManagerListeners() {
         if (ocrProgressBar) ocrProgressBar.style.width = '5%';
         if (ocrProgressText) ocrProgressText.textContent = '사진을 준비하고 있습니다...';
       }
-      // Yield to allow browser to paint progress bar immediately
       await new Promise(r => setTimeout(r, 20));
 
       try {
-        const { flights, detectedYearMonth } = await recognizeSchedulePhoto(
+        const { flights, detectedYearMonth } = await recognizerFn(
           file,
           currentEditingMonth,
           (progress, text) => {
@@ -706,61 +707,30 @@ export function initManagerListeners() {
           if (monthInput) monthInput.value = detectedYearMonth;
         }
 
-        // Reset confirmation guard before applying OCR result
         const confirmCheck = document.getElementById('mgmt-confirm-check');
         const saveBtn = document.getElementById('mgmt-save-btn');
         if (confirmCheck) confirmCheck.checked = false;
         if (saveBtn) saveBtn.disabled = true;
 
         if (flights.length === 0) {
-          // Guide 6/6: 인식 0편이면 이전 일정이나 샘플을 남겨 등록하면 안 돼
           flightRows = [];
           renderFlightRows();
-          alert('사진에서 비행 스케줄 행을 인식하지 못했습니다. 편집 목록을 비웠으니 수동 추가 또는 텍스트 붙여넣기를 이용해주세요.');
+          alert(`${label}에서 비행 스케줄을 인식하지 못했습니다. 수동 추가(+ 비행 추가)를 이용해주세요.`);
         } else {
           flightRows = flights;
           renderFlightRows();
-          alert(`사진에서 ${flights.length}개의 비행 일정을 인식했습니다. 확인이 필요한 항목은 노란색으로 표시되어 있으니 검토 후 등록해주세요.`);
+          alert(`${label}에서 ${flights.length}개의 비행 일정을 인식했습니다. 확인이 필요한 항목은 노란색으로 표시되어 있으니 검토 후 등록해주세요.`);
         }
       } catch (err) {
         console.error('OCR Error:', err);
-        alert(`사진 인식 실패: ${err.message}`);
+        alert(`${label} 실패: ${err.message}`);
       } finally {
         if (ocrProgressContainer) ocrProgressContainer.style.display = 'none';
-        photoInput.value = '';
+        inputEl.value = '';
       }
     };
   }
 
-  // Text Paste Parser Modal / Box
-  const btnOpenPaste = document.getElementById('btn-open-text-paste');
-  const pasteContainer = document.getElementById('mgmt-text-paste-container');
-  const pasteTextarea = document.getElementById('mgmt-text-paste-area');
-  const btnApplyPaste = document.getElementById('btn-apply-text-paste');
-
-  if (btnOpenPaste && pasteContainer) {
-    btnOpenPaste.onclick = () => {
-      pasteContainer.style.display = pasteContainer.style.display === 'none' ? 'block' : 'none';
-    };
-  }
-
-  if (btnApplyPaste && pasteTextarea) {
-    btnApplyPaste.onclick = () => {
-      const txt = pasteTextarea.value.trim();
-      if (!txt) {
-        alert('붙여넣을 텍스트를 입력해주세요.');
-        return;
-      }
-      const parsed = parseScheduleText(txt, currentEditingMonth);
-      if (parsed.length === 0) {
-        alert('입력된 텍스트에서 비행 정보를 파악하지 못했습니다.');
-      } else {
-        flightRows = parsed;
-        renderFlightRows();
-        alert(`${parsed.length}건의 일정이 추출되었습니다. 검토 후 확인란에 체크하고 등록해주세요.`);
-        pasteContainer.style.display = 'none';
-        pasteTextarea.value = '';
-      }
-    };
-  }
+  bindPhotoOcrInput(photoInput, recognizeSchedulePhoto, '사진 인식');
+  bindPhotoOcrInput(kalPhotoInput, recognizeKoreanAirNewPhoto, '대한항공 인식');
 }

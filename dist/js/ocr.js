@@ -2041,3 +2041,632 @@ export function parseScheduleText(rawText, targetYearMonth) {
 export function getSampleSchedule() {
   return [];
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KOREAN AIR NEW MOBILE SCHEDULE (HANWAY Crewnet) RECOGNITION
+//
+// Layout facts (all measured as fractions of image width so any phone resolution works):
+//  - date column  : x 0.07w ~ 0.25w   (month / BIG day number / weekday)
+//  - schedule card: x 0.27w ~ 0.87w   (tinted background, rounded)
+//  - card text    : x 0.297w ~ 0.78w  (line1 = code, line2 = sector / times); chevron at 0.79w+
+// Each card is cropped tightly per text line and recognised at its natural width
+// (the PaddleOCR rec model has a dynamic width axis), so wide lines such as
+// "ICN -KIX / 16:40 - 18:30" are never squeezed into 320px.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const KAL_PAD_VAL = 128 / 127.5 - 1;
+const KAL_MAX_W = 1280;
+
+function kalNonWhite(data, width, x, y) {
+  const i = (y * width + x) * 4;
+  return (765 - data[i] - data[i + 1] - data[i + 2]) >= 12;
+}
+
+function kalNonWhiteFraction(data, width, x1, x2, y1, y2) {
+  let hit = 0;
+  let total = 0;
+  for (let y = y1; y <= y2; y++) {
+    for (let x = x1; x <= x2; x++) {
+      total++;
+      if (kalNonWhite(data, width, x, y)) hit++;
+    }
+  }
+  return total ? hit / total : 0;
+}
+
+/**
+ * Finds every tinted schedule card by sampling the empty left padding of the card column
+ * (no text lives there), which is independent of the card colour (blue / yellow / grey).
+ */
+function detectKalCards(imageData) {
+  const { data, width, height } = imageData;
+  const sx1 = Math.round(width * 0.275);
+  const sx2 = Math.round(width * 0.297);
+  const n = Math.max(1, sx2 - sx1);
+
+  const inCard = new Uint8Array(height);
+  for (let y = 0; y < height; y++) {
+    let dark = 0;
+    for (let x = sx1; x < sx2; x++) {
+      const i = (y * width + x) * 4;
+      dark += 765 - data[i] - data[i + 1] - data[i + 2];
+    }
+    inCard[y] = (dark / n) >= 12 ? 1 : 0;
+  }
+  // close 1-2px JPEG holes
+  for (let y = 1; y < height - 2; y++) {
+    if (!inCard[y] && inCard[y - 1] && (inCard[y + 1] || inCard[y + 2])) inCard[y] = 1;
+  }
+
+  const minH = Math.round(width * 0.075);
+  const cards = [];
+  let start = -1;
+  for (let y = 0; y <= height; y++) {
+    const on = y < height && inCard[y];
+    if (on && start === -1) {
+      start = y;
+    } else if (!on && start !== -1) {
+      const y1 = start;
+      const y2 = y;
+      start = -1;
+      if (y2 - y1 < minH) continue;
+
+      // Validate shape at vertical midpoint: white gap just left/right of card, tinted interior.
+      const midY = (y1 + y2) >> 1;
+      const ty1 = Math.max(0, midY - 3);
+      const ty2 = Math.min(height - 1, midY + 3);
+      const justLeftFrac = kalNonWhiteFraction(data, width, Math.round(width * 0.235), Math.round(width * 0.262), ty1, ty2);
+      const cardMidFrac = kalNonWhiteFraction(data, width, Math.round(width * 0.30), Math.round(width * 0.84), ty1, ty2);
+      const farRightFrac = kalNonWhiteFraction(data, width, Math.round(width * 0.89), Math.round(width * 0.96), ty1, ty2);
+      if (justLeftFrac > 0.25 || cardMidFrac < 0.8 || farRightFrac > 0.25) continue;
+
+      // Card background colour from the empty left padding, vertically centred.
+      const bx = Math.round(width * 0.285);
+      const by = Math.min(height - 1, y1 + Math.round((y2 - y1) / 2));
+      const bi = (by * width + bx) * 4;
+      cards.push({
+        y1,
+        y2,
+        bg: [data[bi], data[bi + 1], data[bi + 2]]
+      });
+    }
+  }
+  return cards;
+}
+
+/** Vertical bands (text lines) whose pixels differ from `bg` by more than `thr` (sum of |dRGB|). */
+function kalFindBands(imageData, x1, y1, x2, y2, bg, thr, minH) {
+  const { data, width, height } = imageData;
+  const yy1 = Math.max(0, y1);
+  const yy2 = Math.min(height, y2);
+  const bands = [];
+  let start = -1;
+  for (let y = yy1; y < yy2; y++) {
+    let ink = false;
+    for (let x = x1; x < x2; x++) {
+      const i = (y * width + x) * 4;
+      const d = Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]);
+      if (d > thr) { ink = true; break; }
+    }
+    if (ink && start === -1) {
+      start = y;
+    } else if (!ink && start !== -1) {
+      if (y - start >= minH) bands.push({ y1: start, y2: y, h: y - start });
+      start = -1;
+    }
+  }
+  if (start !== -1 && yy2 - start >= minH) bands.push({ y1: start, y2: yy2, h: yy2 - start });
+  return bands;
+}
+
+/** Tight bounding box of ink inside a region (+pad). Returns null if empty. */
+function kalTightBox(imageData, x1, y1, x2, y2, bg, thr, pad) {
+  const { data, width, height } = imageData;
+  let minX = Infinity, maxX = -1, minY = Infinity, maxY = -1;
+  for (let y = Math.max(0, y1); y < Math.min(height, y2); y++) {
+    for (let x = x1; x < x2; x++) {
+      const i = (y * width + x) * 4;
+      const d = Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]);
+      if (d > thr) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return null;
+  return {
+    x1: Math.max(0, minX - pad),
+    y1: Math.max(0, minY - pad),
+    x2: Math.min(width, maxX + 1 + pad),
+    y2: Math.min(height, maxY + 1 + pad)
+  };
+}
+
+let kalScaleCanvas = null;
+let kalScaleCtx = null;
+
+/** Crops a box from the source canvas and scales it to height 48 (natural width, <= KAL_MAX_W). */
+function kalBuildLineTensor(srcCanvas, box) {
+  const sw = box.x2 - box.x1;
+  const sh = box.y2 - box.y1;
+  if (sw <= 0 || sh <= 0) return null;
+  const tw = Math.max(8, Math.min(KAL_MAX_W, Math.round(sw * (INPUT_H / sh))));
+
+  if (!kalScaleCanvas) {
+    kalScaleCanvas = document.createElement('canvas');
+    kalScaleCtx = kalScaleCanvas.getContext('2d', { willReadFrequently: true });
+  }
+  kalScaleCanvas.width = tw;
+  kalScaleCanvas.height = INPUT_H;
+  kalScaleCtx.fillStyle = 'rgb(128, 128, 128)';
+  kalScaleCtx.fillRect(0, 0, tw, INPUT_H);
+  kalScaleCtx.imageSmoothingEnabled = true;
+  kalScaleCtx.imageSmoothingQuality = 'high';
+  kalScaleCtx.drawImage(srcCanvas, box.x1, box.y1, sw, sh, 0, 0, tw, INPUT_H);
+
+  const px = kalScaleCtx.getImageData(0, 0, tw, INPUT_H).data;
+  const plane = INPUT_H * tw;
+  const data = new Float32Array(3 * plane);
+  for (let i = 0; i < plane; i++) {
+    const p = i * 4;
+    data[i] = px[p] / 127.5 - 1;
+    data[plane + i] = px[p + 1] / 127.5 - 1;
+    data[2 * plane + i] = px[p + 2] / 127.5 - 1;
+  }
+  return { data, w: tw };
+}
+
+/**
+ * Batched variable-width recognition. Items are grouped by width, padded with neutral grey
+ * to the widest item of each chunk (CTC ignores padding) and decoded one by one.
+ * @returns {Promise<string[]>} texts in the same order as `items`
+ */
+async function kalRecognizeLines(session, dict, items) {
+  const ort = window.ort;
+  const inputName = session.inputNames[0];
+  const outputName = session.outputNames[0];
+  const order = items.map((_, i) => i).sort((a, b) => items[a].w - items[b].w);
+  const texts = new Array(items.length).fill('');
+  const CHUNK = 12;
+
+  for (let s = 0; s < order.length; s += CHUNK) {
+    const idxs = order.slice(s, s + CHUNK);
+    const maxW = Math.max(64, Math.ceil(Math.max(...idxs.map(i => items[i].w)) / 32) * 32);
+    const B = idxs.length;
+    const plane = INPUT_H * maxW;
+    const batch = new Float32Array(B * 3 * plane).fill(KAL_PAD_VAL);
+
+    idxs.forEach((itemIdx, b) => {
+      const it = items[itemIdx];
+      const itPlane = INPUT_H * it.w;
+      for (let c = 0; c < 3; c++) {
+        for (let y = 0; y < INPUT_H; y++) {
+          const srcOff = c * itPlane + y * it.w;
+          const dstOff = b * 3 * plane + c * plane + y * maxW;
+          batch.set(it.data.subarray(srcOff, srcOff + it.w), dstOff);
+        }
+      }
+    });
+
+    const out = (await session.run({ [inputName]: new ort.Tensor('float32', batch, [B, 3, INPUT_H, maxW]) }))[outputName];
+    const T = out.dims[1];
+    const C = out.dims[2];
+    if (dict.length !== C) {
+      throw new Error(`사전 크기(${dict.length})와 모델 출력 클래스 수(${C})가 일치하지 않습니다.`);
+    }
+    idxs.forEach((itemIdx, b) => {
+      texts[itemIdx] = decodeCTC(out.data.subarray(b * T * C, (b + 1) * T * C), T, C, dict).text;
+    });
+  }
+  return texts;
+}
+
+// ── Parsing ──────────────────────────────────────────────────────────────────
+
+/** Line 1: "KE 114Z" | "T_DO" | "LO" | "ADO" | "ATDO" | "STBY" | "T_STBY" ... */
+function parseKalCode(text) {
+  const norm = (text || '').toUpperCase().replace(/[^A-Z0-9_]/g, '');
+  if (!norm) return { kind: 'EMPTY' };
+  if (/STBY|STANDBY|STBI/.test(norm)) return { kind: 'STBY' };
+  const m = norm.match(/^([A-Z0-9]{2})([0-9OIL]{2,4})([A-Z]?)$/);
+  if (m && /^(?:[A-Z]{2}|[A-Z][0-9]|[0-9][A-Z])$/.test(m[1])) {
+    const digits = m[2].replace(/O/g, '0').replace(/[IL]/g, '1');
+    return { kind: 'FLIGHT', number: `${m[1]}${digits}${m[3]}` };
+  }
+  // ADO / ATDO / T_DO / DO / LO ... => no schedule or layover
+  return { kind: 'OTHER', code: norm };
+}
+
+/**
+ * Line 2: "ICN -KIX / 16:40 - 18:30" | "ICN -SYD / 20:00 -" | "ICN -SYD / - 08:20" |
+ *         "LAX -ICN / -" | "ICN / 00:00 - 23:59" | "SYD / -"  (tolerates dropped spaces / OCR slips)
+ */
+function parseKalSector(text) {
+  const t = (text || '').toUpperCase().replace(/\s+/g, '');
+  const m = t.match(/^([A-Z]{3})(?:-?([A-Z]{3}))?/);
+  const result = { from: '', to: '', dep: null, arr: null, timeOk: true };
+  if (!m) return { ...result, timeOk: false };
+  result.from = m[1];
+  result.to = m[2] || '';
+
+  let rest = t.slice(m[0].length).replace(/^\//, '');
+  rest = rest
+    .replace(/[O]/g, '0')
+    .replace(/[IL|]/g, '1')
+    .replace(/S/g, '5')
+    .replace(/B/g, '8')
+    .replace(/[.;]/g, ':')
+    .replace(/[^0-9:\-]/g, '');
+
+  const pat = rest.match(/^(\d{1,2}:\d{2})?-?(\d{1,2}:\d{2})?$/);
+  const norm = (s) => {
+    if (!s) return null;
+    const [h, mi] = s.split(':');
+    const hh = parseInt(h, 10);
+    const mm = parseInt(mi, 10);
+    if (hh > 23 || mm > 59) return 'BAD';
+    return `${String(hh).padStart(2, '0')}:${mi}`;
+  };
+
+  if (pat) {
+    result.dep = norm(pat[1]);
+    result.arr = norm(pat[2]);
+  } else {
+    const times = [...rest.matchAll(/\d{1,2}:\d{2}/g)];
+    if (times.length >= 2) {
+      result.dep = norm(times[0][0]);
+      result.arr = norm(times[1][0]);
+    } else if (times.length === 1) {
+      const before = rest.slice(0, times[0].index);
+      if (before.includes('-')) result.arr = norm(times[0][0]);
+      else result.dep = norm(times[0][0]);
+    } else if (rest.replace(/-/g, '')) {
+      result.timeOk = false;
+    }
+  }
+  if (result.dep === 'BAD') { result.dep = null; result.timeOk = false; }
+  if (result.arr === 'BAD') { result.arr = null; result.timeOk = false; }
+  return result;
+}
+
+function kalIsoDate(year, month, day) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function kalEditDistance1(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i] && ++diff > 1) return false;
+  return diff === 1;
+}
+
+function kalAddDays(iso, days) {
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return `${d.toISOString().slice(0, 10)}${iso.slice(10)}`;
+}
+
+/** Make sure arrival is after departure (UTC). Tries +1 day for overnight single-card flights. */
+function kalFixArrivalOrder(f) {
+  try {
+    if (!f.departure || !f.arrival || !getAirport(f.from) || !getAirport(f.to)) return;
+    const dep = parseFlightTime(f.departure, f.from, 'local');
+    let arr = parseFlightTime(f.arrival, f.to, 'local');
+    if (dep?.date && arr?.date && arr.date.getTime() <= dep.date.getTime()) {
+      const plus1 = kalAddDays(f.arrival, 1);
+      const arr2 = parseFlightTime(plus1, f.to, 'local');
+      if (arr2?.date && arr2.date.getTime() > dep.date.getTime()) {
+        f.arrival = plus1;
+      } else {
+        f.isUncertain.arrival = true;
+      }
+    }
+  } catch (_) { /* leave as is */ }
+}
+
+/**
+ * Recognizes the new Korean Air (HANWAY Crewnet) mobile schedule screenshot.
+ * Long full-page captures are split automatically: top calendar header (year-month)
+ * + one card per duty below.
+ *
+ * @param {File} file
+ * @param {string} targetYearMonth fallback YYYY-MM
+ * @param {Function} onProgress (ratio, text)
+ * @returns {Promise<{ flights: Array, detectedYearMonth: string, diagnostics: Object }>}
+ */
+export async function recognizeKoreanAirNewPhoto(file, targetYearMonth, onProgress) {
+  if (!file) throw new Error('이미지 파일이 선택되지 않았습니다.');
+
+  const diagnostics = { imageWidth: 0, imageHeight: 0, cardsDetected: 0, cards: [], extractedFlights: [] };
+  const notify = async (ratio, text) => {
+    if (onProgress) { try { onProgress(ratio, text); } catch (_) {} }
+    await new Promise(r => setTimeout(r, 0));
+  };
+
+  await notify(0.05, '대한항공 인식 모델 준비 중...');
+  const { session, dict } = await loadOCR();
+
+  await notify(0.12, '전체 캡처 이미지에서 일정 카드 영역 분리 중...');
+  const { canvas, imageData } = await loadImageFromFile(file);
+  const { width, height } = imageData;
+  diagnostics.imageWidth = width;
+  diagnostics.imageHeight = height;
+
+  const cards = detectKalCards(imageData);
+  diagnostics.cardsDetected = cards.length;
+  if (cards.length === 0) {
+    await notify(1.0, '인식된 대한항공 일정 카드가 없습니다.');
+    return { flights: [], detectedYearMonth: targetYearMonth, diagnostics };
+  }
+
+  const minBandH = Math.max(4, Math.round(width * 0.0077));
+  const pad = Math.max(2, Math.round(width * 0.005));
+  const white = [255, 255, 255];
+
+  // ── (a) Year / month header: look above the first card (left column "2026.12", date box "2026-12-01")
+  const headerLimit = cards[0].y1;
+  const headerItems = [];
+  for (const [hx1, hx2] of [[0.07, 0.26], [0.40, 0.70]]) {
+    const x1 = Math.round(width * hx1);
+    const x2 = Math.round(width * hx2);
+    const bands = kalFindBands(imageData, x1, Math.round(headerLimit * 0.20), x2, Math.round(headerLimit * 0.60), white, 150, minBandH);
+    for (const b of bands) {
+      if (b.h < 14 || b.h > 50) continue;
+      const box = kalTightBox(imageData, x1, b.y1 - 1, x2, b.y2 + 1, white, 150, pad);
+      if (!box) continue;
+      const aspect = (box.x2 - box.x1) / Math.max(1, box.y2 - box.y1);
+      if (aspect < 2.2 || aspect > 8.5) continue;
+      const t = kalBuildLineTensor(canvas, box);
+      if (t) headerItems.push(t);
+    }
+  }
+  let yearNum;
+  let monthNum;
+  let detectedYearMonth = targetYearMonth;
+  if (headerItems.length > 0) {
+    await notify(0.16, '상단 연월 확인 중...');
+    const hTexts = await kalRecognizeLines(session, dict, headerItems.slice(0, 8));
+    for (const txt of hTexts) {
+      const m = (txt || '').match(/(20\d{2})\s*[.\-\/]\s*(\d{1,2})/);
+      if (m) {
+        const yv = parseInt(m[1], 10);
+        const mv = parseInt(m[2], 10);
+        if (mv >= 1 && mv <= 12) {
+          yearNum = yv;
+          monthNum = mv;
+          detectedYearMonth = `${yv}-${String(mv).padStart(2, '0')}`;
+          break;
+        }
+      }
+    }
+  }
+  if (!yearNum) {
+    const [fy, fm] = (targetYearMonth || '').split('-').map(Number);
+    yearNum = fy || new Date().getFullYear();
+    monthNum = fm || (new Date().getMonth() + 1);
+  }
+
+  // ── (b) Per card: day label (only on the first card of a day), line 1, line 2
+  const tx1 = Math.round(width * 0.297);
+  const tx2 = Math.round(width * 0.78);
+  const dx1 = Math.round(width * 0.07);
+  const dx2 = Math.round(width * 0.25);
+  const rowMeta = cards.map(() => ({ hasDayLabel: false, day: '', line1: '', line2: '', line2Box: null }));
+  const stage1Items = [];
+
+  cards.forEach((c, i) => {
+    // day label
+    const dBands = kalFindBands(imageData, dx1, c.y1 - Math.round(width * 0.013), dx2, c.y2, white, 120, minBandH);
+    if (dBands.length > 0) {
+      const big = dBands.reduce((a, b) => (b.h > a.h ? b : a));
+      if (big.h >= Math.round(width * 0.024)) {
+        const box = kalTightBox(imageData, dx1, big.y1 - 1, dx2, big.y2 + 1, white, 120, pad);
+        const t = box && kalBuildLineTensor(canvas, box);
+        if (t) {
+          rowMeta[i].hasDayLabel = true;
+          stage1Items.push({ ...t, cardIdx: i, kind: 'day' });
+        }
+      }
+    }
+    // text lines: 1-line cards (ADO / ATDO) have no sector/time line and can be skipped immediately
+    const lines = kalFindBands(imageData, tx1, c.y1 + 4, tx2, c.y2 - 4, c.bg, 90, minBandH);
+    if (lines.length < 2) return;
+
+    const box1 = kalTightBox(imageData, tx1, lines[0].y1 - 2, tx2, lines[0].y2 + 2, c.bg, 90, pad);
+    const t1 = box1 && kalBuildLineTensor(canvas, box1);
+    if (t1) stage1Items.push({ ...t1, cardIdx: i, kind: 'line1' });
+
+    const box2 = kalTightBox(imageData, tx1, lines[1].y1 - 2, tx2, lines[1].y2 + 2, c.bg, 90, pad);
+    if (box2) rowMeta[i].line2Box = box2;
+  });
+
+  // ── (c) Stage 1 Recognition: narrow items (day numbers & flight/duty codes) sorted by width
+  await notify(0.22, `일정 카드 ${cards.length}개 날짜·편명 분석 중...`);
+  stage1Items.sort((a, b) => a.w - b.w);
+  const STEP1 = 24;
+  for (let s = 0; s < stage1Items.length; s += STEP1) {
+    const part = stage1Items.slice(s, s + STEP1);
+    const res = await kalRecognizeLines(session, dict, part);
+    part.forEach((it, k) => {
+      if (it.kind === 'day') rowMeta[it.cardIdx].day = res[k];
+      else rowMeta[it.cardIdx].line1 = res[k];
+    });
+    const ratio = 0.22 + Math.min(1, (s + STEP1) / Math.max(1, stage1Items.length)) * 0.30;
+    await notify(ratio, `날짜·편명 분석 중 (${Math.min(100, Math.round(((s + STEP1) / Math.max(1, stage1Items.length)) * 100))}%)...`);
+  }
+
+  // Stage 2 Recognition: sector & time line ONLY for actual FLIGHT or STBY cards (skips LO / T_DO)
+  const stage2Items = [];
+  rowMeta.forEach((m, i) => {
+    const code = parseKalCode(m.line1);
+    if ((code.kind === 'FLIGHT' || code.kind === 'STBY') && m.line2Box) {
+      const t2 = kalBuildLineTensor(canvas, m.line2Box);
+      if (t2) stage2Items.push({ ...t2, cardIdx: i });
+    }
+  });
+
+  stage2Items.sort((a, b) => a.w - b.w);
+  const STEP2 = 12;
+  for (let s = 0; s < stage2Items.length; s += STEP2) {
+    const part = stage2Items.slice(s, s + STEP2);
+    const res = await kalRecognizeLines(session, dict, part);
+    part.forEach((it, k) => {
+      rowMeta[it.cardIdx].line2 = res[k];
+    });
+    const ratio = 0.52 + Math.min(1, (s + STEP2) / Math.max(1, stage2Items.length)) * 0.40;
+    await notify(ratio, `비행 구간·시간 분석 중 (${Math.min(100, Math.round(((s + STEP2) / Math.max(1, stage2Items.length)) * 100))}%)...`);
+  }
+
+  await notify(0.93, '일정 병합 및 검증 중...');
+
+  // ── (d) Interpret cards chronologically
+  const parsedCards = rowMeta.map(m => ({
+    ...m,
+    code: parseKalCode(m.line1),
+    sector: parseKalSector(m.line2)
+  }));
+
+  // Known-good airport codes seen in this screenshot → used to repair single-letter OCR slips.
+  const knownCodes = new Set();
+  parsedCards.forEach(p => {
+    [p.sector.from, p.sector.to].forEach(c => { if (c && getAirport(c)) knownCodes.add(c); });
+  });
+  const repairCode = (code) => {
+    if (!code) return { code, repaired: false, valid: false };
+    if (getAirport(code)) return { code, repaired: false, valid: true };
+    for (const k of knownCodes) {
+      if (kalEditDistance1(code, k)) return { code: k, repaired: true, valid: true };
+    }
+    return { code, repaired: false, valid: false };
+  };
+
+  const flights = [];
+  let lastDay = 0;
+  let open = null;
+  const pushOpen = () => {
+    if (open) {
+      open.isUncertain.arrival = true;
+      flights.push(open);
+      open = null;
+    }
+  };
+
+  parsedCards.forEach((p, idx) => {
+    // day number
+    let dayUncertain = false;
+    if (p.hasDayLabel) {
+      const dm = (p.day || '').replace(/[Oo]/g, '0').replace(/[Il|]/g, '1').match(/\d{1,2}/);
+      const parsedDay = dm ? parseInt(dm[0], 10) : NaN;
+      if (parsedDay >= 1 && parsedDay <= 31 && (lastDay === 0 || (parsedDay > lastDay && parsedDay <= lastDay + 3))) {
+        lastDay = parsedDay;
+      } else if (lastDay === 0 && !(parsedDay >= 1 && parsedDay <= 31)) {
+        lastDay = 1;
+        dayUncertain = true;
+      } else {
+        lastDay = Math.min(31, lastDay + 1); // every day appears in the list → expect consecutive days
+        dayUncertain = true;
+      }
+    } else if (lastDay === 0) {
+      lastDay = 1;
+      dayUncertain = true;
+    }
+    const iso = kalIsoDate(yearNum, monthNum, lastDay);
+
+    diagnostics.cards.push({
+      i: idx + 1, day: lastDay, line1: p.line1, line2: p.line2, kind: p.code.kind
+    });
+
+    if (p.code.kind === 'EMPTY' || p.code.kind === 'OTHER') {
+      return; // ADO / ATDO / T_DO / LO ... => no schedule
+    }
+
+    const from = repairCode(p.sector.from);
+    const to = repairCode(p.sector.to || p.sector.from);
+
+    if (p.code.kind === 'STBY') {
+      const dep = p.sector.dep || '00:00';
+      const arr = p.sector.arr || '23:59';
+      flights.push({
+        number: 'STBY',
+        from: from.code || 'ICN',
+        to: from.code || 'ICN',
+        departure: `${iso}T${dep}`,
+        arrival: `${iso}T${arr}`,
+        isUncertain: { number: false, from: !from.valid || from.repaired, to: false, departure: !p.sector.dep, arrival: !p.sector.arr }
+      });
+      return;
+    }
+
+    // FLIGHT
+    const f = {
+      number: p.code.number,
+      from: from.code,
+      to: to.code,
+      departure: '',
+      arrival: '',
+      isUncertain: {
+        number: false,
+        from: !from.valid || from.repaired,
+        to: !to.valid || to.repaired,
+        departure: false,
+        arrival: false
+      }
+    };
+    const sameLeg = (o) => o && o.number === f.number && (o.from === f.from || o.to === f.to);
+    const flightsBefore = flights.length;
+
+    if (p.sector.dep && p.sector.arr) {
+      pushOpen();
+      f.departure = `${iso}T${p.sector.dep}`;
+      f.arrival = `${iso}T${p.sector.arr}`;
+      kalFixArrivalOrder(f);
+      flights.push(f);
+    } else if (p.sector.dep) {
+      // departs today, lands another day ("20:00 -")
+      pushOpen();
+      f.departure = `${iso}T${p.sector.dep}`;
+      f.isUncertain.arrival = true;
+      open = f;
+    } else if (p.sector.arr) {
+      // lands today ("- 08:20")
+      if (sameLeg(open)) {
+        open.arrival = `${iso}T${p.sector.arr}`;
+        open.isUncertain.arrival = false;
+        if (!open.isUncertain.from && !from.valid) open.isUncertain.from = true;
+        kalFixArrivalOrder(open);
+        flights.push(open);
+        open = null;
+      } else {
+        pushOpen();
+        f.arrival = `${iso}T${p.sector.arr}`;
+        f.isUncertain.departure = true;
+        flights.push(f);
+      }
+    } else {
+      // in the air all day ("-")
+      if (!sameLeg(open)) {
+        pushOpen();
+        f.isUncertain.departure = true;
+        f.isUncertain.arrival = true;
+        open = f;
+      }
+    }
+    const touched = open === f ? f : (flights.length > flightsBefore ? flights[flights.length - 1] : open);
+    if (touched && (dayUncertain || !p.sector.timeOk)) {
+      touched.isUncertain.departure = true;
+      touched.isUncertain.arrival = true;
+    }
+  });
+  pushOpen();
+
+  diagnostics.extractedFlights = flights;
+  if (typeof window !== 'undefined' && window.__KAL_DEBUG) {
+    console.table(diagnostics.cards);
+    console.table(flights);
+  }
+  await notify(1.0, `대한항공 인식 완료 (${flights.length}편 추출)`);
+
+  return { flights, detectedYearMonth, diagnostics };
+}
