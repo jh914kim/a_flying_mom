@@ -45,9 +45,9 @@ function updateKimCrewSwimToggleUI() {
   btn.classList.toggle('is-active', enabled);
   btn.classList.toggle('is-off', !enabled);
   btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
-  btn.setAttribute('title', enabled ? '김크루 유영 끄기' : '김크루 유영 켜기');
+  btn.setAttribute('title', enabled ? '김크루 유영 ON (클릭 시 OFF)' : '김크루 유영 OFF (클릭 시 ON)');
   if (txt) {
-    txt.textContent = enabled ? '유영 ON' : '유영 OFF';
+    txt.textContent = enabled ? 'ON' : 'OFF';
   }
 }
 
