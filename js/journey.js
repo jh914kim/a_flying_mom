@@ -203,15 +203,19 @@ function buildJourneyObject(flights) {
   let durationLabel = diffDays <= 0 ? '당일 왕복' : `${diffDays}박 ${diffDays + 1}일`;
   if (isStandby) durationLabel = '대기 근무';
 
-  // Find primary destination city and country
+  // Find primary destination city, country, airport, and scheduled arrival time
   let mainCity = '';
   let mainCountry = '';
+  let mainDestAirport = null;
+  let mainDestArrUtc = null;
   for (const f of flights) {
     if (!isKoreaBase(f.to)) {
       const ap = f.arrAirport || getAirport(f.to);
       if (ap) {
         mainCity = ap.city.split('/')[0];
         mainCountry = ap.country || '';
+        mainDestAirport = ap;
+        mainDestArrUtc = f.arrUtc || null;
         break;
       }
     }
@@ -219,6 +223,10 @@ function buildJourneyObject(flights) {
   if (!mainCity && firstFlight.arrAirport) {
     mainCity = firstFlight.arrAirport.city.split('/')[0];
     mainCountry = firstFlight.arrAirport.country || '';
+    if (!isStandby) {
+      mainDestAirport = firstFlight.arrAirport;
+      mainDestArrUtc = firstFlight.arrUtc || null;
+    }
   }
   if (!mainCity) mainCity = firstFlight.to;
 
@@ -247,6 +255,8 @@ function buildJourneyObject(flights) {
     mainCity,
     shortCity,
     mainCountry,
+    mainDestAirport,
+    mainDestArrUtc,
     startCity,
     departsKorea,
     arrivesKorea,
@@ -291,33 +301,56 @@ export function getCurrentOrNextJourney(nowUtc = new Date()) {
   }
 
   const nowTs = nowUtc.getTime();
+  const findNextRealDest = (fromIndex) => {
+    for (let k = fromIndex; k < journeys.length; k++) {
+      const candidate = journeys[k];
+      if (!candidate.isStandby && candidate.mainDestAirport && candidate.startUtc.getTime() >= nowTs) {
+        return {
+          airport: candidate.mainDestAirport,
+          city: candidate.mainCity,
+          arrUtc: candidate.mainDestArrUtc
+        };
+      }
+    }
+    return null;
+  };
 
   // Check if currently inside any journey
-  for (const j of journeys) {
+  for (let i = 0; i < journeys.length; i++) {
+    const j = journeys[i];
     const startTs = j.startUtc.getTime();
     const endTs = j.endUtc ? j.endUtc.getTime() : Infinity;
 
     if (nowTs >= startTs && nowTs <= endTs) {
+      const fallbackDest = j.isStandby ? findNextRealDest(i + 1) : null;
       return {
         type: 'CURRENT_JOURNEY',
         label: 'CURRENT JOURNEY',
         badgeClass: 'badge-current',
         journey: j,
-        isUnderway: true
+        isUnderway: true,
+        destAirport: j.mainDestAirport || (fallbackDest ? fallbackDest.airport : null),
+        destCity: j.mainDestAirport ? j.mainCity : (fallbackDest ? fallbackDest.city : ''),
+        destArrUtc: j.mainDestAirport ? j.mainDestArrUtc : (fallbackDest ? fallbackDest.arrUtc : null)
       };
     }
   }
 
   // If not currently inside a journey, find the next upcoming journey
-  for (const j of journeys) {
+  for (let i = 0; i < journeys.length; i++) {
+    const j = journeys[i];
     const startTs = j.startUtc.getTime();
     if (startTs > nowTs) {
+      const fallbackDest = j.isStandby ? findNextRealDest(i + 1) : null;
       return {
         type: 'NEXT_JOURNEY',
         label: 'NEXT JOURNEY',
         badgeClass: 'badge-next',
         journey: j,
-        isUnderway: false
+        isUnderway: false,
+        destAirport: j.mainDestAirport || (fallbackDest ? fallbackDest.airport : null),
+        destCity: j.mainDestAirport ? j.mainCity : (fallbackDest ? fallbackDest.city : ''),
+        destArrUtc: j.mainDestAirport ? j.mainDestArrUtc : (fallbackDest ? fallbackDest.arrUtc : null)
       };
     }
   }

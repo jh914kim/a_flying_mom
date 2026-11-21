@@ -2417,6 +2417,72 @@ html[data-theme="kimcrew"] .map-airplane-pct {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.journey-info-row.secondary-row.has-dest-weather {
+  grid-template-columns: calc(50% - 6px) minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+}
+
+.journey-dest-weather-item {
+  padding-left: 12px;
+  border-left: 1px solid var(--color-border-light);
+  min-width: 0;
+}
+
+.journey-weather-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.journey-weather-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.journey-weather-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.journey-weather-temp {
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.journey-weather-desc {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.journey-weather-loading {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 600px) {
+  .journey-info-row.secondary-row.has-dest-weather {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .journey-dest-weather-item {
+    grid-column: 1 / -1;
+    padding-left: 0;
+    border-left: none;
+    padding-top: 8px;
+    border-top: 1px dashed var(--color-border-light);
+  }
+}
+
 @media (max-width: 480px) {
   .journey-info-row {
     grid-template-columns: 1fr;

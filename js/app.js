@@ -1,21 +1,21 @@
-import { initPwa } from './pwa.js?v=7';
+import { initPwa } from './pwa.js?v=8';
 /**
  * flying mom - Main Application Coordinator
  * Bootstraps modules, manages live clock ticker, weather updates,
  * lazy-loaded map, multi-tab sync, and mobile bottom navigation.
  */
 
-import { determineCurrentStatus, STATUS_TYPES, getDirectionParticle } from './location-engine.js';
-import { getCurrentOrNextJourney } from './journey.js';
-import { fetchCurrentWeather, clearWeatherCache } from './weather.js';
+import { determineCurrentStatus, STATUS_TYPES, getDirectionParticle } from './location-engine.js?v=8';
+import { getCurrentOrNextJourney } from './journey.js?v=8';
+import { fetchCurrentWeather, fetchDestinationWeather, clearWeatherCache } from './weather.js?v=8';
 import { formatLocationTime, formatTzDateTime, formatMetaTime } from './timezone.js';
 import { initMap, updateMapWithStatus, resetToWorldView, focusCurrentLocation } from './map.js';
-import { initCalendar, prevCalendarMonth, nextCalendarMonth, renderCalendar } from './calendar.js';
+import { initCalendar, prevCalendarMonth, nextCalendarMonth, renderCalendar } from './calendar.js?v=8';
 import { initStorageSync, getSavedMonths, getMonthSchedule, saveMonthSchedule } from './storage.js';
-import { initManagerListeners, openManagerModal } from './manager.js?v=7';
-import { getSampleSchedule } from './ocr.js?v=7';
+import { initManagerListeners, openManagerModal } from './manager.js?v=8';
+import { getSampleSchedule } from './ocr.js?v=8';
 import { initThemeSwitcher } from './theme.js';
-import { initKimCrewInteractive } from './kimcrew-interactive.js?v=7';
+import { initKimCrewInteractive } from './kimcrew-interactive.js?v=8';
 
 let liveClockInterval = null;
 let mapInitialized = false;
@@ -331,7 +331,7 @@ export async function refreshAllViews() {
   const statusData = determineCurrentStatus(now);
 
   // 1. Update CURRENT / NEXT JOURNEY card immediately (synchronous, 0ms)
-  updateJourneyCard(now);
+  updateJourneyCard(now, statusData);
 
   // 2. Update Map with current status (always updates overlay text and caches status)
   updateMapWithStatus(statusData);
@@ -547,10 +547,12 @@ async function updateStatusCard(statusData, now) {
   }
 }
 
+let journeyWeatherSeq = 0;
+
 /**
  * Updates the NEXT JOURNEY / CURRENT JOURNEY card
  */
-function updateJourneyCard(now) {
+function updateJourneyCard(now, statusData = null) {
   const cardContainer = document.getElementById('journey-card-container');
   if (!cardContainer) return;
 
@@ -570,6 +572,21 @@ function updateJourneyCard(now) {
   const j = res.journey;
   const isCurrent = res.isUnderway;
 
+  const isInKorea = !isCurrent || j.isStandby || (
+    statusData && [
+      STATUS_TYPES.HOME,
+      STATUS_TYPES.COMMUTE_DEPARTURE,
+      STATUS_TYPES.BRIEFING,
+      STATUS_TYPES.COMMUTE_RETURN
+    ].includes(statusData.status)
+  );
+
+  const destAirport = res.destAirport || j.mainDestAirport || null;
+  const destCity = res.destCity || j.mainCity || '';
+  const destArrUtc = res.destArrUtc || j.mainDestArrUtc || null;
+  const showDestWeather = Boolean(isInKorea && destAirport && typeof destAirport.lat === 'number');
+  const destWeatherLabel = destCity ? `도착예정지 날씨 · ${destCity}` : '도착예정지 날씨';
+
   cardContainer.innerHTML = `
     <div class="journey-active-card ${isCurrent ? 'is-current-journey' : 'is-next-journey'}">
       <div class="journey-card-header">
@@ -587,7 +604,7 @@ function updateJourneyCard(now) {
             <span class="info-value ${!j.hasReturnFlight ? 'text-warning' : ''}">${j.arrKstFormatted}</span>
           </div>
         </div>
-        <div class="journey-info-row secondary-row">
+        <div class="journey-info-row secondary-row ${showDestWeather ? 'has-dest-weather' : ''}">
           <div class="journey-info-item">
             <span class="info-label">주요 목적지</span>
             <span class="info-value">${j.destinations}</span>
@@ -596,10 +613,36 @@ function updateJourneyCard(now) {
             <span class="info-label">비행 편명</span>
             <span class="info-value">${j.flightNumbers}</span>
           </div>
+          ${showDestWeather ? `
+          <div class="journey-info-item journey-dest-weather-item">
+            <span class="info-label">${destWeatherLabel}</span>
+            <div class="info-value journey-weather-value" id="journey-dest-weather-value">
+              <span class="journey-weather-loading">날씨 조회 중...</span>
+            </div>
+          </div>
+          ` : ''}
         </div>
       </div>
     </div>
   `;
+
+  if (showDestWeather) {
+    const reqId = ++journeyWeatherSeq;
+    fetchDestinationWeather(destAirport.lat, destAirport.lng, destArrUtc).then((weather) => {
+      if (reqId !== journeyWeatherSeq) return;
+      const valEl = document.getElementById('journey-dest-weather-value');
+      if (!valEl) return;
+      if (weather && weather.available) {
+        valEl.innerHTML = `
+          <span class="journey-weather-icon">${weather.iconHtml}</span>
+          <span class="journey-weather-temp">${weather.tempText}</span>
+          <span class="journey-weather-desc">${weather.desc}</span>
+        `;
+      } else {
+        valEl.innerHTML = `<span class="journey-weather-desc">${weather ? weather.tempText : '확인 불가'}</span>`;
+      }
+    });
+  }
 }
 
 // Start app on DOMContentLoaded

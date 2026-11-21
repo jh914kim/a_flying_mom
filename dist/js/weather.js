@@ -157,3 +157,104 @@ export async function fetchCurrentWeather(lat, lng) {
     };
   }
 }
+
+/**
+ * Fetch scheduled arrival destination weather (도착예정지 날씨) from Open-Meteo.
+ * If arrUtc falls within Open-Meteo's hourly forecast range, returns the forecast weather
+ * at the scheduled arrival hour; otherwise returns the arrival destination's current weather.
+ * @param {number} lat
+ * @param {number} lng
+ * @param {Date|null} arrUtc
+ * @returns {Promise<{ available: boolean, tempText: string, desc: string, iconHtml: string, updatedTime: string, isForecast: boolean }>}
+ */
+export async function fetchDestinationWeather(lat, lng, arrUtc = null) {
+  if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
+    return {
+      available: false,
+      tempText: '확인 불가',
+      desc: '위치 정보 없음',
+      iconHtml: '',
+      updatedTime: '-',
+      isForecast: false
+    };
+  }
+
+  const arrHourKey = (arrUtc instanceof Date && !isNaN(arrUtc.getTime()))
+    ? Math.round(arrUtc.getTime() / (3600 * 1000))
+    : 'cur';
+  const cacheKey = `dest:${lat.toFixed(2)},${lng.toFixed(2)}:${arrHourKey}`;
+  const cached = weatherCache.get(cacheKey);
+  const now = Date.now();
+
+  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&timezone=UTC&forecast_days=16`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (!data || !data.current) {
+      throw new Error('Invalid weather response payload');
+    }
+
+    let temp = Math.round(data.current.temperature_2m);
+    let code = data.current.weather_code;
+    let isForecast = false;
+
+    if (arrUtc instanceof Date && !isNaN(arrUtc.getTime()) && data.hourly && Array.isArray(data.hourly.time)) {
+      const targetMs = arrUtc.getTime();
+      let bestIdx = -1;
+      let bestDiff = Infinity;
+      const times = data.hourly.time;
+      for (let i = 0; i < times.length; i++) {
+        const tMs = Date.parse(times[i] + ':00Z');
+        if (!isNaN(tMs)) {
+          const diff = Math.abs(tMs - targetMs);
+          if (diff < bestDiff) {
+            bestDiff = diff;
+            bestIdx = i;
+          }
+        }
+      }
+      // If closest hourly slot is within 90 minutes of scheduled arrival
+      if (bestIdx !== -1 && bestDiff <= 90 * 60 * 1000) {
+        const hTemp = data.hourly.temperature_2m?.[bestIdx];
+        const hCode = data.hourly.weather_code?.[bestIdx];
+        if (typeof hTemp === 'number' && !isNaN(hTemp)) {
+          temp = Math.round(hTemp);
+          code = typeof hCode === 'number' ? hCode : code;
+          isForecast = true;
+        }
+      }
+    }
+
+    const meta = getWeatherMeta(code);
+    const updateDate = new Date();
+    const updatedTime = `${String(updateDate.getHours()).padStart(2, '0')}:${String(updateDate.getMinutes()).padStart(2, '0')} 확인`;
+
+    const result = {
+      available: true,
+      tempText: `${temp}°`,
+      desc: meta.text,
+      iconHtml: meta.icon,
+      updatedTime,
+      isForecast
+    };
+
+    weatherCache.set(cacheKey, { timestamp: now, data: result });
+    return result;
+  } catch (err) {
+    console.warn('Destination weather fetch failed:', err.message);
+    const fallback = await fetchCurrentWeather(lat, lng);
+    return {
+      ...fallback,
+      isForecast: false
+    };
+  }
+}
