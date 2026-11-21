@@ -1,21 +1,21 @@
-import { initPwa } from './pwa.js?v=8';
+import { initPwa } from './pwa.js?v=11';
 /**
  * flying mom - Main Application Coordinator
  * Bootstraps modules, manages live clock ticker, weather updates,
  * lazy-loaded map, multi-tab sync, and mobile bottom navigation.
  */
 
-import { determineCurrentStatus, STATUS_TYPES, getDirectionParticle } from './location-engine.js?v=8';
-import { getCurrentOrNextJourney } from './journey.js?v=8';
-import { fetchCurrentWeather, fetchDestinationWeather, clearWeatherCache } from './weather.js?v=8';
+import { determineCurrentStatus, STATUS_TYPES, getDirectionParticle } from './location-engine.js?v=11';
+import { getCurrentOrNextJourney } from './journey.js?v=11';
+import { fetchCurrentWeather, fetchDestinationWeather, clearWeatherCache } from './weather.js?v=11';
 import { formatLocationTime, formatTzDateTime, formatMetaTime } from './timezone.js';
 import { initMap, updateMapWithStatus, resetToWorldView, focusCurrentLocation } from './map.js';
-import { initCalendar, prevCalendarMonth, nextCalendarMonth, renderCalendar } from './calendar.js?v=8';
+import { initCalendar, prevCalendarMonth, nextCalendarMonth, renderCalendar } from './calendar.js?v=11';
 import { initStorageSync, getSavedMonths, getMonthSchedule, saveMonthSchedule } from './storage.js';
-import { initManagerListeners, openManagerModal } from './manager.js?v=8';
-import { getSampleSchedule } from './ocr.js?v=8';
+import { initManagerListeners, openManagerModal } from './manager.js?v=11';
+import { getSampleSchedule } from './ocr.js?v=11';
 import { initThemeSwitcher } from './theme.js';
-import { initKimCrewInteractive } from './kimcrew-interactive.js?v=8';
+import { initKimCrewInteractive } from './kimcrew-interactive.js?v=11';
 
 let liveClockInterval = null;
 let mapInitialized = false;
@@ -24,6 +24,9 @@ let mapInitialized = false;
  * Initialize application on DOM ready
  */
 export async function initApp() {
+  if (window.__flyingMomAppInitialized) return;
+  window.__flyingMomAppInitialized = true;
+
   // Immediately render Journey Card to prevent card shift on initial load / refresh
   updateJourneyCard(new Date());
 

@@ -219,6 +219,7 @@ export const THEMES = {
 };
 
 let currentThemeId = 'default';
+let themeSwitcherInitialized = false;
 const themeChangeListeners = new Set();
 
 /**
@@ -257,6 +258,9 @@ export function initThemeSwitcher() {
   const wrapper = document.getElementById('theme-switcher-wrapper');
 
   if (!toggleBtn || !popover) return;
+  if (themeSwitcherInitialized || toggleBtn.dataset.themeInit === '1') return;
+  themeSwitcherInitialized = true;
+  toggleBtn.dataset.themeInit = '1';
 
   // Toggle o o o popover on button click
   toggleBtn.addEventListener('click', (e) => {

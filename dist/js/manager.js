@@ -13,8 +13,8 @@ import {
   validateMonthSchedule
 } from './storage.js';
 import { searchAirports, getAirport, KOREA_BASES } from './airports.js';
-import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js?v=7';
-import { refreshAllViews } from './app.js?v=7';
+import { recognizeSchedulePhoto, recognizeKoreanAirNewPhoto, getSampleSchedule } from './ocr.js?v=11';
+import { refreshAllViews } from './app.js?v=11';
 
 let currentEditingMonth = ''; // 'YYYY-MM'
 let flightRows = []; // [{ number, from, to, departure, arrival, isUncertain }]
